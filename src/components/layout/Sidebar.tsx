@@ -40,9 +40,8 @@ export function AppSidebar() {
     <>
       {isMobile && (
         <div className="fixed top-4 left-4 z-50">
-          <SidebarTrigger asChild>
+          <SidebarTrigger>
             <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-              <span className="sr-only">Toggle sidebar</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -55,6 +54,7 @@ export function AppSidebar() {
               >
                 <path d="M3 7h18M3 12h18M3 17h18" />
               </svg>
+              <span className="sr-only">Toggle sidebar</span>
             </Button>
           </SidebarTrigger>
         </div>

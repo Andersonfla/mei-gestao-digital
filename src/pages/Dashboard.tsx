@@ -36,8 +36,8 @@ const Dashboard = () => {
           <TransactionsTable />
           
           <div className="grid md:grid-cols-2 gap-6">
-            <TransactionChart type="income" />
-            <TransactionChart type="expense" />
+            <TransactionChart type="entrada" />
+            <TransactionChart type="saida" />
           </div>
         </div>
         

@@ -24,11 +24,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+      (event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
         
-        if (event === 'SIGNED_OUT') {
+        if (event === 'SIGNED_IN') {
+          // Handle sign in event - navigate to dashboard if on auth page
+          if (window.location.pathname === '/auth') {
+            navigate('/');
+          }
+        } else if (event === 'SIGNED_OUT') {
           // Handle sign out event
           navigate('/auth');
         }
@@ -36,10 +41,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
       setLoading(false);
+      
+      // If user is logged in and on auth page, redirect to dashboard
+      if (currentSession && window.location.pathname === '/auth') {
+        navigate('/');
+      }
     });
 
     return () => subscription.unsubscribe();

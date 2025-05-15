@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Login form state
   const [email, setEmail] = useState("");
@@ -24,10 +26,17 @@ const Auth = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
+  
   // Handle login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -37,12 +46,6 @@ const Auth = () => {
       
       if (error) throw error;
       
-      navigate("/");
-      toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo de volta!",
-      });
-      
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
@@ -50,14 +53,14 @@ const Auth = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
   
   // Handle signup
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     
     try {
       const { error } = await supabase.auth.signUp({
@@ -72,10 +75,9 @@ const Auth = () => {
       
       if (error) throw error;
       
-      navigate("/");
       toast({
         title: "Cadastro realizado com sucesso",
-        description: "Bem-vindo ao MEI Finanças!",
+        description: "Verifique seu email para confirmar o cadastro",
       });
       
     } catch (error: any) {
@@ -85,9 +87,18 @@ const Auth = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -132,8 +143,8 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Entrando..." : "Entrar"}
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Entrando..." : "Entrar"}
                 </Button>
               </form>
             </TabsContent>
@@ -175,8 +186,8 @@ const Auth = () => {
                   />
                   <p className="text-xs text-muted-foreground">Senha deve ter pelo menos 6 caracteres</p>
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Cadastrando..." : "Criar conta"}
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Cadastrando..." : "Criar conta"}
                 </Button>
               </form>
             </TabsContent>

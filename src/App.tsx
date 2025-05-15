@@ -16,15 +16,22 @@ import Settings from "./pages/Settings";
 import Upgrade from "./pages/Upgrade";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <BrowserRouter>
         <AuthProvider>
-          <FinanceProvider>
-            <SidebarProvider>
+          <SidebarProvider>
+            <FinanceProvider>
               <Toaster />
               <Sonner />
               <Routes>
@@ -38,8 +45,8 @@ const App = () => (
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </SidebarProvider>
-          </FinanceProvider>
+            </FinanceProvider>
+          </SidebarProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

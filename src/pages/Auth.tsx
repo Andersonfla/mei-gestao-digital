@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading } = useAuth();
+  const { user, loading, signIn, signUp } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,19 +38,9 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-      
-    } catch (error: any) {
-      toast({
-        title: "Erro ao fazer login",
-        description: error.message || "Verifique suas credenciais e tente novamente",
-        variant: "destructive",
-      });
+      await signIn(email, password);
+    } catch (error) {
+      console.error("Login error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -63,29 +52,9 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
-        email: signupEmail,
-        password: signupPassword,
-        options: {
-          data: {
-            name,
-          },
-        },
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Cadastro realizado com sucesso",
-        description: "Verifique seu email para confirmar o cadastro",
-      });
-      
-    } catch (error: any) {
-      toast({
-        title: "Erro ao criar conta",
-        description: error.message || "Verifique os dados e tente novamente",
-        variant: "destructive",
-      });
+      await signUp(signupEmail, signupPassword, name);
+    } catch (error) {
+      console.error("Signup error:", error);
     } finally {
       setIsSubmitting(false);
     }

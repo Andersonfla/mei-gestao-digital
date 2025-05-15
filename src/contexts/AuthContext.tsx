@@ -10,6 +10,8 @@ type AuthContextType = {
   session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log("Auth state change event:", event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -41,16 +44,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      setLoading(false);
-      
-      // If user is logged in and on auth page, redirect to dashboard
-      if (currentSession && window.location.pathname === '/auth') {
-        navigate('/');
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log("Initial session check:", currentSession ? "Session exists" : "No session");
+        
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        // If user is logged in and on auth page, redirect to dashboard
+        if (currentSession && window.location.pathname === '/auth') {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+
+    checkSession();
 
     return () => subscription.unsubscribe();
   }, [navigate]);
@@ -71,8 +84,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      
+      toast({
+        title: "Login realizado",
+        description: "Você foi conectado com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer login",
+        description: error.message || "Verifique suas credenciais e tente novamente",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const signUp = async (email: string, password: string, name: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name } }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Cadastro realizado",
+        description: "Verifique seu email para confirmar o cadastro",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao criar conta",
+        description: error.message || "Verifique os dados e tente novamente",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut, signIn, signUp }}>
       {children}
     </AuthContext.Provider>
   );

@@ -47,14 +47,22 @@ export function TransactionChart({ type }: { type: 'income' | 'expense' }) {
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
-                label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({name, percent}) => {
+                  // Convert percent to number if it's not already and then use toFixed
+                  const percentValue = typeof percent === 'number' ? percent : parseFloat(percent);
+                  return `${name}: ${(percentValue * 100).toFixed(0)}%`;
+                }}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value) => [`R$ ${value.toFixed(2)}`, 'Valor']}
+                formatter={(value) => {
+                  // Convert value to number if it's not already and then use toFixed
+                  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
+                  return [`R$ ${numValue.toFixed(2)}`, 'Valor'];
+                }}
               />
               <Legend />
             </PieChart>

@@ -42,18 +42,20 @@ export function AppSidebar() {
         <div className="fixed top-4 left-4 z-50">
           <SidebarTrigger>
             <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="M3 7h18M3 12h18M3 17h18" />
-              </svg>
+              <span className="flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M3 7h18M3 12h18M3 17h18" />
+                </svg>
+              </span>
               <span className="sr-only">Toggle sidebar</span>
             </Button>
           </SidebarTrigger>

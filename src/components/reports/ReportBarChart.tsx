@@ -19,10 +19,10 @@ export function ReportBarChart() {
       };
     }
     
-    if (transaction.type === 'income') {
-      acc[dateStr].income += transaction.amount;
+    if (transaction.type === 'entrada') {
+      acc[dateStr].income += transaction.value;
     } else {
-      acc[dateStr].expense += transaction.amount;
+      acc[dateStr].expense += transaction.value;
     }
     
     return acc;

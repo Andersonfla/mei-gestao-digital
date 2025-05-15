@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Transaction, TransactionCategory, UserSettings, TransactionType, MonthlyReport } from "@/types/finance";
+import { Transaction, TransactionCategory, UserSettings, TransactionType, MonthlyReport, CategoryBreakdownItem, UserPlan } from "@/types/finance";
 import { useAuth } from "./AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -24,11 +24,16 @@ interface FinanceContextType {
     startDate: Date;
     endDate: Date;
   };
+  filterPeriod: string;
   isLoading: boolean;
   addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   getCategoryById: (id: string) => TransactionCategory | undefined;
   setFilterDates: (startDate: Date, endDate: Date) => void;
+  setFilterPeriod: (period: string) => void;
+  calculateBalance: () => number;
+  calculateTotalByType: (type: 'entrada' | 'saida') => number;
+  getCategoryBreakdown: (type: 'entrada' | 'saida') => CategoryBreakdownItem[];
   upgradeToPremium: () => Promise<void>;
 }
 
@@ -48,6 +53,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     startDate: defaultStartDate,
     endDate: defaultEndDate,
   });
+
+  const [filterPeriod, setFilterPeriodState] = useState("month");
 
   // Get transactions
   const { 
@@ -91,7 +98,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     queryFn: getUserSettings,
     enabled: !!user,
     initialData: {
-      plan: 'free',
+      plan: 'free' as UserPlan,
       darkMode: false,
       transactionCountThisMonth: 0,
       transactionLimit: 50,
@@ -162,6 +169,33 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setFilterDatesState({ startDate, endDate });
   };
 
+  const setFilterPeriod = (period: string) => {
+    setFilterPeriodState(period);
+    
+    // Update the filter dates based on selected period
+    if (period === "week") {
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - 7);
+      setFilterDatesState({
+        startDate: weekStart,
+        endDate: today,
+      });
+    } else if (period === "month") {
+      setFilterDatesState({
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+      });
+    } else if (period === "all") {
+      // Set to a far past date and today for "all" filter
+      const farPast = new Date();
+      farPast.setFullYear(farPast.getFullYear() - 5);
+      setFilterDatesState({
+        startDate: farPast,
+        endDate: today,
+      });
+    }
+  };
+
   // Calculate monthly reports
   const calculateMonthlyReports = (): MonthlyReport[] => {
     if (transactions.length === 0) return [];
@@ -204,6 +238,45 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return reports;
   };
 
+  const calculateBalance = (): number => {
+    return filteredTransactions.reduce((balance, tx) => {
+      if (tx.type === 'entrada') {
+        return balance + tx.value;
+      } else {
+        return balance - tx.value;
+      }
+    }, 0);
+  };
+
+  const calculateTotalByType = (type: 'entrada' | 'saida'): number => {
+    return filteredTransactions
+      .filter(tx => tx.type === type)
+      .reduce((total, tx) => total + tx.value, 0);
+  };
+
+  const getCategoryBreakdown = (type: 'entrada' | 'saida'): CategoryBreakdownItem[] => {
+    const typeTransactions = filteredTransactions.filter(tx => tx.type === type);
+    if (typeTransactions.length === 0) return [];
+
+    const totalValue = typeTransactions.reduce((sum, tx) => sum + tx.value, 0);
+    const categorySums: Record<string, number> = {};
+    
+    // Sum by category
+    typeTransactions.forEach(tx => {
+      if (!categorySums[tx.category]) {
+        categorySums[tx.category] = 0;
+      }
+      categorySums[tx.category] += tx.value;
+    });
+    
+    // Convert to array and calculate percentages
+    return Object.entries(categorySums).map(([name, value]) => ({
+      name,
+      value,
+      percent: value / totalValue
+    }));
+  };
+
   const monthlyReports = calculateMonthlyReports();
 
   const getCategoryById = (id: string): TransactionCategory | undefined => {
@@ -215,6 +288,19 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     isLoadingCategories || 
     isLoadingSettings;
 
+  // Handle async mutations properly
+  const handleAddTransaction = async (transaction: Omit<Transaction, "id" | "created_at">) => {
+    await addTransactionMutation.mutateAsync(transaction);
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    await deleteTransactionMutation.mutateAsync(id);
+  };
+
+  const handleUpgradeToPremium = async () => {
+    await upgradeToPremiumMutation.mutateAsync();
+  };
+
   return (
     <FinanceContext.Provider
       value={{
@@ -224,12 +310,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         userSettings: userSettings!,
         monthlyReports,
         filterDates,
+        filterPeriod,
         isLoading,
-        addTransaction: addTransactionMutation.mutateAsync,
-        deleteTransaction: deleteTransactionMutation.mutateAsync,
+        addTransaction: handleAddTransaction,
+        deleteTransaction: handleDeleteTransaction,
         getCategoryById,
         setFilterDates,
-        upgradeToPremium: upgradeToPremiumMutation.mutateAsync,
+        setFilterPeriod,
+        calculateBalance,
+        calculateTotalByType,
+        getCategoryBreakdown,
+        upgradeToPremium: handleUpgradeToPremium,
       }}
     >
       {children}

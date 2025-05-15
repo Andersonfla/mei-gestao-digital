@@ -9,12 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { useFinance } from "@/contexts/FinanceContext";
 import { formatCurrency } from "@/lib/formatters";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { TransactionChart } from "@/components/dashboard/TransactionChart";
 import { useState } from "react";
 
 const Reports = () => {
-  const { filteredTransactions, getCategoryById, userSettings } = useFinance();
+  const { filteredTransactions, userSettings } = useFinance();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -93,33 +93,30 @@ const Reports = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredTransactions.map(transaction => {
-                        const category = getCategoryById(transaction.categoryId);
-                        return (
-                          <TableRow key={transaction.id}>
-                            <TableCell>{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
-                            <TableCell>{transaction.description}</TableCell>
-                            <TableCell>{category?.name || 'Sem categoria'}</TableCell>
-                            <TableCell>
-                              <span
-                                className={`inline-block px-2 py-1 rounded-full text-xs ${
-                                  transaction.type === 'income'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
-                                }`}
-                              >
-                                {transaction.type === 'income' ? 'Receita' : 'Despesa'}
-                              </span>
-                            </TableCell>
-                            <TableCell className={`text-right font-medium ${
-                              transaction.type === 'income' ? 'text-income' : 'text-expense'
-                            }`}>
-                              {transaction.type === 'income' ? '+' : '-'}
-                              {formatCurrency(transaction.amount)}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
+                      filteredTransactions.map(transaction => (
+                        <TableRow key={transaction.id}>
+                          <TableCell>{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
+                          <TableCell>{transaction.description || '-'}</TableCell>
+                          <TableCell>{transaction.category}</TableCell>
+                          <TableCell>
+                            <span
+                              className={`inline-block px-2 py-1 rounded-full text-xs ${
+                                transaction.type === 'entrada'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}
+                            >
+                              {transaction.type === 'entrada' ? 'Receita' : 'Despesa'}
+                            </span>
+                          </TableCell>
+                          <TableCell className={`text-right font-medium ${
+                            transaction.type === 'entrada' ? 'text-income' : 'text-expense'
+                          }`}>
+                            {transaction.type === 'entrada' ? '+' : '-'}
+                            {formatCurrency(transaction.value)}
+                          </TableCell>
+                        </TableRow>
+                      ))
                     )}
                   </TableBody>
                 </Table>
@@ -130,8 +127,8 @@ const Reports = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TransactionChart type="income" />
-        <TransactionChart type="expense" />
+        <TransactionChart type="entrada" />
+        <TransactionChart type="saida" />
       </div>
     </div>
   );

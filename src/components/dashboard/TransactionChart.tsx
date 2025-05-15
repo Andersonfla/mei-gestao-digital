@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFinance } from "@/contexts/FinanceContext";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
-export function TransactionChart({ type }: { type: 'income' | 'expense' }) {
+export function TransactionChart({ type }: { type: 'entrada' | 'saida' }) {
   const { getCategoryBreakdown } = useFinance();
   const data = getCategoryBreakdown(type);
   
   // Colors for pie chart
-  const COLORS = type === 'income'
+  const COLORS = type === 'entrada'
     ? ['#10B981', '#059669', '#34D399', '#6EE7B7', '#A7F3D0']
     : ['#EF4444', '#DC2626', '#F87171', '#FCA5A5', '#FECACA'];
   
@@ -17,7 +17,7 @@ export function TransactionChart({ type }: { type: 'income' | 'expense' }) {
       <Card className="shadow-sm h-80">
         <CardHeader>
           <CardTitle className="text-lg">
-            {type === 'income' ? 'Receitas por Categoria' : 'Despesas por Categoria'}
+            {type === 'entrada' ? 'Receitas por Categoria' : 'Despesas por Categoria'}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
@@ -31,7 +31,7 @@ export function TransactionChart({ type }: { type: 'income' | 'expense' }) {
     <Card className="shadow-sm">
       <CardHeader>
         <CardTitle className="text-lg">
-          {type === 'income' ? 'Receitas por Categoria' : 'Despesas por Categoria'}
+          {type === 'entrada' ? 'Receitas por Categoria' : 'Despesas por Categoria'}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -49,7 +49,7 @@ export function TransactionChart({ type }: { type: 'income' | 'expense' }) {
                 nameKey="name"
                 label={({name, percent}) => {
                   // Convert percent to number if it's not already and then use toFixed
-                  const percentValue = typeof percent === 'number' ? percent : parseFloat(percent);
+                  const percentValue = typeof percent === 'number' ? percent : parseFloat(percent.toString());
                   return `${name}: ${(percentValue * 100).toFixed(0)}%`;
                 }}
               >

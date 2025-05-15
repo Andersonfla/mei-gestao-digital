@@ -6,8 +6,8 @@ import { formatCurrency } from "@/lib/formatters";
 export function ReportSummary() {
   const { calculateTotalByType } = useFinance();
   
-  const totalIncome = calculateTotalByType('income');
-  const totalExpense = calculateTotalByType('expense');
+  const totalIncome = calculateTotalByType('entrada');
+  const totalExpense = calculateTotalByType('saida');
   const profit = totalIncome - totalExpense;
   const profitMargin = totalIncome > 0 ? (profit / totalIncome) * 100 : 0;
   

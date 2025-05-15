@@ -51,3 +51,9 @@ export type UserSettings = {
   transactionCountThisMonth: number;
   transactionLimit: number;
 };
+
+export type CategoryBreakdownItem = {
+  name: string;
+  value: number;
+  percent: number;
+};

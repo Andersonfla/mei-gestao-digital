@@ -8,7 +8,7 @@ export function FilterPeriod() {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground">Filtrar por:</span>
-      <Select value={filterPeriod} onValueChange={(value: any) => setFilterPeriod(value)}>
+      <Select value={filterPeriod} onValueChange={setFilterPeriod}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Selecionar período" />
         </SelectTrigger>

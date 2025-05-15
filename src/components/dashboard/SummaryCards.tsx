@@ -6,8 +6,8 @@ import { formatCurrency } from "@/lib/formatters";
 export function SummaryCards() {
   const { calculateTotalByType } = useFinance();
   
-  const totalIncome = calculateTotalByType('income');
-  const totalExpense = calculateTotalByType('expense');
+  const totalIncome = calculateTotalByType('entrada');
+  const totalExpense = calculateTotalByType('saida');
   const profit = totalIncome - totalExpense;
   
   return (

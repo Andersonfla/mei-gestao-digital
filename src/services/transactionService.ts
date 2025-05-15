@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/types/finance";
+import { format } from "date-fns";
 
 export async function getTransactions(): Promise<Transaction[]> {
   const { data, error } = await supabase
@@ -17,9 +18,15 @@ export async function getTransactions(): Promise<Transaction[]> {
 }
 
 export async function addTransaction(transaction: Omit<Transaction, 'id' | 'created_at'>): Promise<Transaction> {
+  // Format Date object to string if needed
+  const formattedTransaction = {
+    ...transaction,
+    date: transaction.date instanceof Date ? format(transaction.date, 'yyyy-MM-dd') : transaction.date,
+  };
+  
   const { data, error } = await supabase
     .from('transactions')
-    .insert([transaction])
+    .insert(formattedTransaction)
     .select()
     .single();
 
@@ -50,11 +57,19 @@ export async function getFilteredTransactions(
   let query = supabase.from('transactions').select('*');
   
   if (startDate) {
-    query = query.gte('date', startDate);
+    const formattedStartDate = startDate instanceof Date 
+      ? format(startDate, 'yyyy-MM-dd')
+      : startDate;
+    
+    query = query.gte('date', formattedStartDate);
   }
   
   if (endDate) {
-    query = query.lte('date', endDate);
+    const formattedEndDate = endDate instanceof Date
+      ? format(endDate, 'yyyy-MM-dd')
+      : endDate;
+    
+    query = query.lte('date', formattedEndDate);
   }
   
   const { data, error } = await query.order('date', { ascending: false });

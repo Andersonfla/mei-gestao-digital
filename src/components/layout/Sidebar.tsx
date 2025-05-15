@@ -14,13 +14,16 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useFinance } from "@/contexts/FinanceContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { LogOut } from "lucide-react";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { userSettings } = useFinance();
+  const { signOut } = useAuth();
   const isMobile = useIsMobile();
 
   // Check if the current route matches
@@ -126,6 +129,21 @@ export function AppSidebar() {
                     Fazer upgrade
                   </Button>
                 )}
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          
+          <SidebarGroup>
+            <SidebarGroupContent className="mt-auto">
+              <div className="px-3 py-2">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={signOut}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sair</span>
+                </Button>
               </div>
             </SidebarGroupContent>
           </SidebarGroup>

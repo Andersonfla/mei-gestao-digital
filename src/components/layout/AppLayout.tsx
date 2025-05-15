@@ -1,19 +1,27 @@
 
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "./Sidebar";
 import { Outlet } from "react-router-dom";
+import { AppSidebar } from "./Sidebar";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export function AppLayout() {
+  const { loading } = useRequireAuth();
+  
+  if (loading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <main className="flex-1 p-4 md:p-6 max-w-full overflow-auto">
-          <div className="max-w-7xl mx-auto">
-            <Outlet />
-          </div>
+    <div className="flex min-h-screen w-full">
+      <AppSidebar />
+      <div className="flex-1 overflow-auto">
+        <main className="container py-6">
+          <Outlet />
         </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }

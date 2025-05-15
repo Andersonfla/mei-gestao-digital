@@ -1,251 +1,246 @@
 
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { Transaction, TransactionCategory, UserSettings, TransactionType, MonthlyReport } from "@/types/finance";
+import { useAuth } from "./AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Transaction, TransactionCategory, TransactionType, UserSettings } from '@/types/finance';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  getTransactions, 
+  addTransaction, 
+  deleteTransaction, 
+  getFilteredTransactions 
+} from "@/services/transactionService";
+import { getCategories } from "@/services/categoryService";
+import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/services/profileService";
+import { format, parseISO, startOfMonth, endOfMonth, subMonths } from "date-fns";
 
-// Demo data for transactions
-const demoTransactions: Transaction[] = [
-  {
-    id: '1',
-    date: new Date(2025, 4, 10),
-    amount: 2500,
-    description: 'Venda de produtos',
-    type: 'income',
-    categoryId: 'sales',
-  },
-  {
-    id: '2',
-    date: new Date(2025, 4, 12),
-    amount: 350.5,
-    description: 'Material de escritório',
-    type: 'expense',
-    categoryId: 'supplies',
-  },
-  {
-    id: '3',
-    date: new Date(2025, 4, 15),
-    amount: 1800,
-    description: 'Consultoria',
-    type: 'income',
-    categoryId: 'services',
-  },
-  {
-    id: '4',
-    date: new Date(2025, 4, 18),
-    amount: 89.9,
-    description: 'Internet',
-    type: 'expense',
-    categoryId: 'utilities',
-  },
-  {
-    id: '5',
-    date: new Date(2025, 4, 20),
-    amount: 1200,
-    description: 'Venda de produto',
-    type: 'income',
-    categoryId: 'sales',
-  }
-];
-
-// Demo data for categories
-const demoCategories: TransactionCategory[] = [
-  { id: 'sales', name: 'Vendas', type: 'income' },
-  { id: 'services', name: 'Serviços', type: 'income' },
-  { id: 'others_income', name: 'Outros', type: 'income' },
-  { id: 'supplies', name: 'Materiais', type: 'expense' },
-  { id: 'utilities', name: 'Serviços Públicos', type: 'expense' },
-  { id: 'rent', name: 'Aluguel', type: 'expense' },
-  { id: 'taxes', name: 'Impostos', type: 'expense' },
-  { id: 'others_expense', name: 'Outros', type: 'expense' },
-];
-
-// Initial user settings
-const initialUserSettings: UserSettings = {
-  plan: 'free',
-  darkMode: false,
-  transactionCountThisMonth: demoTransactions.length,
-  transactionLimit: 50, // Free limit
-};
-
-// Context type definition
 interface FinanceContextType {
   transactions: Transaction[];
+  filteredTransactions: Transaction[];
   categories: TransactionCategory[];
   userSettings: UserSettings;
-  filteredTransactions: Transaction[];
-  filterPeriod: 'all' | 'month' | 'week';
-  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
-  deleteTransaction: (id: string) => void;
+  monthlyReports: MonthlyReport[];
+  filterDates: {
+    startDate: Date;
+    endDate: Date;
+  };
+  isLoading: boolean;
+  addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
   getCategoryById: (id: string) => TransactionCategory | undefined;
-  calculateBalance: () => number;
-  calculateTotalByType: (type: TransactionType, periodFilter?: 'all' | 'month' | 'week') => number;
-  setFilterPeriod: (period: 'all' | 'month' | 'week') => void;
-  getCategoryBreakdown: (type: TransactionType) => Array<{ name: string, value: number }>;
-  upgradeToPremium: () => void;
+  setFilterDates: (startDate: Date, endDate: Date) => void;
+  upgradeToPremium: () => Promise<void>;
 }
 
-// Create context
-export const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
+const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
-export const FinanceProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [transactions, setTransactions] = useState<Transaction[]>(demoTransactions);
-  const [categories] = useState<TransactionCategory[]>(demoCategories);
-  const [userSettings, setUserSettings] = useState<UserSettings>(initialUserSettings);
-  const [filterPeriod, setFilterPeriod] = useState<'all' | 'month' | 'week'>('month');
+  const queryClient = useQueryClient();
+  const today = new Date();
   
-  // Filter transactions based on period
-  const filteredTransactions = transactions.filter(transaction => {
-    const now = new Date();
-    const txDate = new Date(transaction.date);
-    
-    if (filterPeriod === 'all') {
-      return true;
-    } else if (filterPeriod === 'month') {
-      return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-    } else if (filterPeriod === 'week') {
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(now.getDate() - 7);
-      return txDate >= oneWeekAgo;
-    }
-    
-    return true;
+  // Default dates (current month)
+  const defaultStartDate = startOfMonth(today);
+  const defaultEndDate = endOfMonth(today);
+  
+  const [filterDates, setFilterDatesState] = useState({
+    startDate: defaultStartDate,
+    endDate: defaultEndDate,
   });
 
-  // Add new transaction
-  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
-    // Check for transaction limit on free plan
-    if (userSettings.plan === 'free' && 
-        userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
+  // Get transactions
+  const { 
+    data: transactions = [], 
+    isLoading: isLoadingTransactions 
+  } = useQuery({
+    queryKey: ['transactions'],
+    queryFn: getTransactions,
+    enabled: !!user,
+  });
+
+  // Get filtered transactions
+  const { 
+    data: filteredTransactions = [], 
+    isLoading: isLoadingFilteredTransactions 
+  } = useQuery({
+    queryKey: ['filteredTransactions', filterDates],
+    queryFn: () => getFilteredTransactions(
+      format(filterDates.startDate, 'yyyy-MM-dd'),
+      format(filterDates.endDate, 'yyyy-MM-dd')
+    ),
+    enabled: !!user,
+  });
+
+  // Get categories
+  const { 
+    data: categories = [], 
+    isLoading: isLoadingCategories 
+  } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+    enabled: !!user,
+  });
+
+  // Get user settings
+  const { 
+    data: userSettings, 
+    isLoading: isLoadingSettings 
+  } = useQuery({
+    queryKey: ['userSettings'],
+    queryFn: getUserSettings,
+    enabled: !!user,
+    initialData: {
+      plan: 'free',
+      darkMode: false,
+      transactionCountThisMonth: 0,
+      transactionLimit: 50,
+    },
+  });
+
+  // Add transaction mutation
+  const addTransactionMutation = useMutation({
+    mutationFn: (newTransaction: Omit<Transaction, "id" | "created_at">) => addTransaction(newTransaction),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['filteredTransactions'] });
+      queryClient.invalidateQueries({ queryKey: ['userSettings'] });
       toast({
-        title: "Limite atingido",
-        description: "Você atingiu o limite de lançamentos no plano gratuito.",
-        variant: "destructive"
+        title: "Transação adicionada",
+        description: "A transação foi salva com sucesso",
       });
-      return;
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao adicionar transação",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete transaction mutation
+  const deleteTransactionMutation = useMutation({
+    mutationFn: (id: string) => deleteTransaction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['filteredTransactions'] });
+      toast({
+        title: "Transação excluída",
+        description: "A transação foi excluída com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao excluir transação",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Upgrade to premium mutation
+  const upgradeToPremiumMutation = useMutation({
+    mutationFn: upgradeToPremiumService,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userSettings'] });
+      toast({
+        title: "Plano atualizado",
+        description: "Seu plano foi atualizado para Premium com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao atualizar o plano",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const setFilterDates = (startDate: Date, endDate: Date) => {
+    setFilterDatesState({ startDate, endDate });
+  };
+
+  // Calculate monthly reports
+  const calculateMonthlyReports = (): MonthlyReport[] => {
+    if (transactions.length === 0) return [];
+
+    const reports: MonthlyReport[] = [];
+    const now = new Date();
+
+    // Create reports for the last 6 months
+    for (let i = 0; i < 6; i++) {
+      const reportDate = subMonths(now, i);
+      const month = reportDate.getMonth() + 1;
+      const year = reportDate.getFullYear();
+
+      const monthStart = startOfMonth(reportDate);
+      const monthEnd = endOfMonth(reportDate);
+
+      const monthTransactions = transactions.filter(tx => {
+        const txDate = tx.date instanceof Date ? tx.date : parseISO(tx.date as string);
+        return txDate >= monthStart && txDate <= monthEnd;
+      });
+
+      const totalIncome = monthTransactions
+        .filter(tx => tx.type === 'entrada')
+        .reduce((sum, tx) => sum + tx.value, 0);
+
+      const totalExpense = monthTransactions
+        .filter(tx => tx.type === 'saida')
+        .reduce((sum, tx) => sum + tx.value, 0);
+
+      reports.push({
+        month,
+        year,
+        totalIncome,
+        totalExpense,
+        profit: totalIncome - totalExpense,
+        transactions: monthTransactions,
+      });
     }
-    
-    const newTransaction = {
-      ...transaction,
-      id: Date.now().toString(),
-    };
-    
-    setTransactions(prev => [newTransaction, ...prev]);
-    
-    // Update transaction count
-    setUserSettings(prev => ({
-      ...prev,
-      transactionCountThisMonth: prev.transactionCountThisMonth + 1
-    }));
-    
-    toast({
-      title: "Sucesso",
-      description: "Transação adicionada com sucesso.",
-    });
+
+    return reports;
   };
 
-  // Delete transaction
-  const deleteTransaction = (id: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== id));
-    toast({
-      title: "Excluído",
-      description: "Transação removida com sucesso.",
-    });
+  const monthlyReports = calculateMonthlyReports();
+
+  const getCategoryById = (id: string): TransactionCategory | undefined => {
+    return categories.find(cat => cat.id === id);
   };
 
-  // Get category by ID
-  const getCategoryById = (id: string) => {
-    return categories.find(category => category.id === id);
-  };
-
-  // Calculate current balance
-  const calculateBalance = () => {
-    return transactions.reduce((acc, transaction) => {
-      return transaction.type === 'income' 
-        ? acc + transaction.amount 
-        : acc - transaction.amount;
-    }, 0);
-  };
-
-  // Calculate total by transaction type (income/expense) for given period
-  const calculateTotalByType = (type: TransactionType, periodFilter: 'all' | 'month' | 'week' = filterPeriod) => {
-    const filtered = transactions.filter(transaction => {
-      const now = new Date();
-      const txDate = new Date(transaction.date);
-      
-      if (periodFilter === 'all') {
-        return transaction.type === type;
-      } else if (periodFilter === 'month') {
-        return transaction.type === type && 
-              txDate.getMonth() === now.getMonth() && 
-              txDate.getFullYear() === now.getFullYear();
-      } else if (periodFilter === 'week') {
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(now.getDate() - 7);
-        return transaction.type === type && txDate >= oneWeekAgo;
-      }
-      
-      return transaction.type === type;
-    });
-
-    return filtered.reduce((acc, transaction) => acc + transaction.amount, 0);
-  };
-
-  // Get category breakdown for expenses or incomes
-  const getCategoryBreakdown = (type: TransactionType) => {
-    const result: Record<string, number> = {};
-    
-    filteredTransactions.forEach(transaction => {
-      if (transaction.type === type) {
-        const category = getCategoryById(transaction.categoryId);
-        if (category) {
-          result[category.name] = (result[category.name] || 0) + transaction.amount;
-        }
-      }
-    });
-    
-    return Object.entries(result).map(([name, value]) => ({ name, value }));
-  };
-
-  // Upgrade to premium plan
-  const upgradeToPremium = () => {
-    setUserSettings(prev => ({
-      ...prev,
-      plan: 'premium',
-      transactionLimit: Infinity,
-    }));
-    toast({
-      title: "Plano atualizado",
-      description: "Você agora tem acesso ao plano premium!",
-    });
-  };
+  const isLoading = isLoadingTransactions || 
+    isLoadingFilteredTransactions || 
+    isLoadingCategories || 
+    isLoadingSettings;
 
   return (
-    <FinanceContext.Provider value={{
-      transactions,
-      categories,
-      userSettings,
-      filteredTransactions,
-      filterPeriod,
-      addTransaction,
-      deleteTransaction,
-      getCategoryById,
-      calculateBalance,
-      calculateTotalByType,
-      setFilterPeriod,
-      getCategoryBreakdown,
-      upgradeToPremium
-    }}>
+    <FinanceContext.Provider
+      value={{
+        transactions,
+        filteredTransactions,
+        categories,
+        userSettings: userSettings!,
+        monthlyReports,
+        filterDates,
+        isLoading,
+        addTransaction: addTransactionMutation.mutateAsync,
+        deleteTransaction: deleteTransactionMutation.mutateAsync,
+        getCategoryById,
+        setFilterDates,
+        upgradeToPremium: upgradeToPremiumMutation.mutateAsync,
+      }}
+    >
       {children}
     </FinanceContext.Provider>
   );
 };
 
-// Custom hook to use the finance context
 export const useFinance = () => {
   const context = useContext(FinanceContext);
   if (context === undefined) {
-    throw new Error('useFinance must be used within a FinanceProvider');
+    throw new Error("useFinance must be used within a FinanceProvider");
   }
   return context;
 };

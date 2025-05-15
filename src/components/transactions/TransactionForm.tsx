@@ -12,16 +12,16 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Transaction, TransactionType } from "@/types/finance";
+import { TransactionType } from "@/types/finance";
 
 // Validation schema
 const transactionSchema = z.object({
   date: z.string().nonempty("Data é obrigatória"),
-  amount: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+  value: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
     message: "Valor deve ser um número positivo",
   }),
-  description: z.string().nonempty("Descrição é obrigatória"),
-  categoryId: z.string().nonempty("Categoria é obrigatória"),
+  description: z.string().optional(),
+  category: z.string().nonempty("Categoria é obrigatória"),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -29,16 +29,16 @@ type TransactionFormValues = z.infer<typeof transactionSchema>;
 export function TransactionForm() {
   const { categories, addTransaction, userSettings } = useFinance();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<TransactionType>("income");
+  const [activeTab, setActiveTab] = useState<TransactionType>("entrada");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       date: new Date().toISOString().split('T')[0],
-      amount: "",
+      value: "",
       description: "",
-      categoryId: "",
+      category: "",
     },
   });
 
@@ -58,31 +58,25 @@ export function TransactionForm() {
     try {
       setIsSubmitting(true);
       
-      // Simulating API latency
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newTransaction: Omit<Transaction, 'id'> = {
-        date: new Date(data.date),
-        amount: parseFloat(data.amount),
-        description: data.description,
-        categoryId: data.categoryId,
+      const newTransaction = {
+        user_id: '', // This will be set automatically by the backend
+        date: data.date,
+        value: parseFloat(data.value),
+        description: data.description || null,
+        category: data.category,
         type: activeTab,
       };
       
-      addTransaction(newTransaction);
+      await addTransaction(newTransaction);
       form.reset({
         date: new Date().toISOString().split('T')[0],
-        amount: "",
+        value: "",
         description: "",
-        categoryId: "",
+        category: "",
       });
       
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao salvar a transação.",
-        variant: "destructive",
-      });
+      // Error handling is done in the mutation
     } finally {
       setIsSubmitting(false);
     }
@@ -108,25 +102,25 @@ export function TransactionForm() {
       <CardContent>
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TransactionType)} className="w-full">
           <TabsList className="w-full mb-6">
-            <TabsTrigger value="income" className="flex-1">Receita</TabsTrigger>
-            <TabsTrigger value="expense" className="flex-1">Despesa</TabsTrigger>
+            <TabsTrigger value="entrada" className="flex-1">Receita</TabsTrigger>
+            <TabsTrigger value="saida" className="flex-1">Despesa</TabsTrigger>
           </TabsList>
-          <TabsContent value="income" className="mt-0">
+          <TabsContent value="entrada" className="mt-0">
             <TransactionFormFields 
               form={form} 
               categories={filteredCategories} 
               onSubmit={onSubmit} 
               isSubmitting={isSubmitting} 
-              type="income"
+              type="entrada"
             />
           </TabsContent>
-          <TabsContent value="expense" className="mt-0">
+          <TabsContent value="saida" className="mt-0">
             <TransactionFormFields 
               form={form} 
               categories={filteredCategories} 
               onSubmit={onSubmit} 
               isSubmitting={isSubmitting}
-              type="expense"
+              type="saida"
             />
           </TabsContent>
         </Tabs>
@@ -164,7 +158,7 @@ function TransactionFormFields({ form, categories, onSubmit, isSubmitting, type 
           
           <FormField
             control={form.control}
-            name="amount"
+            name="value"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Valor (R$)</FormLabel>
@@ -185,7 +179,7 @@ function TransactionFormFields({ form, categories, onSubmit, isSubmitting, type 
         
         <FormField
           control={form.control}
-          name="categoryId"
+          name="category"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Categoria</FormLabel>
@@ -197,7 +191,7 @@ function TransactionFormFields({ form, categories, onSubmit, isSubmitting, type 
                 </FormControl>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
+                    <SelectItem key={category.id} value={category.name}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -213,10 +207,10 @@ function TransactionFormFields({ form, categories, onSubmit, isSubmitting, type 
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Descrição</FormLabel>
+              <FormLabel>Descrição (opcional)</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder={type === 'income' ? "Ex: Venda de produto" : "Ex: Material de escritório"} 
+                  placeholder={type === 'entrada' ? "Ex: Venda de produto" : "Ex: Material de escritório"} 
                   {...field} 
                 />
               </FormControl>

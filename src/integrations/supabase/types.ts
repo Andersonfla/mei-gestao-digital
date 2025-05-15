@@ -9,7 +9,105 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          id: string
+          name: string
+          type: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      plan_limits: {
+        Row: {
+          limit_reached: boolean
+          month: number
+          transactions: number
+          user_id: string
+          year: number
+        }
+        Insert: {
+          limit_reached?: boolean
+          month: number
+          transactions?: number
+          user_id: string
+          year: number
+        }
+        Update: {
+          limit_reached?: boolean
+          month?: number
+          transactions?: number
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          plan: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          plan?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          plan?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          category: string
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          type: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          type: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          type?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

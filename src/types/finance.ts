@@ -1,20 +1,21 @@
 
-export type TransactionType = 'income' | 'expense';
+export type TransactionType = 'entrada' | 'saida';
 
 export type TransactionCategory = {
   id: string;
   name: string;
   type: TransactionType;
-  icon?: string;
 };
 
 export type Transaction = {
   id: string;
-  date: Date;
-  amount: number;
-  description: string;
+  user_id: string;
   type: TransactionType;
-  categoryId: string;
+  category: string;
+  description?: string | null;
+  value: number;
+  date: Date | string;
+  created_at: Date | string;
 };
 
 export type MonthlyReport = {
@@ -27,6 +28,22 @@ export type MonthlyReport = {
 };
 
 export type UserPlan = 'free' | 'premium';
+
+export type UserProfile = {
+  id: string;
+  name: string;
+  plan: UserPlan;
+  created_at: Date | string;
+  updated_at: Date | string;
+};
+
+export type PlanLimit = {
+  user_id: string;
+  month: number;
+  year: number;
+  transactions: number;
+  limit_reached: boolean;
+};
 
 export type UserSettings = {
   plan: UserPlan;

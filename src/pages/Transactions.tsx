@@ -6,11 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useFinance } from "@/contexts/FinanceContext";
 import { formatCurrency } from "@/lib/formatters";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useState } from "react";
 
 const Transactions = () => {
-  const { filteredTransactions, getCategoryById, deleteTransaction } = useFinance();
+  const { filteredTransactions, deleteTransaction } = useFinance();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
@@ -20,15 +20,22 @@ const Transactions = () => {
     : filteredTransactions.filter(tx => tx.type === typeFilter);
   
   // Sort transactions by date (newest first)
-  const sortedTransactions = [...displayedTransactions].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sortedTransactions = [...displayedTransactions].sort((a, b) => {
+    const dateA = a.date instanceof Date ? a.date : parseISO(a.date as string);
+    const dateB = b.date instanceof Date ? b.date : parseISO(b.date as string);
+    return dateB.getTime() - dateA.getTime();
+  });
+  
+  const formatDate = (date: Date | string) => {
+    if (date instanceof Date) {
+      return format(date, 'dd/MM/yyyy');
+    }
+    return format(parseISO(date), 'dd/MM/yyyy');
+  };
   
   const handleDelete = async (id: string) => {
     setIsDeleting(id);
-    // Simulating API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    deleteTransaction(id);
+    await deleteTransaction(id);
     setIsDeleting(null);
   };
   
@@ -45,8 +52,8 @@ const Transactions = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="income">Receitas</SelectItem>
-                <SelectItem value="expense">Despesas</SelectItem>
+                <SelectItem value="entrada">Receitas</SelectItem>
+                <SelectItem value="saida">Despesas</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -76,28 +83,27 @@ const Transactions = () => {
                 </TableHeader>
                 <TableBody>
                   {sortedTransactions.map((transaction) => {
-                    const category = getCategoryById(transaction.categoryId);
                     return (
                       <TableRow key={transaction.id}>
-                        <TableCell>{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
-                        <TableCell>{transaction.description}</TableCell>
-                        <TableCell>{category?.name || 'Sem categoria'}</TableCell>
+                        <TableCell>{formatDate(transaction.date)}</TableCell>
+                        <TableCell>{transaction.description || '-'}</TableCell>
+                        <TableCell>{transaction.category}</TableCell>
                         <TableCell>
                           <span
                             className={`inline-block px-2 py-1 rounded-full text-xs ${
-                              transaction.type === 'income'
+                              transaction.type === 'entrada'
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
                             }`}
                           >
-                            {transaction.type === 'income' ? 'Receita' : 'Despesa'}
+                            {transaction.type === 'entrada' ? 'Receita' : 'Despesa'}
                           </span>
                         </TableCell>
                         <TableCell className={`text-right font-medium ${
-                          transaction.type === 'income' ? 'text-income' : 'text-expense'
+                          transaction.type === 'entrada' ? 'text-income' : 'text-expense'
                         }`}>
-                          {transaction.type === 'income' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
+                          {transaction.type === 'entrada' ? '+' : '-'}
+                          {formatCurrency(transaction.value)}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button

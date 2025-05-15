@@ -3,27 +3,29 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useFinance } from "@/contexts/FinanceContext";
 import { formatCurrency } from "@/lib/formatters";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 export function TransactionsTable() {
-  const { filteredTransactions, deleteTransaction, getCategoryById } = useFinance();
+  const { filteredTransactions, deleteTransaction } = useFinance();
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   // Limit to latest 5 transactions
   const latestTransactions = [...filteredTransactions]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .sort((a, b) => {
+      const dateA = a.date instanceof Date ? a.date : parseISO(a.date as string);
+      const dateB = b.date instanceof Date ? b.date : parseISO(b.date as string);
+      return dateB.getTime() - dateA.getTime();
+    })
     .slice(0, 5);
 
   const handleDelete = async (id: string) => {
     try {
       setIsDeleting(id);
-      // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      deleteTransaction(id);
-    } catch (error) {
+      await deleteTransaction(id);
+    } catch (error: any) {
       toast({
         title: "Erro",
         description: "Não foi possível excluir a transação.",
@@ -32,6 +34,13 @@ export function TransactionsTable() {
     } finally {
       setIsDeleting(null);
     }
+  };
+
+  const formatDate = (date: Date | string) => {
+    if (date instanceof Date) {
+      return format(date, 'dd/MM/yyyy');
+    }
+    return format(parseISO(date), 'dd/MM/yyyy');
   };
 
   if (latestTransactions.length === 0) {
@@ -56,17 +65,16 @@ export function TransactionsTable() {
         </TableHeader>
         <TableBody>
           {latestTransactions.map((transaction) => {
-            const category = getCategoryById(transaction.categoryId);
             return (
               <TableRow key={transaction.id}>
-                <TableCell>{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
-                <TableCell>{transaction.description}</TableCell>
-                <TableCell>{category?.name || 'Sem categoria'}</TableCell>
+                <TableCell>{formatDate(transaction.date)}</TableCell>
+                <TableCell>{transaction.description || '-'}</TableCell>
+                <TableCell>{transaction.category}</TableCell>
                 <TableCell className={`text-right font-medium ${
-                  transaction.type === 'income' ? 'text-income' : 'text-expense'
+                  transaction.type === 'entrada' ? 'text-income' : 'text-expense'
                 }`}>
-                  {transaction.type === 'income' ? '+' : '-'}
-                  {formatCurrency(transaction.amount)}
+                  {transaction.type === 'entrada' ? '+' : '-'}
+                  {formatCurrency(transaction.value)}
                 </TableCell>
                 <TableCell>
                   <Button 

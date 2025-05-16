@@ -1,6 +1,6 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useFinance } from "@/contexts/FinanceContext";
+import { useFinance } from "@/contexts";
 
 export function FilterPeriod() {
   const { filterPeriod, setFilterPeriod } = useFinance();

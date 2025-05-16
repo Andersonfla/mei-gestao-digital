@@ -1,7 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useFinance } from "@/contexts/FinanceContext";
+import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";

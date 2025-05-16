@@ -1,10 +1,9 @@
-
 import { FilterPeriod } from "@/components/dashboard/FilterPeriod";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useFinance } from "@/contexts/FinanceContext";
+import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";

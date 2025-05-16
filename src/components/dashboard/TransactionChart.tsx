@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFinance } from "@/contexts/FinanceContext";
+import { useFinance } from "@/contexts";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 export function TransactionChart({ type }: { type: 'entrada' | 'saida' }) {

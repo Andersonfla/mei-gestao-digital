@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { useFinance } from "@/contexts/FinanceContext";
+import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
 import { format, parseISO } from "date-fns";
 import { TransactionChart } from "@/components/dashboard/TransactionChart";

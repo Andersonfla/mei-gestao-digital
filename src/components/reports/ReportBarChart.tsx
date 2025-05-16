@@ -1,14 +1,21 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFinance } from "@/contexts/FinanceContext";
+import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Transaction } from "@/types/finance";
+
+type ChartDataItem = {
+  date: string;
+  income: number;
+  expense: number;
+};
 
 export function ReportBarChart() {
   const { filteredTransactions } = useFinance();
   
   // Group transactions by date and calculate totals
-  const transactionsByDate = filteredTransactions.reduce((acc: Record<string, {date: string, income: number, expense: number}>, transaction) => {
+  const transactionsByDate = filteredTransactions.reduce((acc: Record<string, ChartDataItem>, transaction: Transaction) => {
     const dateStr = new Date(transaction.date).toISOString().split('T')[0];
     
     if (!acc[dateStr]) {

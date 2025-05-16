@@ -8,7 +8,7 @@ import {
   getCategoryBreakdown,
   calculateMonthlyReports
 } from "./utils";
-import { TransactionCategory } from "@/types/finance";
+import { TransactionCategory, Transaction, UserPlan } from "@/types/finance";
 
 // Create the context
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);

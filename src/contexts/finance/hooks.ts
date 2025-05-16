@@ -13,6 +13,7 @@ import {
 import { getCategories } from "@/services/categoryService";
 import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/services/profileService";
 import { format } from "date-fns";
+import { Transaction, UserSettings, UserPlan } from "@/types/finance";
 
 export function useFinanceData() {
   const { user } = useAuth();
@@ -65,7 +66,7 @@ export function useFinanceData() {
     queryFn: getUserSettings,
     enabled: !!user,
     initialData: {
-      plan: 'free',
+      plan: 'free' as UserPlan,
       darkMode: false,
       transactionCountThisMonth: 0,
       transactionLimit: 20,

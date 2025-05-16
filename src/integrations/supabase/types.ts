@@ -14,16 +14,61 @@ export type Database = {
           id: string
           name: string
           type: string
+          user_id: string | null
         }
         Insert: {
           id?: string
           name: string
           type: string
+          user_id?: string | null
         }
         Update: {
           id?: string
           name?: string
           type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      financial_goals: {
+        Row: {
+          category: string | null
+          completed: boolean
+          created_at: string
+          current_amount: number
+          end_date: string | null
+          id: string
+          start_date: string
+          target_amount: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          completed?: boolean
+          created_at?: string
+          current_amount?: number
+          end_date?: string | null
+          id?: string
+          start_date?: string
+          target_amount: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          completed?: boolean
+          created_at?: string
+          current_amount?: number
+          end_date?: string | null
+          id?: string
+          start_date?: string
+          target_amount?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -72,6 +117,54 @@ export type Database = {
           name?: string
           plan?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      recurring_transactions: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          frequency: string
+          id: string
+          next_date: string
+          start_date: string
+          type: string
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          frequency: string
+          id?: string
+          next_date: string
+          start_date: string
+          type: string
+          updated_at?: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          next_date?: string
+          start_date?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+          value?: number
         }
         Relationships: []
       }

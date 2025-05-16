@@ -29,7 +29,7 @@ const Upgrade = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Upgrade de Plano</h1>
+      <h1 className="text-3xl font-bold">Plano Premium</h1>
       <p className="text-muted-foreground max-w-2xl">
         Desbloqueie recursos premium e aproveite ao máximo o sistema de gerenciamento financeiro para seu MEI
       </p>
@@ -40,9 +40,9 @@ const Upgrade = () => {
         <h2 className="text-2xl font-semibold mb-4">Perguntas Frequentes</h2>
         <div className="space-y-4">
           <div>
-            <h3 className="font-medium">Como funciona o plano gratuito?</h3>
+            <h3 className="font-medium">Como funciona o plano premium?</h3>
             <p className="text-muted-foreground">
-              O plano gratuito oferece acesso à maioria das funcionalidades, porém com um limite de 50 lançamentos por mês.
+              O plano premium oferece acesso a todas as funcionalidades, sem limitações de lançamentos por mês.
             </p>
           </div>
           

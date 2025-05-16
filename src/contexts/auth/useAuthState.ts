@@ -38,7 +38,7 @@ export const useAuthState = () => {
       }
     );
 
-    // Check for existing session after setting up listener
+    // Check for existing session immediately (before setting up listener)
     const checkSession = async () => {
       try {
         const { data: { session: currentSession }, error } = await supabase.auth.getSession();

@@ -24,37 +24,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth state change event:", event);
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
         
-        if (event === 'SIGNED_IN') {
-          // Handle sign in event - navigate to dashboard if on auth page
-          if (window.location.pathname === '/auth') {
-            navigate('/');
+        if (currentSession) {
+          console.log("User ID from session:", currentSession.user?.id || "No user ID");
+          setSession(currentSession);
+          setUser(currentSession.user);
+          
+          if (event === 'SIGNED_IN') {
+            // Handle sign in event - navigate to dashboard if on auth page
+            if (window.location.pathname === '/auth') {
+              navigate('/');
+            }
           }
         } else if (event === 'SIGNED_OUT') {
-          // Handle sign out event
+          // Clear user state and redirect to auth page
+          setSession(null);
+          setUser(null);
           navigate('/auth');
         }
       }
     );
 
-    // THEN check for existing session
+    // Check for existing session
     const checkSession = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         console.log("Initial session check:", currentSession ? "Session exists" : "No session");
         
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        
-        // If user is logged in and on auth page, redirect to dashboard
-        if (currentSession && window.location.pathname === '/auth') {
-          navigate('/');
+        if (currentSession) {
+          console.log("User ID from initial session:", currentSession.user?.id || "No user ID");
+          setSession(currentSession);
+          setUser(currentSession.user);
+          
+          // If user is logged in and on auth page, redirect to dashboard
+          if (window.location.pathname === '/auth') {
+            navigate('/');
+          }
+        } else {
+          // If no session and not on auth page, redirect to auth
+          if (window.location.pathname !== '/auth') {
+            navigate('/auth');
+          }
         }
       } catch (error) {
         console.error("Error checking session:", error);
@@ -86,8 +100,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      
+      console.log("Login successful, user ID:", data.user?.id);
       
       toast({
         title: "Login realizado",
@@ -105,13 +121,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { name } }
       });
       
       if (error) throw error;
+      
+      console.log("Signup successful, user ID:", data.user?.id);
       
       toast({
         title: "Cadastro realizado",

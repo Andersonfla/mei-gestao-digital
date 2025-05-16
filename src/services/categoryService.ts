@@ -17,7 +17,7 @@ export async function getCategories(): Promise<TransactionCategory[]> {
 
 // Adicionar categoria personalizada para o usuário
 export async function addCategory(category: Omit<TransactionCategory, 'id'>): Promise<TransactionCategory> {
-  const { data: session } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   const userId = session?.user?.id;
   
   if (!userId) {
@@ -43,7 +43,7 @@ export async function addCategory(category: Omit<TransactionCategory, 'id'>): Pr
 
 // Verificar se uma categoria pertence ao usuário ou é pública
 export async function isUserCategory(categoryId: string): Promise<boolean> {
-  const { data: session } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   const userId = session?.user?.id;
   
   if (!userId) return false;

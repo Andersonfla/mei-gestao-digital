@@ -1,8 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Toast } from "@/hooks/use-toast";
+import { type ToastProps } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 
-export const signOut = async (toast: ReturnType<typeof Toast>): Promise<void> => {
+export const signOut = async (toast: ReturnType<typeof useToast>): Promise<void> => {
   try {
     const { error } = await supabase.auth.signOut();
     
@@ -28,7 +29,7 @@ export const signOut = async (toast: ReturnType<typeof Toast>): Promise<void> =>
 export const signIn = async (
   email: string,
   password: string,
-  toast: ReturnType<typeof Toast>
+  toast: ReturnType<typeof useToast>
 ): Promise<void> => {
   try {
     // Validate inputs
@@ -75,7 +76,7 @@ export const signUp = async (
   email: string,
   password: string,
   name: string,
-  toast: ReturnType<typeof Toast>
+  toast: ReturnType<typeof useToast>
 ): Promise<void> => {
   try {
     // Validate inputs

@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Transaction, TransactionCategory, UserSettings, TransactionType, MonthlyReport, CategoryBreakdownItem, UserPlan } from "@/types/finance";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 

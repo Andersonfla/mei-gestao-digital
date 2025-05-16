@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ const Auth = () => {
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   // Login form state
   const [email, setEmail] = useState("");
@@ -30,10 +32,19 @@ const Auth = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !loading) {
-      console.log("Auth page: User is already logged in, redirecting to home");
-      navigate("/");
+      // Se for um usuário novo que acabou de se cadastrar, redireciona para a página de upgrade
+      if (isNewUser) {
+        setIsNewUser(false);
+        navigate("/upgrade");
+        toast({
+          title: "Bem-vindo ao MEI Finanças!",
+          description: "Para continuar, assine o plano premium",
+        });
+      } else {
+        navigate("/");
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, isNewUser, toast]);
   
   // Validate email format
   const validateEmail = (email: string): boolean => {
@@ -120,7 +131,8 @@ const Auth = () => {
     
     try {
       await signUp(signupEmail, signupPassword, name);
-      // Navigation is handled by auth context if auto sign-in happens
+      // Marcar como novo usuário para redirecionar para a página de upgrade
+      setIsNewUser(true);
     } catch (error) {
       console.error("Signup handling error:", error);
       // Error toast is shown by signUp function

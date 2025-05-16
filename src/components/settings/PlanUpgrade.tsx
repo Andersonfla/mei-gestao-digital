@@ -48,7 +48,7 @@ export function PlanUpgrade() {
       
       toast({
         title: "Pagamento confirmado!",
-        description: "Seu plano foi atualizado para Premium com sucesso!",
+        description: "Sua assinatura foi ativada com sucesso!",
       });
     } catch (error) {
       console.error("Error verifying payment:", error);
@@ -101,8 +101,8 @@ export function PlanUpgrade() {
       <div className="max-w-3xl mx-auto">
         <Card className="border-2 border-primary shadow-sm">
           <CardHeader>
-            <CardTitle className="text-primary">Plano Premium</CardTitle>
-            <CardDescription>Você já está aproveitando todos os benefícios do plano Premium!</CardDescription>
+            <CardTitle className="text-primary">Assinatura Ativa</CardTitle>
+            <CardDescription>Você já está aproveitando todos os benefícios do MEI Finanças!</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -123,8 +123,8 @@ export function PlanUpgrade() {
     <div className="max-w-3xl mx-auto">
       <Card className="border-2 border-primary shadow-sm">
         <CardHeader>
-          <CardTitle className="text-primary">Plano Premium</CardTitle>
-          <CardDescription>Desbloqueie recursos avançados</CardDescription>
+          <CardTitle className="text-primary">Assinar MEI Finanças</CardTitle>
+          <CardDescription>Desbloqueie acesso ao sistema</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold mb-4">R$ 19,90<span className="text-base font-normal">/mês</span></div>

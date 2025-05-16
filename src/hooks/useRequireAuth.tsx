@@ -1,16 +1,23 @@
 
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth, useFinance } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useRequireAuth = () => {
   const { user, session, loading } = useAuth();
+  const { userSettings } = useFinance();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  const isPremiumRequired = 
+    location.pathname !== "/auth" && 
+    location.pathname !== "/upgrade" &&
+    !location.pathname.includes("/payment-success");
 
   useEffect(() => {
-    // Only redirect if we've finished loading and there's no user
+    // Verificar autenticação
     if (!loading && !user) {
       console.log("No authenticated user, redirecting to /auth");
       
@@ -21,9 +28,10 @@ export const useRequireAuth = () => {
       });
       
       navigate("/auth");
+      return;
     }
     
-    // Check session validity
+    // Verificar validade da sessão
     if (session && new Date(session.expires_at * 1000) < new Date()) {
       console.log("Session expired, redirecting to /auth");
       
@@ -34,8 +42,24 @@ export const useRequireAuth = () => {
       });
       
       navigate("/auth");
+      return;
     }
-  }, [user, session, loading, navigate, toast]);
+
+    // Verificar se o usuário tem uma assinatura ativa
+    if (user && !loading && isPremiumRequired) {
+      if (userSettings.plan !== 'premium') {
+        console.log("User doesn't have premium plan, redirecting to /upgrade");
+        
+        toast({
+          title: "Assinatura necessária",
+          description: "Assine o plano para acessar esta função",
+          variant: "destructive",
+        });
+        
+        navigate("/upgrade");
+      }
+    }
+  }, [user, session, loading, userSettings, navigate, toast, location.pathname, isPremiumRequired]);
 
   return { user, session, loading };
 };

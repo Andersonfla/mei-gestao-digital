@@ -74,7 +74,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     getCurrentMonthPlanLimit()
   ]);
   
-  // Default transaction limit for free plan is now 20 (changed from 50)
+  // O limite já está configurado corretamente para 20
   const transactionLimit = 20;
   
   return {

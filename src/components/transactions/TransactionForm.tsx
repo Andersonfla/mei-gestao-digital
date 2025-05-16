@@ -47,6 +47,7 @@ export function TransactionForm() {
   const filteredCategories = categories.filter(category => category.type === activeTab);
 
   async function onSubmit(data: TransactionFormValues) {
+    // Verificamos se o usuário do plano gratuito atingiu o limite de 20 lançamentos
     if (userSettings.plan === 'free' && 
         userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
       toast({

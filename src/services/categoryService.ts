@@ -3,12 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { TransactionCategory } from "@/types/finance";
 
 export async function getCategories(): Promise<TransactionCategory[]> {
+  // Aqui não precisamos filtrar por usuário pois as políticas de RLS já permitem
+  // que o usuário veja categorias públicas e suas próprias categorias
   const { data, error } = await supabase
     .from('categories')
     .select('*');
 
   if (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Erro ao buscar categorias:', error);
     throw error;
   }
 
@@ -17,10 +19,9 @@ export async function getCategories(): Promise<TransactionCategory[]> {
 
 // Adicionar categoria personalizada para o usuário
 export async function addCategory(category: Omit<TransactionCategory, 'id'>): Promise<TransactionCategory> {
+  // Verificar se há uma sessão ativa
   const { data: { session } } = await supabase.auth.getSession();
-  const userId = session?.user?.id;
-  
-  if (!userId) {
+  if (!session?.user?.id) {
     throw new Error("Usuário deve estar autenticado para adicionar categorias");
   }
 
@@ -28,13 +29,13 @@ export async function addCategory(category: Omit<TransactionCategory, 'id'>): Pr
     .from('categories')
     .insert({
       ...category,
-      user_id: userId
+      user_id: session.user.id // Garantir que o user_id seja definido corretamente
     })
     .select()
     .single();
 
   if (error) {
-    console.error('Error adding category:', error);
+    console.error('Erro ao adicionar categoria:', error);
     throw error;
   }
 
@@ -43,6 +44,7 @@ export async function addCategory(category: Omit<TransactionCategory, 'id'>): Pr
 
 // Verificar se uma categoria pertence ao usuário ou é pública
 export async function isUserCategory(categoryId: string): Promise<boolean> {
+  // Verificar se há uma sessão ativa
   const { data: { session } } = await supabase.auth.getSession();
   const userId = session?.user?.id;
   

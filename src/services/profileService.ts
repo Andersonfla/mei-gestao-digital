@@ -3,20 +3,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserProfile, PlanLimit, UserSettings } from "@/types/finance";
 
 export async function getUserProfile(): Promise<UserProfile> {
-  const { data: user, error: userError } = await supabase.auth.getUser();
+  // Verificar se há uma sessão ativa
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   
-  if (userError) {
-    throw userError;
+  if (userError || !user) {
+    throw new Error("Usuário não autenticado");
   }
   
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.user.id)
+    .eq('id', user.id)
     .single();
 
   if (error) {
-    console.error('Error fetching user profile:', error);
+    console.error('Erro ao buscar perfil do usuário:', error);
     throw error;
   }
 
@@ -28,22 +29,23 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
   const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
   const currentYear = currentDate.getFullYear();
   
-  const { data: user, error: userError } = await supabase.auth.getUser();
+  // Verificar se há uma sessão ativa
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   
-  if (userError) {
-    throw userError;
+  if (userError || !user) {
+    throw new Error("Usuário não autenticado");
   }
   
   const { data, error } = await supabase
     .from('plan_limits')
     .select('*')
-    .eq('user_id', user.user.id)
+    .eq('user_id', user.id)
     .eq('month', currentMonth)
     .eq('year', currentYear)
     .maybeSingle();
 
   if (error) {
-    console.error('Error fetching plan limits:', error);
+    console.error('Erro ao buscar limites do plano:', error);
     throw error;
   }
 
@@ -52,7 +54,7 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
     const { data: newLimit, error: insertError } = await supabase
       .from('plan_limits')
       .insert({
-        user_id: user.user.id,
+        user_id: user.id,
         month: currentMonth,
         year: currentYear,
         transactions: 0,
@@ -62,9 +64,9 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
       .single();
     
     if (insertError) {
-      console.error('Error creating plan limit record:', insertError);
+      console.error('Erro ao criar registro de limite do plano:', insertError);
       return {
-        user_id: user.user.id,
+        user_id: user.id,
         month: currentMonth,
         year: currentYear,
         transactions: 0,
@@ -79,36 +81,43 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
 }
 
 export async function upgradeToPremium(): Promise<void> {
-  const { data: user, error: userError } = await supabase.auth.getUser();
+  // Verificar se há uma sessão ativa
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   
-  if (userError) {
-    throw userError;
+  if (userError || !user) {
+    throw new Error("Usuário não autenticado");
   }
   
   const { error } = await supabase
     .from('profiles')
     .update({ plan: 'premium' })
-    .eq('id', user.user.id);
+    .eq('id', user.id);
 
   if (error) {
-    console.error('Error upgrading plan:', error);
+    console.error('Erro ao atualizar plano:', error);
     throw error;
   }
 }
 
 export async function getUserSettings(): Promise<UserSettings> {
-  const [profile, planLimit] = await Promise.all([
-    getUserProfile(),
-    getCurrentMonthPlanLimit()
-  ]);
-  
-  // O limite está configurado para 20 transações
-  const transactionLimit = 20;
-  
-  return {
-    plan: profile.plan,
-    darkMode: false, // Default value as it's not stored in DB yet
-    transactionCountThisMonth: planLimit?.transactions || 0,
-    transactionLimit: profile.plan === 'free' ? transactionLimit : Infinity
-  };
+  // Este método usa getUserProfile e getCurrentMonthPlanLimit que já têm as validações de autenticação
+  try {
+    const [profile, planLimit] = await Promise.all([
+      getUserProfile(),
+      getCurrentMonthPlanLimit()
+    ]);
+    
+    // O limite está configurado para 20 transações ou infinito para premium
+    const transactionLimit = profile.plan === 'premium' ? Infinity : 20;
+    
+    return {
+      plan: profile.plan,
+      darkMode: false, // Valor padrão pois não está armazenado no DB ainda
+      transactionCountThisMonth: planLimit?.transactions || 0,
+      transactionLimit: transactionLimit
+    };
+  } catch (error) {
+    console.error('Erro ao obter configurações do usuário:', error);
+    throw error;
+  }
 }

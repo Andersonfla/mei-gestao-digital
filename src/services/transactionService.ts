@@ -4,11 +4,11 @@ import { Transaction } from "@/types/finance";
 import { format } from "date-fns";
 
 export async function getTransactions(): Promise<Transaction[]> {
-  // Get user ID from session
+  // Verificar se há uma sessão ativa
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user?.id) {
-    console.log("No authenticated user found for getTransactions");
-    return [];
+    console.error("Nenhum usuário autenticado encontrado para getTransactions");
+    throw new Error("Autenticação necessária");
   }
 
   const { data, error } = await supabase
@@ -18,7 +18,7 @@ export async function getTransactions(): Promise<Transaction[]> {
     .order('date', { ascending: false });
 
   if (error) {
-    console.error('Error fetching transactions:', error);
+    console.error('Erro ao buscar transações:', error);
     throw error;
   }
 
@@ -26,17 +26,17 @@ export async function getTransactions(): Promise<Transaction[]> {
 }
 
 export async function addTransaction(transaction: Omit<Transaction, 'id' | 'created_at'>): Promise<Transaction> {
-  // Get user ID from session
+  // Verificar se há uma sessão ativa
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user?.id) {
-    console.error("No authenticated user found for addTransaction");
-    throw new Error("You must be logged in to add transactions");
+    console.error("Nenhum usuário autenticado encontrado para addTransaction");
+    throw new Error("Você precisa estar logado para adicionar transações");
   }
 
-  // Format Date object to string if needed
+  // Formatar objeto Date para string se necessário
   const formattedTransaction = {
     ...transaction,
-    user_id: session.user.id,
+    user_id: session.user.id, // Sempre definir explicitamente o user_id
     date: transaction.date instanceof Date ? format(transaction.date, 'yyyy-MM-dd') : transaction.date,
   };
   
@@ -47,7 +47,7 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
     .single();
 
   if (error) {
-    console.error('Error adding transaction:', error);
+    console.error('Erro ao adicionar transação:', error);
     throw error;
   }
 
@@ -55,21 +55,21 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
 }
 
 export async function deleteTransaction(id: string): Promise<void> {
-  // Get user ID from session to ensure security, even though RLS should handle this
+  // Verificar se há uma sessão ativa
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user?.id) {
-    console.error("No authenticated user found for deleteTransaction");
-    throw new Error("You must be logged in to delete transactions");
+    console.error("Nenhum usuário autenticado encontrado para deleteTransaction");
+    throw new Error("Você precisa estar logado para excluir transações");
   }
 
   const { error } = await supabase
     .from('transactions')
     .delete()
     .eq('id', id)
-    .eq('user_id', session.user.id);
+    .eq('user_id', session.user.id); // Garantir que só exclua as próprias transações
 
   if (error) {
-    console.error('Error deleting transaction:', error);
+    console.error('Erro ao excluir transação:', error);
     throw error;
   }
 }
@@ -78,11 +78,11 @@ export async function getFilteredTransactions(
   startDate?: Date | string,
   endDate?: Date | string
 ): Promise<Transaction[]> {
-  // Get user ID from session
+  // Verificar se há uma sessão ativa
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user?.id) {
-    console.log("No authenticated user found for getFilteredTransactions");
-    return [];
+    console.error("Nenhum usuário autenticado encontrado para getFilteredTransactions");
+    throw new Error("Autenticação necessária");
   }
 
   let query = supabase
@@ -109,7 +109,7 @@ export async function getFilteredTransactions(
   const { data, error } = await query.order('date', { ascending: false });
 
   if (error) {
-    console.error('Error fetching filtered transactions:', error);
+    console.error('Erro ao buscar transações filtradas:', error);
     throw error;
   }
 

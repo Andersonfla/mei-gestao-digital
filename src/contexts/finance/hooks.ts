@@ -20,21 +20,28 @@ export function useFinanceData() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Filter state
+  // Estado do filtro
   const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
   const [filterPeriod, setFilterPeriodState] = useState("month");
 
-  // Transactions query
+  // Query de transações
   const { 
     data: transactions = [], 
     isLoading: isLoadingTransactions 
   } = useQuery({
     queryKey: ['transactions'],
     queryFn: getTransactions,
-    enabled: !!user,
+    enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
+    retry: (failureCount, error) => {
+      // Não tenta novamente se o erro for relacionado à autenticação
+      if (error instanceof Error && error.message.includes("autenticação")) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 
-  // Filtered transactions query
+  // Query de transações filtradas
   const { 
     data: filteredTransactions = [], 
     isLoading: isLoadingFilteredTransactions 
@@ -44,27 +51,34 @@ export function useFinanceData() {
       format(filterDates.startDate, 'yyyy-MM-dd'),
       format(filterDates.endDate, 'yyyy-MM-dd')
     ),
-    enabled: !!user,
+    enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
+    retry: (failureCount, error) => {
+      // Não tenta novamente se o erro for relacionado à autenticação
+      if (error instanceof Error && error.message.includes("autenticação")) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 
-  // Categories query
+  // Query de categorias
   const { 
     data: categories = [], 
     isLoading: isLoadingCategories 
   } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
-    enabled: !!user,
+    enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
   });
 
-  // User settings query
+  // Query de configurações do usuário
   const { 
     data: userSettings, 
     isLoading: isLoadingSettings 
   } = useQuery({
     queryKey: ['userSettings'],
     queryFn: getUserSettings,
-    enabled: !!user,
+    enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
     initialData: {
       plan: 'free' as UserPlan,
       darkMode: false,
@@ -73,7 +87,7 @@ export function useFinanceData() {
     },
   });
 
-  // Add transaction mutation
+  // Mutação para adicionar transação
   const addTransactionMutation = useMutation({
     mutationFn: (newTransaction: Omit<Transaction, "id" | "created_at">) => 
       addTransactionService(newTransaction),
@@ -95,7 +109,7 @@ export function useFinanceData() {
     },
   });
 
-  // Delete transaction mutation
+  // Mutação para excluir transação
   const deleteTransactionMutation = useMutation({
     mutationFn: (id: string) => deleteTransactionService(id),
     onSuccess: () => {
@@ -115,7 +129,7 @@ export function useFinanceData() {
     },
   });
 
-  // Upgrade to premium mutation
+  // Mutação para upgrade para premium
   const upgradeToPremiumMutation = useMutation({
     mutationFn: upgradeToPremiumService,
     onSuccess: () => {
@@ -143,7 +157,7 @@ export function useFinanceData() {
     setFilterDatesState(updateFilterDatesForPeriod(period));
   };
 
-  // Loading state
+  // Estado de carregamento
   const isLoading = isLoadingTransactions || 
     isLoadingFilteredTransactions || 
     isLoadingCategories || 

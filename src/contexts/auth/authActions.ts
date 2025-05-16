@@ -5,7 +5,9 @@ import { useToast } from "@/hooks/use-toast";
 
 export const signOut = async (toast: ReturnType<typeof useToast>): Promise<void> => {
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({
+      scope: 'local' // Only sign out from current device, preserving other sessions
+    });
     
     if (error) {
       throw error;

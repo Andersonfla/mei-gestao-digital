@@ -30,6 +30,7 @@ const Auth = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !loading) {
+      console.log("Auth page: User is already logged in, redirecting to home");
       navigate("/");
     }
   }, [user, loading, navigate]);

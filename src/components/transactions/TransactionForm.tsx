@@ -1,32 +1,16 @@
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useFinance } from "@/contexts/FinanceContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionType } from "@/types/finance";
 import { useNavigate } from "react-router-dom";
-import { Progress } from "@/components/ui/progress";
-
-// Validation schema
-const transactionSchema = z.object({
-  date: z.string().nonempty("Data é obrigatória"),
-  value: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Valor deve ser um número positivo",
-  }),
-  description: z.string().optional(),
-  category: z.string().nonempty("Categoria é obrigatória"),
-});
-
-type TransactionFormValues = z.infer<typeof transactionSchema>;
+import { TransactionFormFields } from "./TransactionFormFields";
+import { TransactionLimitIndicator } from "./TransactionLimitIndicator";
+import { TransactionFormValues, transactionSchema } from "./transactionSchema";
 
 export function TransactionForm() {
   const { categories, addTransaction, userSettings } = useFinance();
@@ -48,7 +32,7 @@ export function TransactionForm() {
   const filteredCategories = categories.filter(category => category.type === activeTab);
 
   async function onSubmit(data: TransactionFormValues) {
-    // Verificamos se o usuário do plano gratuito atingiu o limite de 20 lançamentos
+    // Verificamos se o usuário do plano gratuito atingiu o limite de lançamentos
     if (userSettings.plan === 'free' && 
         userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
       toast({
@@ -89,39 +73,13 @@ export function TransactionForm() {
     }
   }
 
-  const remainingTransactions = userSettings.plan === 'free'
-    ? userSettings.transactionLimit - userSettings.transactionCountThisMonth
-    : null;
-    
-  // Calcular a porcentagem para a barra de progresso
-  const progressPercentage = userSettings.plan === 'free'
-    ? (userSettings.transactionCountThisMonth / userSettings.transactionLimit) * 100
-    : 0;
-
   return (
     <Card className="shadow-sm">
       <CardHeader>
         <CardTitle>Nova Transação</CardTitle>
         <CardDescription>
           Adicione uma nova entrada ou saída
-          {userSettings.plan === 'free' && (
-            <div className="mt-3 space-y-1">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Lançamentos utilizados</span>
-                <span className="font-medium">{userSettings.transactionCountThisMonth}/{userSettings.transactionLimit}</span>
-              </div>
-              <Progress value={progressPercentage} className="h-2" />
-              {remainingTransactions !== null && remainingTransactions >= 0 && (
-                <div className="text-xs text-muted-foreground text-right">
-                  {remainingTransactions === 0 ? (
-                    <span className="text-destructive font-medium">Limite atingido</span>
-                  ) : (
-                    `Restam ${remainingTransactions} lançamentos`
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+          <TransactionLimitIndicator userSettings={userSettings} />
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -151,105 +109,5 @@ export function TransactionForm() {
         </Tabs>
       </CardContent>
     </Card>
-  );
-}
-
-type TransactionFormFieldsProps = {
-  form: any;
-  categories: any[];
-  onSubmit: (data: TransactionFormValues) => void;
-  isSubmitting: boolean;
-  type: TransactionType;
-};
-
-function TransactionFormFields({ form, categories, onSubmit, isSubmitting, type }: TransactionFormFieldsProps) {
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="value"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Valor (R$)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="0,00"
-                    step="0.01"
-                    min="0.01"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Categoria</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma categoria" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descrição (opcional)</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder={type === 'entrada' ? "Ex: Venda de produto" : "Ex: Material de escritório"} 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="pt-2">
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Salvando..." : "Salvar"}
-          </Button>
-        </div>
-      </form>
-    </Form>
   );
 }

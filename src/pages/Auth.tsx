@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { Eye, EyeOff } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Auth = () => {
   const { user, loading, signIn, signUp } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Login form state
   const [email, setEmail] = useState("");
@@ -24,6 +26,7 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   
   // Redirect if already logged in
   useEffect(() => {
@@ -31,6 +34,12 @@ const Auth = () => {
       navigate("/");
     }
   }, [user, loading, navigate]);
+  
+  // Validate email format
+  const validateEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
   
   // Handle login with improved error handling
   const handleLogin = async (e: React.FormEvent) => {
@@ -40,6 +49,15 @@ const Auth = () => {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      toast({
+        title: "Email inválido",
+        description: "Por favor, insira um email válido",
         variant: "destructive"
       });
       return;
@@ -71,10 +89,28 @@ const Auth = () => {
       return;
     }
     
+    if (!validateEmail(signupEmail)) {
+      toast({
+        title: "Email inválido",
+        description: "Por favor, insira um email válido",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (signupPassword.length < 6) {
       toast({
         title: "Senha muito curta",
         description: "A senha deve ter pelo menos 6 caracteres",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (signupPassword !== passwordConfirm) {
+      toast({
+        title: "Senhas não conferem",
+        description: "As senhas digitadas não são iguais",
         variant: "destructive"
       });
       return;
@@ -132,18 +168,31 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label htmlFor="password">Senha</Label>
-                  <Input 
-                    id="password"
-                    type="password" 
-                    placeholder="••••••••" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Input 
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      autoComplete="current-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </Button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Entrando..." : "Entrar"}
@@ -162,6 +211,7 @@ const Auth = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    autoComplete="name"
                   />
                 </div>
                 <div className="space-y-2">
@@ -173,20 +223,46 @@ const Auth = () => {
                     value={signupEmail}
                     onChange={(e) => setSignupEmail(e.target.value)}
                     required
+                    autoComplete="email"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signupPassword">Senha</Label>
+                  <div className="relative">
+                    <Input 
+                      id="signupPassword"
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      minLength={6}
+                      required
+                      autoComplete="new-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Senha deve ter pelo menos 6 caracteres</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="passwordConfirm">Confirme a senha</Label>
                   <Input 
-                    id="signupPassword"
-                    type="password" 
+                    id="passwordConfirm"
+                    type={showPassword ? "text" : "password"} 
                     placeholder="••••••••" 
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
                     minLength={6}
                     required
+                    autoComplete="new-password"
                   />
-                  <p className="text-xs text-muted-foreground">Senha deve ter pelo menos 6 caracteres</p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Cadastrando..." : "Criar conta"}

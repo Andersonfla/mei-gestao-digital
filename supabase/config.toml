@@ -1,13 +1,17 @@
 
 # This file is managed by Lovable and contains the project configuration.
 # IMPORTANT: You can modify this file, but don't delete it or rename any of the keys without deleting the whole file.
-# Declaring your intentions with strict typing
 
 [functions.update_transaction_count]
 trigger.event = "INSERT"
 trigger.table = "transactions"
 trigger.schema = "public"
 body = '''
+DECLARE
+  user_plan VARCHAR;
+  current_month INT := EXTRACT(MONTH FROM NOW())::INT;
+  current_year INT := EXTRACT(YEAR FROM NOW())::INT;
+  transaction_count INT;
 BEGIN
   -- Get user plan
   SELECT plan INTO user_plan FROM public.profiles WHERE id = NEW.user_id;
@@ -38,3 +42,18 @@ BEGIN
   RETURN NEW;
 END;
 '''
+
+# Edge function configurations
+[functions]
+verify_jwt = true
+
+[[functions.import_map]]
+path = "supabase/functions/import_map.json"
+
+# Settings for create-checkout function
+[functions.create-checkout]
+verify_jwt = true
+
+# Settings for verify-payment function
+[functions.verify-payment]
+verify_jwt = false

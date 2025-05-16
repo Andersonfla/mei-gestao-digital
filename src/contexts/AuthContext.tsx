@@ -119,6 +119,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Validate inputs
+      if (!email || !password) {
+        throw new Error("Email e senha são obrigatórios");
+      }
+      
       const { error, data } = await supabase.auth.signInWithPassword({ 
         email: email.trim(), 
         password: password 
@@ -156,6 +161,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
+      // Validate inputs
+      if (!email || !password || !name) {
+        throw new Error("Todos os campos são obrigatórios");
+      }
+      
+      if (password.length < 6) {
+        throw new Error("A senha deve ter pelo menos 6 caracteres");
+      }
+      
       const { error, data } = await supabase.auth.signUp({
         email: email.trim(),
         password,

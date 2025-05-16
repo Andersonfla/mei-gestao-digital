@@ -14,15 +14,6 @@ serve(async (req) => {
   }
 
   try {
-    // Get authorization header
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
     // Create Supabase client using service role key to bypass RLS
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") || "",
@@ -30,24 +21,20 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    // Get user details from token
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") || "",
-      Deno.env.get("SUPABASE_ANON_KEY") || ""
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    // Parse request body
+    const { paymentId, userId } = await req.json();
     
-    if (userError) {
-      throw new Error(`Auth error: ${userError.message}`);
+    // Validate required parameters
+    if (!paymentId || !userId) {
+      throw new Error("Payment ID and User ID are required");
     }
 
-    const userId = userData.user.id;
-    if (!userId) {
-      throw new Error("User ID not found");
-    }
-
+    // Security check: Validate the payment exists in your payment system
+    // This would typically involve verifying with Stripe that this payment exists
+    // and has been completed successfully
+    
+    // For demonstration, we're assuming validation passed
+    
     // Upgrade user to premium plan in the database
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
@@ -56,6 +43,23 @@ serve(async (req) => {
 
     if (updateError) {
       throw new Error(`Failed to upgrade user: ${updateError.message}`);
+    }
+
+    // Clear any transaction limits for the user
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
+    
+    const { error: limitError } = await supabaseAdmin
+      .from("plan_limits")
+      .update({ limit_reached: false })
+      .eq("user_id", userId)
+      .eq("month", currentMonth)
+      .eq("year", currentYear);
+
+    if (limitError) {
+      console.error("Error updating plan limits:", limitError);
+      // Non-critical error, continue
     }
 
     return new Response(

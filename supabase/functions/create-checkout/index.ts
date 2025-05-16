@@ -28,6 +28,24 @@ serve(async (req) => {
       });
     }
 
+    // Get the user from the JWT token
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_ANON_KEY") || ""
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    if (userError) {
+      throw new Error(`Auth error: ${userError.message}`);
+    }
+
+    const userId = userData.user.id;
+    if (!userId) {
+      throw new Error("User ID not found");
+    }
+
     // Create a Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -45,8 +63,12 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/upgrade?success=true`,
+      success_url: `${req.headers.get("origin")}/upgrade?success=true&userId=${userId}`,
       cancel_url: `${req.headers.get("origin")}/upgrade?canceled=true`,
+      client_reference_id: userId, // Store user ID for reference
+      metadata: {
+        userId: userId // Store user ID in metadata for verification
+      }
     });
 
     // Return the session URL
@@ -61,3 +83,6 @@ serve(async (req) => {
     });
   }
 });
+
+// Helper function to create Supabase client
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.21.0";

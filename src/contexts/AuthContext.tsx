@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth state change event:", event);
@@ -34,14 +34,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setSession(currentSession);
           setUser(currentSession.user);
           
-          if (event === 'SIGNED_IN') {
-            // Handle sign in event - navigate to dashboard if on auth page
+          // Handle specific auth events
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            // If on auth page, navigate to dashboard
             if (window.location.pathname === '/auth') {
               navigate('/');
             }
           }
         } else if (event === 'SIGNED_OUT') {
           // Clear user state and redirect to auth page
+          console.log("User signed out, clearing session and user data");
           setSession(null);
           setUser(null);
           navigate('/auth');
@@ -49,10 +51,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Check for existing session
+    // Check for existing session after setting up listener
     const checkSession = async () => {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking session:", error);
+          setLoading(false);
+          return;
+        }
+        
         console.log("Initial session check:", currentSession ? "Session exists" : "No session");
         
         if (currentSession) {
@@ -79,20 +88,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     checkSession();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      // Clean up subscription when component unmounts
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Session will be cleared by the onAuthStateChange listener
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso",
       });
     } catch (error: any) {
+      console.error("Logout error:", error);
       toast({
         title: "Erro ao fazer logout",
-        description: error.message,
+        description: error.message || "Ocorreu um erro ao desconectar",
         variant: "destructive",
       });
     }
@@ -100,7 +119,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ 
+        email: email.trim(), 
+        password: password 
+      });
+      
       if (error) throw error;
       
       console.log("Login successful, user ID:", data.user?.id);
@@ -110,11 +133,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Você foi conectado com sucesso",
       });
     } catch (error: any) {
+      console.error("Login error:", error);
+      
+      // More user-friendly error message in Portuguese
+      let errorMessage = "Verifique suas credenciais e tente novamente";
+      
+      if (error.message.includes("Invalid login")) {
+        errorMessage = "Email ou senha inválidos";
+      } else if (error.message.includes("Email not confirmed")) {
+        errorMessage = "Por favor, confirme seu email antes de fazer login";
+      }
+      
       toast({
         title: "Erro ao fazer login",
-        description: error.message || "Verifique suas credenciais e tente novamente",
+        description: errorMessage,
         variant: "destructive",
       });
+      
       throw error;
     }
   };
@@ -122,9 +157,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string, name: string) => {
     try {
       const { error, data } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
-        options: { data: { name } }
+        options: { 
+          data: { name },
+          emailRedirectTo: window.location.origin
+        }
       });
       
       if (error) throw error;
@@ -136,11 +174,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Verifique seu email para confirmar o cadastro",
       });
     } catch (error: any) {
+      console.error("Signup error:", error);
+      
+      // More user-friendly error message in Portuguese
+      let errorMessage = "Verifique os dados e tente novamente";
+      
+      if (error.message.includes("already registered")) {
+        errorMessage = "Este email já está cadastrado";
+      } else if (error.message.includes("password")) {
+        errorMessage = "A senha deve ter pelo menos 6 caracteres";
+      }
+      
       toast({
         title: "Erro ao criar conta",
-        description: error.message || "Verifique os dados e tente novamente",
+        description: errorMessage,
         variant: "destructive",
       });
+      
       throw error;
     }
   };

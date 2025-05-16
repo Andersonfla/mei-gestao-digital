@@ -32,29 +32,62 @@ const Auth = () => {
     }
   }, [user, loading, navigate]);
   
-  // Handle login
+  // Handle login with improved error handling
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
       await signIn(email, password);
+      // Navigation is handled by the auth context
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login handling error:", error);
+      // Error toast is shown by signIn function
     } finally {
       setIsSubmitting(false);
     }
   };
   
-  // Handle signup
+  // Handle signup with improved error handling
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!name || !signupEmail || !signupPassword) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (signupPassword.length < 6) {
+      toast({
+        title: "Senha muito curta",
+        description: "A senha deve ter pelo menos 6 caracteres",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
       await signUp(signupEmail, signupPassword, name);
+      // Navigation is handled by auth context if auto sign-in happens
     } catch (error) {
-      console.error("Signup error:", error);
+      console.error("Signup handling error:", error);
+      // Error toast is shown by signUp function
     } finally {
       setIsSubmitting(false);
     }

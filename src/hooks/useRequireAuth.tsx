@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const useRequireAuth = () => {
-  const { user, loading } = useAuth();
+  const { user, session, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,5 +15,5 @@ export const useRequireAuth = () => {
     }
   }, [user, loading, navigate]);
 
-  return { user, loading };
+  return { user, session, loading };
 };

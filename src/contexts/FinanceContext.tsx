@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Transaction, TransactionCategory, UserSettings, TransactionType, MonthlyReport, CategoryBreakdownItem, UserPlan } from "@/types/finance";
 import { useAuth } from "./AuthContext";
@@ -101,7 +100,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       plan: 'free' as UserPlan,
       darkMode: false,
       transactionCountThisMonth: 0,
-      transactionLimit: 50,
+      transactionLimit: 20,  // Changed from 50 to 20
     },
   });
 

@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionType } from "@/types/finance";
+import { useNavigate } from "react-router-dom";
 
 // Validation schema
 const transactionSchema = z.object({
@@ -29,6 +30,7 @@ type TransactionFormValues = z.infer<typeof transactionSchema>;
 export function TransactionForm() {
   const { categories, addTransaction, userSettings } = useFinance();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TransactionType>("entrada");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -52,6 +54,9 @@ export function TransactionForm() {
         description: `Você atingiu o limite de ${userSettings.transactionLimit} lançamentos no plano gratuito.`,
         variant: "destructive",
       });
+      
+      // Automatically redirect to the upgrade page
+      navigate("/upgrade");
       return;
     }
     

@@ -1,14 +1,40 @@
 
-project_id = "ucnajqoapngtearuafkv"
+# This file is managed by Lovable and contains the project configuration.
+# IMPORTANT: You can modify this file, but don't delete it or rename any of the keys without deleting the whole file.
+# Declaring your intentions with strict typing
 
-[api]
-
-[db]
-
-[functions]
-verify_jwt = true
-
-[[functions.import_map]]
-path = "supabase/functions/import_map.json"
-
-[storage]
+[functions.update_transaction_count]
+trigger.event = "INSERT"
+trigger.table = "transactions"
+trigger.schema = "public"
+body = '''
+BEGIN
+  -- Get user plan
+  SELECT plan INTO user_plan FROM public.profiles WHERE id = NEW.user_id;
+  
+  -- Only track if user is on free plan
+  IF user_plan = 'free' THEN
+    -- Try to update existing record for current month/year
+    UPDATE public.plan_limits
+    SET transactions = transactions + 1
+    WHERE user_id = NEW.user_id AND month = current_month AND year = current_year
+    RETURNING transactions INTO transaction_count;
+    
+    -- If no record exists, create one
+    IF NOT FOUND THEN
+      INSERT INTO public.plan_limits (user_id, month, year, transactions)
+      VALUES (NEW.user_id, current_month, current_year, 1)
+      RETURNING transactions INTO transaction_count;
+    END IF;
+    
+    -- Check if limit is reached (20 transactions for free plan)
+    IF transaction_count >= 20 THEN
+      UPDATE public.plan_limits
+      SET limit_reached = true
+      WHERE user_id = NEW.user_id AND month = current_month AND year = current_year;
+    END IF;
+  END IF;
+  
+  RETURN NEW;
+END;
+'''

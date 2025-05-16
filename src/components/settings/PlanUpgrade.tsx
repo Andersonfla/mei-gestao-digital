@@ -88,7 +88,7 @@ export function PlanUpgrade() {
   };
   
   const freePlanFeatures = [
-    "Limite de 50 lançamentos/mês",
+    "Limite de 20 lançamentos/mês", // Changed from 50 to 20
     "Acesso ao dashboard",
     "Relatórios básicos",
     "Categorização de transações",

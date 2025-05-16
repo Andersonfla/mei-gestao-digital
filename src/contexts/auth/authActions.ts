@@ -12,13 +12,13 @@ export const signOut = async (toast: ReturnType<typeof useToast>): Promise<void>
     }
     
     // Session will be cleared by the onAuthStateChange listener
-    toast({
+    toast.toast({
       title: "Logout realizado",
       description: "Você foi desconectado com sucesso",
     });
   } catch (error: any) {
     console.error("Logout error:", error);
-    toast({
+    toast.toast({
       title: "Erro ao fazer logout",
       description: error.message || "Ocorreu um erro ao desconectar",
       variant: "destructive",
@@ -46,7 +46,7 @@ export const signIn = async (
     
     console.log("Login successful, user ID:", data.user?.id);
     
-    toast({
+    toast.toast({
       title: "Login realizado",
       description: "Você foi conectado com sucesso",
     });
@@ -62,7 +62,7 @@ export const signIn = async (
       errorMessage = "Por favor, confirme seu email antes de fazer login";
     }
     
-    toast({
+    toast.toast({
       title: "Erro ao fazer login",
       description: errorMessage,
       variant: "destructive",
@@ -101,7 +101,7 @@ export const signUp = async (
     
     console.log("Signup successful, user ID:", data.user?.id);
     
-    toast({
+    toast.toast({
       title: "Cadastro realizado",
       description: "Verifique seu email para confirmar o cadastro",
     });
@@ -117,7 +117,7 @@ export const signUp = async (
       errorMessage = "A senha deve ter pelo menos 6 caracteres";
     }
     
-    toast({
+    toast.toast({
       title: "Erro ao criar conta",
       description: errorMessage,
       variant: "destructive",

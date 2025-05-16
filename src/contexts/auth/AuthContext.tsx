@@ -2,14 +2,14 @@
 import { createContext, useContext } from "react";
 import { useAuthState } from "./useAuthState";
 import { signIn, signOut, signUp } from "./authActions"; 
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { AuthContextType } from "./types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, session, loading } = useAuthState();
-  const { toast } = useToast();
+  const toast = useToast();
 
   const authContextValue: AuthContextType = {
     user, 

@@ -47,7 +47,35 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
     throw error;
   }
 
-  return data as PlanLimit | null;
+  // Se não existir um registro para este mês, cria um com contagem zero
+  if (!data) {
+    const { data: newLimit, error: insertError } = await supabase
+      .from('plan_limits')
+      .insert({
+        user_id: user.user.id,
+        month: currentMonth,
+        year: currentYear,
+        transactions: 0,
+        limit_reached: false
+      })
+      .select('*')
+      .single();
+    
+    if (insertError) {
+      console.error('Error creating plan limit record:', insertError);
+      return {
+        user_id: user.user.id,
+        month: currentMonth,
+        year: currentYear,
+        transactions: 0,
+        limit_reached: false
+      };
+    }
+    
+    return newLimit as PlanLimit;
+  }
+
+  return data as PlanLimit;
 }
 
 export async function upgradeToPremium(): Promise<void> {
@@ -74,7 +102,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     getCurrentMonthPlanLimit()
   ]);
   
-  // O limite já está configurado corretamente para 20
+  // O limite está configurado para 20 transações
   const transactionLimit = 20;
   
   return {

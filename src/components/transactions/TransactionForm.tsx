@@ -14,6 +14,7 @@ import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionType } from "@/types/finance";
 import { useNavigate } from "react-router-dom";
+import { Progress } from "@/components/ui/progress";
 
 // Validation schema
 const transactionSchema = z.object({
@@ -91,6 +92,11 @@ export function TransactionForm() {
   const remainingTransactions = userSettings.plan === 'free'
     ? userSettings.transactionLimit - userSettings.transactionCountThisMonth
     : null;
+    
+  // Calcular a porcentagem para a barra de progresso
+  const progressPercentage = userSettings.plan === 'free'
+    ? (userSettings.transactionCountThisMonth / userSettings.transactionLimit) * 100
+    : 0;
 
   return (
     <Card className="shadow-sm">
@@ -98,9 +104,22 @@ export function TransactionForm() {
         <CardTitle>Nova Transação</CardTitle>
         <CardDescription>
           Adicione uma nova entrada ou saída
-          {remainingTransactions !== null && remainingTransactions >= 0 && (
-            <div className="mt-1 text-xs text-muted-foreground">
-              Restam {remainingTransactions} lançamentos no seu plano gratuito
+          {userSettings.plan === 'free' && (
+            <div className="mt-3 space-y-1">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Lançamentos utilizados</span>
+                <span className="font-medium">{userSettings.transactionCountThisMonth}/{userSettings.transactionLimit}</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2" />
+              {remainingTransactions !== null && remainingTransactions >= 0 && (
+                <div className="text-xs text-muted-foreground text-right">
+                  {remainingTransactions === 0 ? (
+                    <span className="text-destructive font-medium">Limite atingido</span>
+                  ) : (
+                    `Restam ${remainingTransactions} lançamentos`
+                  )}
+                </div>
+              )}
             </div>
           )}
         </CardDescription>

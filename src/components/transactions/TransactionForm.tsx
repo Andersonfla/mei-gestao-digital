@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionType } from "@/types/finance";
+import { useNavigate } from "react-router-dom";
 import { TransactionFormFields } from "./TransactionFormFields";
 import { TransactionLimitIndicator } from "./TransactionLimitIndicator";
 import { TransactionFormValues, transactionSchema } from "./transactionSchema";
@@ -14,6 +15,7 @@ import { TransactionFormValues, transactionSchema } from "./transactionSchema";
 export function TransactionForm() {
   const { categories, addTransaction, userSettings } = useFinance();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TransactionType>("entrada");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -30,6 +32,20 @@ export function TransactionForm() {
   const filteredCategories = categories.filter(category => category.type === activeTab);
 
   async function onSubmit(data: TransactionFormValues) {
+    // Verificamos se o usuário do plano gratuito atingiu o limite de lançamentos
+    if (userSettings.plan === 'free' && 
+        userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
+      toast({
+        title: "Limite atingido",
+        description: `Você atingiu o limite de ${userSettings.transactionLimit} lançamentos no plano gratuito.`,
+        variant: "destructive",
+      });
+      
+      // Automatically redirect to the upgrade page
+      navigate("/upgrade");
+      return;
+    }
+    
     try {
       setIsSubmitting(true);
       
@@ -63,6 +79,7 @@ export function TransactionForm() {
         <CardTitle>Nova Transação</CardTitle>
         <CardDescription>
           Adicione uma nova entrada ou saída
+          <TransactionLimitIndicator userSettings={userSettings} />
         </CardDescription>
       </CardHeader>
       <CardContent>

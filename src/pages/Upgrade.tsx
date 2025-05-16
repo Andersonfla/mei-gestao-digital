@@ -29,9 +29,9 @@ const Upgrade = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Assinar MEI Finanças</h1>
+      <h1 className="text-3xl font-bold">Upgrade de Plano</h1>
       <p className="text-muted-foreground max-w-2xl">
-        Assine o MEI Finanças e tenha acesso a todas as ferramentas para gerenciamento financeiro do seu MEI
+        Desbloqueie recursos premium e aproveite ao máximo o sistema de gerenciamento financeiro para seu MEI
       </p>
       
       <PlanUpgrade />
@@ -40,16 +40,16 @@ const Upgrade = () => {
         <h2 className="text-2xl font-semibold mb-4">Perguntas Frequentes</h2>
         <div className="space-y-4">
           <div>
-            <h3 className="font-medium">Como funciona a assinatura?</h3>
+            <h3 className="font-medium">Como funciona o plano gratuito?</h3>
             <p className="text-muted-foreground">
-              A assinatura do MEI Finanças é cobrada mensalmente no valor de R$ 19,90. Seu acesso é renovado automaticamente a cada período.
+              O plano gratuito oferece acesso à maioria das funcionalidades, porém com um limite de 50 lançamentos por mês.
             </p>
           </div>
           
           <div>
-            <h3 className="font-medium">Posso cancelar a assinatura a qualquer momento?</h3>
+            <h3 className="font-medium">Posso cancelar o plano premium a qualquer momento?</h3>
             <p className="text-muted-foreground">
-              Sim, você pode cancelar sua assinatura a qualquer momento. O acesso continuará válido até o final do período pago.
+              Sim, você pode cancelar sua assinatura a qualquer momento. O acesso premium continuará válido até o final do período pago.
             </p>
           </div>
           
@@ -57,13 +57,6 @@ const Upgrade = () => {
             <h3 className="font-medium">Quais formas de pagamento são aceitas?</h3>
             <p className="text-muted-foreground">
               Aceitamos cartões de crédito de todas as bandeiras através de nossa integração segura com o Stripe.
-            </p>
-          </div>
-          
-          <div>
-            <h3 className="font-medium">Existe algum período de teste?</h3>
-            <p className="text-muted-foreground">
-              No momento não oferecemos período de teste gratuito, mas oferecemos garantia de reembolso nos primeiros 7 dias após a assinatura.
             </p>
           </div>
         </div>

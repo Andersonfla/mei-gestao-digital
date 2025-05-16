@@ -1,7 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@12.18.0?target=deno";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.21.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -47,52 +46,28 @@ serve(async (req) => {
       throw new Error("User ID not found");
     }
 
-    // Verifica se o cliente já existe no Stripe
-    const customers = await stripe.customers.list({
-      email: userData.user.email,
-      limit: 1,
-    });
-
-    let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-    } else {
-      // Cria um novo cliente no Stripe
-      const customer = await stripe.customers.create({
-        email: userData.user.email,
-        metadata: {
-          userId: userId
-        }
-      });
-      customerId = customer.id;
-    }
-
-    // Create a Stripe Checkout session for subscription
+    // Create a Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
-      customer: customerId,
       payment_method_types: ["card"],
       line_items: [
         {
           price_data: {
             currency: "brl",
-            recurring: {
-              interval: "month"
-            },
             product_data: {
-              name: "Assinatura MEI Finanças",
-              description: "Acesso completo ao sistema de gerenciamento financeiro para MEI",
+              name: "Premium Plan - MEI Finanças",
+              description: "Lançamentos ilimitados e recursos premium",
             },
-            unit_amount: 1990, // R$19.90 em centavos
+            unit_amount: 1990, // R$19.90 in centavos
           },
           quantity: 1,
         },
       ],
-      mode: "subscription",
+      mode: "payment",
       success_url: `${req.headers.get("origin")}/upgrade?success=true&userId=${userId}`,
       cancel_url: `${req.headers.get("origin")}/upgrade?canceled=true`,
-      client_reference_id: userId, // Armazena o ID do usuário como referência
+      client_reference_id: userId, // Store user ID for reference
       metadata: {
-        userId: userId // Armazena o ID do usuário nos metadados para verificação
+        userId: userId // Store user ID in metadata for verification
       }
     });
 
@@ -108,3 +83,6 @@ serve(async (req) => {
     });
   }
 });
+
+// Helper function to create Supabase client
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.21.0";

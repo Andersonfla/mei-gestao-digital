@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -19,6 +19,7 @@ const Auth = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [signupSuccess, setSignupSuccess] = useState(false);
+  const [signupError, setSignupError] = useState("");
 
   // Login form state
   const [email, setEmail] = useState("");
@@ -69,6 +70,9 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Limpar mensagem de erro anterior
+    setSignupError("");
+    
     if (!validateSignupForm(
       name, 
       signupEmail, 
@@ -93,9 +97,10 @@ const Auth = () => {
       setSignupEmail("");
       setSignupPassword("");
       setPasswordConfirm("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signup handling error:", error);
       setSignupSuccess(false);
+      setSignupError(error.message || "Erro ao criar conta. Verifique os dados e tente novamente.");
       // Error toast is shown by signUp function
     } finally {
       setIsSubmitting(false);
@@ -157,6 +162,7 @@ const Auth = () => {
             passwordConfirmError={passwordConfirmError}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
+            signupError={signupError}
           />
         </TabsContent>
       </Tabs>

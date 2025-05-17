@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Info } from "lucide-react";
+import { Eye, EyeOff, Info, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SignupFormProps {
@@ -24,6 +24,7 @@ interface SignupFormProps {
   passwordConfirmError: string;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
+  signupError?: string;
 }
 
 export const SignupForm = ({
@@ -44,6 +45,7 @@ export const SignupForm = ({
   passwordConfirmError,
   showPassword,
   setShowPassword,
+  signupError,
 }: SignupFormProps) => {
   if (signupSuccess) {
     return (
@@ -59,6 +61,15 @@ export const SignupForm = ({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      {signupError && (
+        <Alert className="bg-red-50 border-red-200 mb-4">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-red-700">
+            {signupError}
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="name" className="flex items-center justify-between">
           Nome
@@ -74,6 +85,7 @@ export const SignupForm = ({
           autoComplete="name"
         />
       </div>
+      
       <div className="space-y-2">
         <Label htmlFor="signupEmail" className="flex items-center justify-between">
           Email
@@ -89,6 +101,7 @@ export const SignupForm = ({
           autoComplete="email"
         />
       </div>
+      
       <div className="space-y-2">
         <Label htmlFor="signupPassword" className="flex items-center justify-between">
           Senha
@@ -117,6 +130,7 @@ export const SignupForm = ({
         </div>
         <p className="text-xs text-muted-foreground">Senha deve ter pelo menos 6 caracteres</p>
       </div>
+      
       <div className="space-y-2">
         <Label htmlFor="passwordConfirm" className="flex items-center justify-between">
           Confirme a senha
@@ -133,6 +147,7 @@ export const SignupForm = ({
           autoComplete="new-password"
         />
       </div>
+      
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Cadastrando..." : "Criar conta"}
       </Button>

@@ -103,6 +103,23 @@ export const signUp = async (
     
     console.log("Signup successful, user ID:", data.user?.id);
     
+    // Chamar a edge function para criar o perfil e inicializar plan_limits
+    if (data.user) {
+      try {
+        const { error: fnError } = await supabase.functions.invoke('handle-new-user', {
+          body: { 
+            data: { user: data.user }
+          }
+        });
+        
+        if (fnError) {
+          console.error("Error creating profile:", fnError);
+        }
+      } catch (fnError) {
+        console.error("Error invoking function:", fnError);
+      }
+    }
+    
     toast.toast({
       title: "Cadastro realizado",
       description: "Verifique seu email para confirmar o cadastro",

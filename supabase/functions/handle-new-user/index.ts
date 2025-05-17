@@ -66,7 +66,7 @@ serve(async (req) => {
 
       if (profileError) {
         console.error("Error creating profile:", profileError);
-        throw profileError;
+        // Continue anyway - profile might be created by the client side
       }
     }
 
@@ -80,7 +80,7 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .eq('month', currentMonth)
       .eq('year', currentYear)
-      .single();
+      .maybeSingle();
     
     if (!existingLimits) {
       // Inicializar plan_limits para o mês atual se não existir
@@ -96,7 +96,7 @@ serve(async (req) => {
 
       if (limitsError) {
         console.error("Error creating plan limits:", limitsError);
-        throw limitsError;
+        // Continue anyway - limits might be created by the client side
       }
     }
 
@@ -110,7 +110,8 @@ serve(async (req) => {
   } catch (error) {
     console.error("Function error:", error);
     return new Response(JSON.stringify({ 
-      error: error.message || "Erro interno ao processar usuário" 
+      error: error.message || "Erro interno ao processar usuário",
+      handled: true // Indicate that error was handled
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

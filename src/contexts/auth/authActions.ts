@@ -107,44 +107,44 @@ export const signUp = async (
     // Garantir que o perfil seja criado mesmo se houver problemas com a função edge
     if (data.user) {
       try {
-        // Chamar a função handle-new-user diretamente para garantir que o perfil seja criado
-        const { error: functionError } = await supabase.functions.invoke('handle-new-user', {
-          body: { user: data.user }
-        });
+        // Criar perfil diretamente sem esperar pela função edge
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            name: name,
+            plan: 'free'
+          });
         
-        if (functionError) {
-          console.warn("Warning: Edge function returned error, trying direct database insertion:", functionError);
-          
-          // Backup: tentar criar perfil diretamente
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              id: data.user.id,
-              name: name,
-              plan: 'free'
-            });
-          
-          if (profileError) {
-            console.error("Error creating profile:", profileError);
-          }
-          
-          // Inicializar plan_limits para o mês atual
-          const currentMonth = new Date().getMonth() + 1;
-          const currentYear = new Date().getFullYear();
-          
-          const { error: limitsError } = await supabase
-            .from('plan_limits')
-            .insert({
-              user_id: data.user.id,
-              month: currentMonth,
-              year: currentYear,
-              transactions: 0,
-              limit_reached: false
-            });
-          
-          if (limitsError) {
-            console.error("Error creating plan limits:", limitsError);
-          }
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+        }
+        
+        // Inicializar plan_limits para o mês atual
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        
+        const { error: limitsError } = await supabase
+          .from('plan_limits')
+          .insert({
+            user_id: data.user.id,
+            month: currentMonth,
+            year: currentYear,
+            transactions: 0,
+            limit_reached: false
+          });
+        
+        if (limitsError) {
+          console.error("Error creating plan limits:", limitsError);
+        }
+        
+        // Como backup, também tentar chamar a função edge
+        try {
+          await supabase.functions.invoke('handle-new-user', {
+            body: { user: data.user }
+          });
+        } catch (functionError) {
+          console.warn("Edge function call failed, but profile was created directly:", functionError);
         }
       } catch (profileSetupError) {
         console.error("Error setting up profile:", profileSetupError);

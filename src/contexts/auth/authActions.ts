@@ -90,7 +90,9 @@ export const signUp = async (
       throw new Error("A senha deve ter pelo menos 6 caracteres");
     }
     
-    // Criar o usuário sem o captcha_token
+    console.log("Attempting to sign up with:", email);
+    
+    // Criar o usuário sem o captcha_token com autoConfirmation true
     const { error, data } = await supabase.auth.signUp({
       email: email.trim(),
       password,
@@ -100,14 +102,19 @@ export const signUp = async (
       }
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error("Error during signup:", error);
+      throw error;
+    }
     
-    console.log("Signup successful, user ID:", data.user?.id);
+    console.log("Signup successful, user data:", data);
     
     // Garantir que o perfil seja criado mesmo se houver problemas com a função edge
     if (data.user) {
       try {
-        // Criar perfil diretamente sem esperar pela função edge
+        console.log("Creating profile for user:", data.user.id);
+        
+        // Tentar criar o perfil diretamente
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -117,12 +124,16 @@ export const signUp = async (
           });
         
         if (profileError) {
-          console.error("Error creating profile:", profileError);
+          console.error("Error creating profile directly:", profileError);
+        } else {
+          console.log("Profile created successfully");
         }
         
         // Inicializar plan_limits para o mês atual
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
+        
+        console.log("Creating plan limits for user:", data.user.id);
         
         const { error: limitsError } = await supabase
           .from('plan_limits')
@@ -136,18 +147,23 @@ export const signUp = async (
         
         if (limitsError) {
           console.error("Error creating plan limits:", limitsError);
+        } else {
+          console.log("Plan limits created successfully");
         }
         
-        // Como backup, também tentar chamar a função edge
+        // Como backup adicional, tentar chamar a função edge
         try {
+          console.log("Calling handle-new-user edge function");
           await supabase.functions.invoke('handle-new-user', {
             body: { user: data.user }
           });
+          console.log("Edge function called successfully");
         } catch (functionError) {
           console.warn("Edge function call failed, but profile was created directly:", functionError);
         }
       } catch (profileSetupError) {
         console.error("Error setting up profile:", profileSetupError);
+        // Continue with signup success - we can attempt to create profile on first login
       }
     }
     
@@ -167,6 +183,8 @@ export const signUp = async (
       errorMessage = "A senha deve ter pelo menos 6 caracteres";
     } else if (error.message.includes("captcha")) {
       errorMessage = "Erro de verificação. Tente novamente mais tarde.";
+    } else if (error.message.includes("Database error")) {
+      errorMessage = "Erro ao criar conta, mas tente fazer login mesmo assim.";
     }
     
     toast.toast({

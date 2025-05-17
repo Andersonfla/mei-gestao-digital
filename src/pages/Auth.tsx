@@ -89,19 +89,47 @@ const Auth = () => {
     setIsSubmitting(true);
     
     try {
+      console.log("Starting signup process for:", signupEmail);
       await signUp(signupEmail, signupPassword, name);
+      
       // Mostrar mensagem de sucesso
+      console.log("Signup successful");
       setSignupSuccess(true);
+      
       // Limpar formulário
       setName("");
       setSignupEmail("");
       setSignupPassword("");
       setPasswordConfirm("");
+      
+      // Switch to login tab after a successful signup
+      setTimeout(() => {
+        setActiveTab("login");
+      }, 3000);
+      
     } catch (error: any) {
       console.error("Signup handling error:", error);
       setSignupSuccess(false);
-      setSignupError(error.message || "Erro ao criar conta. Verifique os dados e tente novamente.");
-      // Error toast is shown by signUp function
+      
+      // More detailed error handling
+      let errorMessage = "Erro ao criar conta. Verifique os dados e tente novamente.";
+      
+      if (error?.message) {
+        if (error.message.includes("already registered")) {
+          errorMessage = "Este email já está cadastrado. Tente fazer login.";
+        } else if (error.message.includes("password")) {
+          errorMessage = "A senha deve ter pelo menos 6 caracteres.";
+        } else if (error.message.includes("captcha")) {
+          errorMessage = "Erro de verificação. Tente novamente mais tarde.";
+        } else if (error.message.includes("Database error")) {
+          errorMessage = "Erro ao criar conta, mas você pode tentar fazer login mesmo assim.";
+          // If it's a database error, we might still have created the auth record
+          // Show success with a warning
+          setSignupSuccess(true);
+        }
+      }
+      
+      setSignupError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -54,7 +54,7 @@ enable_signup = true
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
-# Disable captcha verification for signups
+# Disable captcha verification for signups - set to false explicitly
 enable_captcha_verification = false
 
 [functions]

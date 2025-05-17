@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Info, AlertTriangle } from "lucide-react";
+import { Eye, EyeOff, Info, AlertTriangle, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SignupFormProps {
@@ -50,7 +50,7 @@ export const SignupForm = ({
   if (signupSuccess) {
     return (
       <Alert className="bg-green-50 border-green-200 mb-4">
-        <Info className="h-4 w-4 text-green-500" />
+        <CheckCircle className="h-4 w-4 text-green-500" />
         <AlertDescription className="text-green-700">
           Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta. 
           Você já pode fazer login usando suas credenciais.

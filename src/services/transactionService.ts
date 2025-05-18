@@ -68,14 +68,20 @@ export async function addTransaction(
     throw new Error("Você precisa estar logado para adicionar transações");
   }
 
+  // Format the date to ensure it's a string
+  const formattedDate = transaction.date instanceof Date 
+    ? format(transaction.date, 'yyyy-MM-dd') 
+    : transaction.date;
+
   const formattedTransaction = {
     ...transaction,
+    date: formattedDate,
     user_id: session.session.user.id,
   };
 
   const { data, error } = await supabase
     .from("transactions")
-    .insert([formattedTransaction])
+    .insert(formattedTransaction)
     .select()
     .single();
 

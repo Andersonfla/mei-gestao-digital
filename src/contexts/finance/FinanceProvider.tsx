@@ -22,9 +22,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     filterDates,
     filterPeriod,
     isLoading,
-    addTransactionMutation,
-    deleteTransactionMutation,
-    upgradeToPremiumMutation,
+    addTransaction,
+    deleteTransaction,
+    upgradeToPremium,
     setFilterDates,
     setFilterPeriod
   } = useFinanceData();
@@ -35,19 +35,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Get category by ID
   const getCategoryById = (id: string): TransactionCategory | undefined => {
     return categories.find(cat => cat.id === id);
-  };
-
-  // Handle async mutations properly
-  const handleAddTransaction = async (transaction: Omit<Transaction, "id" | "created_at">) => {
-    await addTransactionMutation.mutateAsync(transaction);
-  };
-
-  const handleDeleteTransaction = async (id: string) => {
-    await deleteTransactionMutation.mutateAsync(id);
-  };
-
-  const handleUpgradeToPremium = async () => {
-    await upgradeToPremiumMutation.mutateAsync();
   };
 
   return (
@@ -61,15 +48,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         filterDates,
         filterPeriod,
         isLoading,
-        addTransaction: handleAddTransaction,
-        deleteTransaction: handleDeleteTransaction,
+        addTransaction,
+        deleteTransaction,
         getCategoryById,
         setFilterDates,
         setFilterPeriod,
         calculateBalance: () => calculateBalance(filteredTransactions),
         calculateTotalByType: (type) => calculateTotalByType(filteredTransactions, type),
         getCategoryBreakdown: (type) => getCategoryBreakdown(filteredTransactions, type),
-        upgradeToPremium: handleUpgradeToPremium,
+        upgradeToPremium,
       }}
     >
       {children}

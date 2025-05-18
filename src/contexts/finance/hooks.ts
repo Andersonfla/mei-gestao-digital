@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts";
@@ -18,72 +18,25 @@ import { Transaction, UserSettings, UserPlan } from "@/types/finance";
 export function useFinanceData() {
   const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
   const [filterPeriod, setFilterPeriodState] = useState("month");
-
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { user } = useAuth();
-  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
-
-  export function useFinanceData() {
-  const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
-  const [filterPeriod, setFilterPeriodState] = useState("month");
-
-  const { user } = useAuth();
-  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
-
-useEffect(() => {
-  const loadUserSettings = async () => {
-    if (!user?.id) return;
-    const settings = await getUserSettings();
-    setUserSettings((prev) => ({
-      ...prev,
-      plan: settings.plan,
-    }));
-  };
-
-  loadUserSettings(); // <-- ESTA LINHA é essencial
-}, [user]);
-  };
-
-  // 🔥 Adicione esta linha abaixo
-  loadUserSettings();
-}, [user]);
-    }));
-  };
-
-  // ✅ Isso aqui é obrigatório:
-  loadUserSettings();
-}, [user]);
-  };
-
-  // 👇 Isso aqui estava faltando
-  loadUserSettings();
-}, [user]);
-    };
-
-    // 👇 Aqui estava faltando!
-    loadUserSettings();
-  }, [user]);
-
-    loadUserSettings();
-  }, [user]);
-
-  // mais estados, mutations, queries, etc.
-
-  return {
-    filterDates,
-    setFilterDates: setFilterDatesState,
-    filterPeriod,
-    setFilterPeriod: setFilterPeriodState,
-    userSettings,
-    // outros dados aqui
-  };
-}
-
-  loadUserSettings();
-}, [user]);
   
-  // Estado do filtro
-  const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
-  const [filterPeriod, setFilterPeriodState] = useState("month");
+  // Query de configurações do usuário
+  const { 
+    data: userSettings, 
+    isLoading: isLoadingSettings 
+  } = useQuery({
+    queryKey: ['userSettings'],
+    queryFn: getUserSettings,
+    enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
+    initialData: {
+      plan: 'free' as UserPlan,
+      darkMode: false,
+      transactionCountThisMonth: 0,
+      transactionLimit: 20,
+    },
+  });
 
   // Query de transações
   const { 
@@ -130,22 +83,6 @@ useEffect(() => {
     queryKey: ['categories'],
     queryFn: getCategories,
     enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
-  });
-
-  // Query de configurações do usuário
-  const { 
-    data: userSettings, 
-    isLoading: isLoadingSettings 
-  } = useQuery({
-    queryKey: ['userSettings'],
-    queryFn: getUserSettings,
-    enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
-    initialData: {
-      plan: 'free' as UserPlan,
-      darkMode: false,
-      transactionCountThisMonth: 0,
-      transactionLimit: 20,
-    },
   });
 
   // Mutação para adicionar transação

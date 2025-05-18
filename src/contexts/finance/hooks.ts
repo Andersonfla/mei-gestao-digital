@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts";
@@ -15,31 +15,71 @@ import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/
 import { format } from "date-fns";
 import { Transaction, UserSettings, UserPlan } from "@/types/finance";
 
-export const useFinanceData = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+export function useFinanceData() {
+  const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
+  const [filterPeriod, setFilterPeriodState] = useState("month");
+
   const { user } = useAuth();
-  
-  const [userSettings, setUserSettings] = useState<UserSettings>({
-    plan: 'free' as UserPlan,
-    darkMode: false,
-    transactionCountThisMonth: 0,
-    transactionLimit: 20,
-  });
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
 
-  useEffect(() => {
-    const loadUserSettings = async () => {
-      if (!user?.id) return;
+  export function useFinanceData() {
+  const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
+  const [filterPeriod, setFilterPeriodState] = useState("month");
 
-      const settings = await getUserSettings();
-      setUserSettings((prev) => ({
-        ...prev,
-        plan: settings.plan,
-      }));
+  const { user } = useAuth();
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+
+useEffect(() => {
+  const loadUserSettings = async () => {
+    if (!user?.id) return;
+    const settings = await getUserSettings();
+    setUserSettings((prev) => ({
+      ...prev,
+      plan: settings.plan,
+    }));
+  };
+
+  loadUserSettings(); // <-- ESTA LINHA é essencial
+}, [user]);
+  };
+
+  // 🔥 Adicione esta linha abaixo
+  loadUserSettings();
+}, [user]);
+    }));
+  };
+
+  // ✅ Isso aqui é obrigatório:
+  loadUserSettings();
+}, [user]);
+  };
+
+  // 👇 Isso aqui estava faltando
+  loadUserSettings();
+}, [user]);
     };
+
+    // 👇 Aqui estava faltando!
+    loadUserSettings();
+  }, [user]);
 
     loadUserSettings();
   }, [user]);
+
+  // mais estados, mutations, queries, etc.
+
+  return {
+    filterDates,
+    setFilterDates: setFilterDatesState,
+    filterPeriod,
+    setFilterPeriod: setFilterPeriodState,
+    userSettings,
+    // outros dados aqui
+  };
+}
+
+  loadUserSettings();
+}, [user]);
   
   // Estado do filtro
   const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
@@ -94,7 +134,7 @@ export const useFinanceData = () => {
 
   // Query de configurações do usuário
   const { 
-    data: userSettingsData, 
+    data: userSettings, 
     isLoading: isLoadingSettings 
   } = useQuery({
     queryKey: ['userSettings'],
@@ -188,7 +228,7 @@ export const useFinanceData = () => {
     transactions,
     filteredTransactions,
     categories,
-    userSettings: userSettingsData!,
+    userSettings: userSettings!,
     filterDates,
     filterPeriod,
     isLoading,
@@ -198,4 +238,4 @@ export const useFinanceData = () => {
     setFilterDates,
     setFilterPeriod
   };
-};
+}

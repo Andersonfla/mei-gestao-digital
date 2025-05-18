@@ -1,3 +1,8 @@
+
+import { supabase } from "@/integrations/supabase/client";
+import { Transaction } from "@/types/finance";
+import { format } from "date-fns";
+
 export async function addTransaction(transaction: Omit<Transaction, 'id' | 'created_at'>): Promise<Transaction> {
   // Verificar se há uma sessão ativa
   const { data: { session } } = await supabase.auth.getSession();

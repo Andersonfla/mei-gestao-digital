@@ -15,10 +15,19 @@ import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/
 import { format } from "date-fns";
 import { Transaction, UserSettings, UserPlan } from "@/types/finance";
 
-export function useFinanceData() {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+useEffect(() => {
+  const loadUserSettings = async () => {
+    if (!user?.id) return;
+
+    const settings = await getUserSettings();
+    setUserSettings((prev) => ({
+      ...prev,
+      plan: settings.plan,
+    }));
+  };
+
+  loadUserSettings();
+}, [user]);
   
   // Estado do filtro
   const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());

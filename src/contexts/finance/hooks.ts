@@ -23,6 +23,8 @@ export function useFinanceData() {
   const { user } = useAuth();
   
   // Query de configurações do usuário
+console.log("Usuário:", user);
+
   const { 
     data: userSettings, 
     isLoading: isLoadingSettings 

@@ -1,4 +1,4 @@
-
+import { useFinanceData } from "@/contexts/finance/hooks";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,

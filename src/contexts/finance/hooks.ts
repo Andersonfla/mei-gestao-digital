@@ -173,8 +173,10 @@ export function useFinanceData() {
     isLoading,
     addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => 
       addTransactionMutation.mutateAsync(transaction),
-    deleteTransaction: (id: string) => deleteTransactionMutation.mutateAsync(id),
-    upgradeToPremium: () => upgradeToPremiumMutation.mutateAsync(),
+    deleteTransaction: (id: string) => 
+      deleteTransactionMutation.mutateAsync(id),
+    upgradeToPremium: () => 
+      upgradeToPremiumMutation.mutateAsync(),
     setFilterDates,
     setFilterPeriod
   };

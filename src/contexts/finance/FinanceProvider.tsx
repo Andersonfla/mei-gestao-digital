@@ -22,7 +22,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     filterDates,
     filterPeriod,
     isLoading,
-    addTransaction,
+    addTransaction: addTransactionHook,
     deleteTransaction,
     upgradeToPremium,
     setFilterDates,
@@ -35,6 +35,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Get category by ID
   const getCategoryById = (id: string): TransactionCategory | undefined => {
     return categories.find(cat => cat.id === id);
+  };
+  
+  // Wrapper function to match the expected type in FinanceContextType
+  const addTransaction = async (transaction: Omit<Transaction, "id" | "created_at">): Promise<void> => {
+    await addTransactionHook(transaction);
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/types/finance";
 import { format } from "date-fns";
@@ -71,3 +70,4 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
 
   return data as Transaction;
 }
+

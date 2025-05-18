@@ -25,6 +25,7 @@ export function AppSidebar() {
   const { userSettings } = useFinance();
   const { signOut } = useAuth();
   const isMobile = useIsMobile();
+  const { transactions } = useFinanceData();
 
   // Check if the current route matches
   const isActive = (path: string) => {

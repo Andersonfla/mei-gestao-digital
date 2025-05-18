@@ -23,7 +23,7 @@ export function useFinanceData() {
   const { user } = useAuth();
   
   // Query de configurações do usuário
-console.log("Usuário:", user);
+  console.log("Usuário:", user);
 
   const { 
     data: userSettings, 
@@ -171,9 +171,10 @@ console.log("Usuário:", user);
     filterDates,
     filterPeriod,
     isLoading,
-    addTransactionMutation,
-    deleteTransactionMutation,
-    upgradeToPremiumMutation,
+    addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => 
+      addTransactionMutation.mutateAsync(transaction),
+    deleteTransaction: (id: string) => deleteTransactionMutation.mutateAsync(id),
+    upgradeToPremium: () => upgradeToPremiumMutation.mutateAsync(),
     setFilterDates,
     setFilterPeriod
   };

@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/types/finance";
 import { format } from "date-fns";
@@ -8,7 +9,7 @@ import { format } from "date-fns";
 export async function getTransactions(): Promise<Transaction[]> {
   const { data: session } = await supabase.auth.getSession();
 
-  if (!session?.user?.id) {
+  if (!session?.session?.user?.id) {
     console.error("Nenhum usuário autenticado encontrado para getTransactions");
     throw new Error("Autenticação necessária");
   }
@@ -16,11 +17,38 @@ export async function getTransactions(): Promise<Transaction[]> {
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", session.session.user.id)
     .order("date", { ascending: false });
 
   if (error) {
     console.error("Erro ao buscar transações:", error);
+    throw error;
+  }
+
+  return data as Transaction[];
+}
+
+/**
+ * Buscar transações do usuário autenticado dentro de um período específico
+ */
+export async function getFilteredTransactions(startDate: string, endDate: string): Promise<Transaction[]> {
+  const { data: session } = await supabase.auth.getSession();
+
+  if (!session?.session?.user?.id) {
+    console.error("Nenhum usuário autenticado encontrado para getFilteredTransactions");
+    throw new Error("Autenticação necessária");
+  }
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("user_id", session.session.user.id)
+    .gte("date", startDate)
+    .lte("date", endDate)
+    .order("date", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao buscar transações filtradas:", error);
     throw error;
   }
 
@@ -35,14 +63,14 @@ export async function addTransaction(
 ): Promise<Transaction> {
   const { data: session } = await supabase.auth.getSession();
 
-  if (!session?.user?.id) {
+  if (!session?.session?.user?.id) {
     console.error("Nenhum usuário autenticado encontrado para addTransaction");
     throw new Error("Você precisa estar logado para adicionar transações");
   }
 
   const formattedTransaction = {
     ...transaction,
-    user_id: session.user.id,
+    user_id: session.session.user.id,
   };
 
   const { data, error } = await supabase

@@ -72,6 +72,57 @@ export type Database = {
         }
         Relationships: []
       }
+      lancamentos: {
+        Row: {
+          created_at: string | null
+          data: string | null
+          descricao: string | null
+          id: string
+          user_id: string | null
+          valor: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: string | null
+          descricao?: string | null
+          id?: string
+          user_id?: string | null
+          valor?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: string | null
+          descricao?: string | null
+          id?: string
+          user_id?: string | null
+          valor?: number | null
+        }
+        Relationships: []
+      }
+      limites_planos: {
+        Row: {
+          created_at: string | null
+          id: string
+          mes_ano: string | null
+          total_lancamentos: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mes_ano?: string | null
+          total_lancamentos?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mes_ano?: string | null
+          total_lancamentos?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       plan_limits: {
         Row: {
           limit_reached: boolean

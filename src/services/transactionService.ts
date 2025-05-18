@@ -35,10 +35,14 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
 
   // Formatar objeto Date para string se necessário
   const formattedTransaction = {
-    ...transaction,
-    user_id: session.user.id, // Sempre definir explicitamente o user_id
-    date: transaction.date instanceof Date ? format(transaction.date, 'yyyy-MM-dd') : transaction.date,
-  };
+  ...transaction,
+  user_id: session.user.id,
+  date: transaction.date instanceof Date ? format(transaction.date, 'yyyy-MM-dd') : transaction.date,
+};
+
+// 👉 Adicione AQUI:
+console.log("🚀 Enviando transação:", formattedTransaction);
+
   
   const { data, error } = await supabase
     .from('transactions')

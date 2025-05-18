@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts";
@@ -15,19 +15,31 @@ import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/
 import { format } from "date-fns";
 import { Transaction, UserSettings, UserPlan } from "@/types/finance";
 
-useEffect(() => {
-  const loadUserSettings = async () => {
-    if (!user?.id) return;
+export const useFinanceData = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  const [userSettings, setUserSettings] = useState<UserSettings>({
+    plan: 'free' as UserPlan,
+    darkMode: false,
+    transactionCountThisMonth: 0,
+    transactionLimit: 20,
+  });
 
-    const settings = await getUserSettings();
-    setUserSettings((prev) => ({
-      ...prev,
-      plan: settings.plan,
-    }));
-  };
+  useEffect(() => {
+    const loadUserSettings = async () => {
+      if (!user?.id) return;
 
-  loadUserSettings();
-}, [user]);
+      const settings = await getUserSettings();
+      setUserSettings((prev) => ({
+        ...prev,
+        plan: settings.plan,
+      }));
+    };
+
+    loadUserSettings();
+  }, [user]);
   
   // Estado do filtro
   const [filterDates, setFilterDatesState] = useState(getDefaultFilterDates());
@@ -82,7 +94,7 @@ useEffect(() => {
 
   // Query de configurações do usuário
   const { 
-    data: userSettings, 
+    data: userSettingsData, 
     isLoading: isLoadingSettings 
   } = useQuery({
     queryKey: ['userSettings'],
@@ -176,7 +188,7 @@ useEffect(() => {
     transactions,
     filteredTransactions,
     categories,
-    userSettings: userSettings!,
+    userSettings: userSettingsData!,
     filterDates,
     filterPeriod,
     isLoading,
@@ -186,4 +198,4 @@ useEffect(() => {
     setFilterDates,
     setFilterPeriod
   };
-}
+};

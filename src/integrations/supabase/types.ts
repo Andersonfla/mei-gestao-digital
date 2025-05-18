@@ -98,25 +98,34 @@ export type Database = {
       }
       profiles: {
         Row: {
-          created_at: string
+          contagem_de_transações: number | null
+          created_at: string | null
+          email: string | null
           id: string
-          name: string
-          plan: string
-          updated_at: string
+          name: string | null
+          plan: string | null
+          transaction_count: number | null
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          contagem_de_transações?: number | null
+          created_at?: string | null
+          email?: string | null
           id: string
-          name: string
-          plan?: string
-          updated_at?: string
+          name?: string | null
+          plan?: string | null
+          transaction_count?: number | null
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          contagem_de_transações?: number | null
+          created_at?: string | null
+          email?: string | null
           id?: string
-          name?: string
-          plan?: string
-          updated_at?: string
+          name?: string | null
+          plan?: string | null
+          transaction_count?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }

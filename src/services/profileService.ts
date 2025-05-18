@@ -51,14 +51,24 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
 
   // Se não existir um registro para este mês, cria um com contagem zero
   if (!data) {
+    // Primeiro, verificamos quantas transações o usuário já tem neste mês
+    const { count, error: countError } = await supabase
+      .from('transactions')
+      .select('*', { count: 'exact' })
+      .eq('user_id', user.id)
+      .gte('date', `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
+      .lte('date', new Date(currentYear, currentMonth, 0).toISOString().split('T')[0]);
+    
+    const transactionCount = countError ? 0 : count || 0;
+    
     const { data: newLimit, error: insertError } = await supabase
       .from('plan_limits')
       .insert({
         user_id: user.id,
         month: currentMonth,
         year: currentYear,
-        transactions: 0,
-        limit_reached: false
+        transactions: transactionCount, // Usar a contagem real de transações
+        limit_reached: transactionCount >= 20
       })
       .select('*')
       .single();
@@ -69,8 +79,8 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
         user_id: user.id,
         month: currentMonth,
         year: currentYear,
-        transactions: 0,
-        limit_reached: false
+        transactions: transactionCount,
+        limit_reached: transactionCount >= 20
       };
     }
     

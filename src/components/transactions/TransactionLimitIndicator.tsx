@@ -14,13 +14,13 @@ export function TransactionLimitIndicator({ userSettings }: TransactionLimitIndi
   const progressPercentage = (userSettings.transactionCountThisMonth / userSettings.transactionLimit) * 100;
 
   return (
-    <div className="mt-3 space-y-1">
+    <div className="mt-2 space-y-1">
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>Lançamentos utilizados</span>
         <span className="font-medium">{userSettings.transactionCountThisMonth}/{userSettings.transactionLimit}</span>
       </div>
-      <Progress value={progressPercentage} className="h-2" />
-      <div className="text-xs text-muted-foreground text-right">
+      <Progress value={progressPercentage} className="h-1.5" />
+      <div className="text-xs text-muted-foreground">
         {remainingTransactions === 0 ? (
           <span className="text-destructive font-medium">Limite atingido</span>
         ) : (

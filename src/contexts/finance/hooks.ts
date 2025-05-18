@@ -32,6 +32,7 @@ export function useFinanceData() {
     queryKey: ['userSettings'],
     queryFn: getUserSettings,
     enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
+    staleTime: 1000 * 60 * 5, // 5 minutos
     initialData: {
       plan: 'free' as UserPlan,
       darkMode: false,
@@ -115,6 +116,7 @@ export function useFinanceData() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['filteredTransactions'] });
+      queryClient.invalidateQueries({ queryKey: ['userSettings'] });
       toast({
         title: "Transação excluída",
         description: "A transação foi excluída com sucesso",

@@ -1,4 +1,4 @@
-import { useFinanceData } from "@/contexts/finance/hooks";
+
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut } from "lucide-react";
+import { TransactionLimitIndicator } from "@/components/transactions/TransactionLimitIndicator";
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -25,7 +26,6 @@ export function AppSidebar() {
   const { userSettings } = useFinance();
   const { signOut } = useAuth();
   const isMobile = useIsMobile();
-  const { transactions } = useFinanceData();
 
   // Check if the current route matches
   const isActive = (path: string) => {
@@ -104,21 +104,8 @@ export function AppSidebar() {
                   <p className="text-xs font-medium">Plano atual:</p>
                   <p className="font-semibold">{userSettings.plan === 'free' ? 'Gratuito' : 'Premium'}</p>
                   
-                  {userSettings.plan === 'free' && (
-                    <div className="mt-2">
-                      <p className="text-xs mb-1">
-                        {userSettings.transactionCountThisMonth} / {userSettings.transactionLimit} lançamentos
-                      </p>
-                      <div className="h-1.5 w-full rounded-full bg-sidebar-border overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full" 
-                          style={{ 
-                            width: `${Math.min(100, (userSettings.transactionCountThisMonth / userSettings.transactionLimit) * 100)}%` 
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  {/* Use the TransactionLimitIndicator component */}
+                  <TransactionLimitIndicator userSettings={userSettings} />
                 </div>
                 
                 {userSettings.plan === 'free' && (

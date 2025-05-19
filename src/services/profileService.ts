@@ -41,6 +41,7 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
     .select('*')
     .eq('month', currentMonth)
     .eq('year', currentYear)
+    .eq('user_id', user.id) // Importante garantir que estamos buscando o limite do usuário atual
     .maybeSingle();
 
   if (error) {
@@ -54,18 +55,21 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
     const { count, error: countError } = await supabase
       .from('transactions')
       .select('*', { count: 'exact' })
+      .eq('user_id', user.id) // Importante garantir que estamos contando transações do usuário atual
       .gte('date', `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
       .lte('date', new Date(currentYear, currentMonth, 0).toISOString().split('T')[0]);
     
     const transactionCount = countError ? 0 : count || 0;
     
+    // Agora incluímos o user_id no objeto de inserção
     const { data: newLimit, error: insertError } = await supabase
       .from('plan_limits')
       .insert({
         month: currentMonth,
         year: currentYear,
         transactions: transactionCount, // Usar a contagem real de transações
-        limit_reached: transactionCount >= 20
+        limit_reached: transactionCount >= 20,
+        user_id: user.id // Adicionando o user_id explicitamente
       })
       .select('*')
       .single();

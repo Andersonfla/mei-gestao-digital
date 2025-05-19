@@ -17,6 +17,7 @@ export async function getTransactions(): Promise<Transaction[]> {
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
+    .eq("user_id", session.session.user.id)
     .order("date", { ascending: false });
 
   if (error) {
@@ -41,6 +42,7 @@ export async function getFilteredTransactions(startDate: string, endDate: string
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
+    .eq("user_id", session.session.user.id)
     .gte("date", startDate)
     .lte("date", endDate)
     .order("date", { ascending: false });
@@ -57,7 +59,7 @@ export async function getFilteredTransactions(startDate: string, endDate: string
  * Adicionar nova transação para o usuário autenticado.
  */
 export async function addTransaction(
-  transaction: Omit<Transaction, "id" | "created_at">
+  transaction: Omit<Transaction, "id" | "created_at" | "user_id">
 ): Promise<Transaction> {
   const { data: session } = await supabase.auth.getSession();
 
@@ -78,6 +80,7 @@ export async function addTransaction(
     .from("transactions")
     .select("*")
     .eq("type", "limite")
+    .eq("user_id", session.session.user.id)
     .gte("date", `${monthKey}-01`)
     .lte("date", `${monthKey}-31`);
 
@@ -92,17 +95,19 @@ export async function addTransaction(
       description: "Limite mensal de transações",
       value: 20, // ou outro valor do seu plano
       date: `${monthKey}-01`,
-      category: "limite"
+      category: "limite",
+      user_id: session.session.user.id // Adicionando o user_id explicitamente
     });
   }
 
-  // Inserir a transação principal - o user_id será preenchido pelo trigger
+  // Inserir a transação principal com o user_id explícito
   const formattedTransaction = {
     type: transaction.type,
     category: transaction.category,
-    description: transaction.description,
+    description: transaction.description || "",
     value: transaction.value,
-    date: formattedDate
+    date: formattedDate,
+    user_id: session.session.user.id // Adicionando o user_id explicitamente
   };
 
   const { data, error } = await supabase
@@ -123,7 +128,17 @@ export async function addTransaction(
  * Excluir uma transação por ID.
  */
 export async function deleteTransaction(id: string): Promise<void> {
-  const { error } = await supabase.from("transactions").delete().eq("id", id);
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session?.session?.user?.id) {
+    throw new Error("Autenticação necessária");
+  }
+  
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", session.session.user.id);
 
   if (error) {
     console.error("Erro ao excluir transação:", error);

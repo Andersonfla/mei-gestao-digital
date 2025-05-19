@@ -21,7 +21,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     throw error;
   }
 
-  return data as UserProfile;
+  return data as unknown as UserProfile;
 }
 
 export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
@@ -39,7 +39,6 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
   const { data, error } = await supabase
     .from('plan_limits')
     .select('*')
-    .eq('user_id', user.id)
     .eq('month', currentMonth)
     .eq('year', currentYear)
     .maybeSingle();
@@ -55,7 +54,6 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
     const { count, error: countError } = await supabase
       .from('transactions')
       .select('*', { count: 'exact' })
-      .eq('user_id', user.id)
       .gte('date', `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
       .lte('date', new Date(currentYear, currentMonth, 0).toISOString().split('T')[0]);
     
@@ -64,7 +62,6 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
     const { data: newLimit, error: insertError } = await supabase
       .from('plan_limits')
       .insert({
-        user_id: user.id,
         month: currentMonth,
         year: currentYear,
         transactions: transactionCount, // Usar a contagem real de transações
@@ -81,13 +78,13 @@ export async function getCurrentMonthPlanLimit(): Promise<PlanLimit | null> {
         year: currentYear,
         transactions: transactionCount,
         limit_reached: transactionCount >= 20
-      };
+      } as PlanLimit;
     }
     
-    return newLimit as PlanLimit;
+    return newLimit as unknown as PlanLimit;
   }
 
-  return data as PlanLimit;
+  return data as unknown as PlanLimit;
 }
 
 export async function upgradeToPremium(): Promise<void> {

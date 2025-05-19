@@ -109,63 +109,7 @@ export const signUp = async (
     
     console.log("Signup successful, user data:", data);
     
-    // Garantir que o perfil seja criado mesmo se houver problemas com a função edge
-    if (data.user) {
-      try {
-        console.log("Creating profile for user:", data.user.id);
-        
-        // Tentar criar o perfil diretamente
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            name: name,
-            plan: 'free'
-          });
-        
-        if (profileError) {
-          console.error("Error creating profile directly:", profileError);
-        } else {
-          console.log("Profile created successfully");
-        }
-        
-        // Inicializar plan_limits para o mês atual
-        const currentMonth = new Date().getMonth() + 1;
-        const currentYear = new Date().getFullYear();
-        
-        console.log("Creating plan limits for user:", data.user.id);
-        
-        const { error: limitsError } = await supabase
-          .from('plan_limits')
-          .insert({
-            user_id: data.user.id,
-            month: currentMonth,
-            year: currentYear,
-            transactions: 0,
-            limit_reached: false
-          });
-        
-        if (limitsError) {
-          console.error("Error creating plan limits:", limitsError);
-        } else {
-          console.log("Plan limits created successfully");
-        }
-        
-        // Como backup adicional, tentar chamar a função edge
-        try {
-          console.log("Calling handle-new-user edge function");
-          await supabase.functions.invoke('handle-new-user', {
-            body: { user: data.user }
-          });
-          console.log("Edge function called successfully");
-        } catch (functionError) {
-          console.warn("Edge function call failed, but profile was created directly:", functionError);
-        }
-      } catch (profileSetupError) {
-        console.error("Error setting up profile:", profileSetupError);
-        // Continue with signup success - we can attempt to create profile on first login
-      }
-    }
+    // O perfil será criado automaticamente pelo trigger no Supabase
     
     toast.toast({
       title: "Cadastro realizado",

@@ -17,7 +17,6 @@ export async function getTransactions(): Promise<Transaction[]> {
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
-    .eq("user_id", session.session.user.id)
     .order("date", { ascending: false });
 
   if (error) {
@@ -25,7 +24,7 @@ export async function getTransactions(): Promise<Transaction[]> {
     throw error;
   }
 
-  return data as Transaction[];
+  return data as unknown as Transaction[];
 }
 
 /**
@@ -41,8 +40,7 @@ export async function getFilteredTransactions(startDate: string, endDate: string
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("id, user_id, value, date, type, category, created_at, description")
-    .eq("user_id", session.session.user.id)
+    .select("*")
     .gte("date", startDate)
     .lte("date", endDate)
     .order("date", { ascending: false });
@@ -52,7 +50,7 @@ export async function getFilteredTransactions(startDate: string, endDate: string
     throw error;
   }
 
-  return data as Transaction[];
+  return data as unknown as Transaction[];
 }
 
 /**
@@ -68,8 +66,6 @@ export async function addTransaction(
     throw new Error("Você precisa estar logado para adicionar transações");
   }
 
-  const userId = session.session.user.id;
-
   // Formatar a data
   const formattedDate = transaction.date instanceof Date
     ? format(transaction.date, 'yyyy-MM-dd')
@@ -81,7 +77,6 @@ export async function addTransaction(
   const { data: existingLimit, error: limitError } = await supabase
     .from("transactions")
     .select("*")
-    .eq("user_id", userId)
     .eq("type", "limite")
     .gte("date", `${monthKey}-01`)
     .lte("date", `${monthKey}-31`);
@@ -97,17 +92,17 @@ export async function addTransaction(
       description: "Limite mensal de transações",
       value: 20, // ou outro valor do seu plano
       date: `${monthKey}-01`,
-      user_id: userId,
-      category: "limite", // Adicionado 
-      created_at: new Date().toISOString(), // Adicionado
+      category: "limite"
     });
   }
 
-  // Inserir a transação principal
+  // Inserir a transação principal - o user_id será preenchido pelo trigger
   const formattedTransaction = {
-    ...transaction,
-    date: formattedDate,
-    user_id: userId,
+    type: transaction.type,
+    category: transaction.category,
+    description: transaction.description,
+    value: transaction.value,
+    date: formattedDate
   };
 
   const { data, error } = await supabase
@@ -121,7 +116,7 @@ export async function addTransaction(
     throw error;
   }
 
-  return data as Transaction;
+  return data as unknown as Transaction;
 }
 
 /**

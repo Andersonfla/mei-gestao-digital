@@ -14,7 +14,7 @@ export async function getCategories(): Promise<TransactionCategory[]> {
     throw error;
   }
 
-  return data as TransactionCategory[];
+  return data as unknown as TransactionCategory[];
 }
 
 // Adicionar categoria personalizada para o usuário
@@ -25,11 +25,12 @@ export async function addCategory(category: Omit<TransactionCategory, 'id'>): Pr
     throw new Error("Usuário deve estar autenticado para adicionar categorias");
   }
 
+  // O user_id será preenchido automaticamente pelo trigger set_user_id
   const { data, error } = await supabase
     .from('categories')
     .insert({
-      ...category,
-      user_id: session.user.id // Garantir que o user_id seja definido corretamente
+      name: category.name,
+      type: category.type
     })
     .select()
     .single();
@@ -39,7 +40,7 @@ export async function addCategory(category: Omit<TransactionCategory, 'id'>): Pr
     throw error;
   }
 
-  return data as TransactionCategory;
+  return data as unknown as TransactionCategory;
 }
 
 // Verificar se uma categoria pertence ao usuário ou é pública

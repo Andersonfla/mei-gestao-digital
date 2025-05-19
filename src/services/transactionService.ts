@@ -68,15 +68,44 @@ export async function addTransaction(
     throw new Error("Você precisa estar logado para adicionar transações");
   }
 
-  // Format the date to ensure it's a string
-  const formattedDate = transaction.date instanceof Date 
-    ? format(transaction.date, 'yyyy-MM-dd') 
+  const userId = session.session.user.id;
+
+  // Formatar a data
+  const formattedDate = transaction.date instanceof Date
+    ? format(transaction.date, 'yyyy-MM-dd')
     : transaction.date;
 
+  const monthKey = formattedDate.slice(0, 7); // "YYYY-MM"
+
+  // ⚠️ Verificar se já existe uma transação de tipo "limite" para esse mês
+  const { data: existingLimit, error: limitError } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("type", "limite")
+    .gte("date", `${monthKey}-01`)
+    .lte("date", `${monthKey}-31`);
+
+  if (limitError) {
+    console.error("Erro ao verificar limite do mês:", limitError);
+  }
+
+  // ⚠️ Inserir automaticamente o limite caso não exista
+  if (!existingLimit || existingLimit.length === 0) {
+    await supabase.from("transactions").insert({
+      type: "limite",
+      description: "Limite mensal de transações",
+      value: 20, // ou outro valor do seu plano
+      date: `${monthKey}-01`,
+      user_id: userId,
+    });
+  }
+
+  // Inserir a transação principal
   const formattedTransaction = {
     ...transaction,
     date: formattedDate,
-    user_id: session.session.user.id,
+    user_id: userId,
   };
 
   const { data, error } = await supabase

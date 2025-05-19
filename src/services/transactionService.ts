@@ -98,6 +98,8 @@ export async function addTransaction(
       value: 20, // ou outro valor do seu plano
       date: `${monthKey}-01`,
       user_id: userId,
+      category: "limite", // Adicionado 
+      created_at: new Date().toISOString(), // Adicionado
     });
   }
 

@@ -9,297 +9,258 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      categories: {
+      consultas: {
         Row: {
+          data_consulta: string | null
+          data_hora: string
+          especialidade: string | null
+          hora_consulta: string | null
           id: string
-          name: string
-          type: string
-          user_id: string | null
+          observacoes: string | null
+          paciente_id: string | null
+          patient_id: string | null
+          profile_id: string | null
+          status: string | null
+          tipo_consulta: string | null
         }
         Insert: {
+          data_consulta?: string | null
+          data_hora: string
+          especialidade?: string | null
+          hora_consulta?: string | null
           id?: string
-          name: string
-          type: string
-          user_id?: string | null
+          observacoes?: string | null
+          paciente_id?: string | null
+          patient_id?: string | null
+          profile_id?: string | null
+          status?: string | null
+          tipo_consulta?: string | null
         }
         Update: {
+          data_consulta?: string | null
+          data_hora?: string
+          especialidade?: string | null
+          hora_consulta?: string | null
           id?: string
-          name?: string
-          type?: string
-          user_id?: string | null
+          observacoes?: string | null
+          paciente_id?: string | null
+          patient_id?: string | null
+          profile_id?: string | null
+          status?: string | null
+          tipo_consulta?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "consultas_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultas_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultas_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      financial_goals: {
+      fila_espera: {
         Row: {
-          category: string | null
-          completed: boolean
-          created_at: string
-          current_amount: number
-          end_date: string | null
+          data_chamada: string | null
+          data_entrada: string | null
+          especialidade: string
           id: string
-          start_date: string
-          target_amount: number
-          title: string
-          updated_at: string
-          user_id: string
+          motivo: string | null
+          paciente_id: string | null
+          prioridade: string | null
+          status: string | null
         }
         Insert: {
-          category?: string | null
-          completed?: boolean
-          created_at?: string
-          current_amount?: number
-          end_date?: string | null
+          data_chamada?: string | null
+          data_entrada?: string | null
+          especialidade: string
           id?: string
-          start_date?: string
-          target_amount: number
-          title: string
-          updated_at?: string
-          user_id: string
+          motivo?: string | null
+          paciente_id?: string | null
+          prioridade?: string | null
+          status?: string | null
         }
         Update: {
-          category?: string | null
-          completed?: boolean
-          created_at?: string
-          current_amount?: number
-          end_date?: string | null
+          data_chamada?: string | null
+          data_entrada?: string | null
+          especialidade?: string
           id?: string
-          start_date?: string
-          target_amount?: number
-          title?: string
-          updated_at?: string
-          user_id?: string
+          motivo?: string | null
+          paciente_id?: string | null
+          prioridade?: string | null
+          status?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fila_espera_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      lancamentos: {
+      pacientes: {
         Row: {
-          created_at: string | null
-          data: string | null
-          descricao: string | null
+          criado_em: string | null
+          email: string | null
           id: string
-          user_id: string | null
-          valor: number | null
+          nome: string
+          profile_id: string | null
+          telefone: string | null
         }
         Insert: {
-          created_at?: string | null
-          data?: string | null
-          descricao?: string | null
+          criado_em?: string | null
+          email?: string | null
           id?: string
-          user_id?: string | null
-          valor?: number | null
+          nome: string
+          profile_id?: string | null
+          telefone?: string | null
         }
         Update: {
-          created_at?: string | null
-          data?: string | null
-          descricao?: string | null
+          criado_em?: string | null
+          email?: string | null
           id?: string
-          user_id?: string | null
-          valor?: number | null
+          nome?: string
+          profile_id?: string | null
+          telefone?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pacientes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      limites_planos: {
+      patients: {
         Row: {
-          created_at: string | null
+          data_nascimento: string | null
+          email: string | null
           id: string
-          mes_ano: string | null
-          total_lancamentos: number | null
-          user_id: string | null
+          nome: string
+          profile_id: string | null
+          telefone: string | null
         }
         Insert: {
-          created_at?: string | null
+          data_nascimento?: string | null
+          email?: string | null
           id?: string
-          mes_ano?: string | null
-          total_lancamentos?: number | null
-          user_id?: string | null
+          nome: string
+          profile_id?: string | null
+          telefone?: string | null
         }
         Update: {
-          created_at?: string | null
+          data_nascimento?: string | null
+          email?: string | null
           id?: string
-          mes_ano?: string | null
-          total_lancamentos?: number | null
-          user_id?: string | null
+          nome?: string
+          profile_id?: string | null
+          telefone?: string | null
         }
-        Relationships: []
-      }
-      plan_limits: {
-        Row: {
-          limit_reached: boolean
-          month: number
-          transactions: number
-          user_id: string
-          year: number
-        }
-        Insert: {
-          limit_reached?: boolean
-          month: number
-          transactions?: number
-          user_id: string
-          year: number
-        }
-        Update: {
-          limit_reached?: boolean
-          month?: number
-          transactions?: number
-          user_id?: string
-          year?: number
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "patients_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
-          contagem_de_transações: number | null
-          created_at: string | null
+          atualizado_em: string | null
+          data_criacao: string | null
+          data_nascimento: string | null
           email: string | null
+          foto_url: string | null
           id: string
-          name: string | null
-          plan: string | null
-          transaction_count: number | null
-          updated_at: string | null
+          nome: string | null
+          telefone: string | null
         }
         Insert: {
-          contagem_de_transações?: number | null
-          created_at?: string | null
+          atualizado_em?: string | null
+          data_criacao?: string | null
+          data_nascimento?: string | null
           email?: string | null
+          foto_url?: string | null
           id: string
-          name?: string | null
-          plan?: string | null
-          transaction_count?: number | null
-          updated_at?: string | null
+          nome?: string | null
+          telefone?: string | null
         }
         Update: {
-          contagem_de_transações?: number | null
-          created_at?: string | null
+          atualizado_em?: string | null
+          data_criacao?: string | null
+          data_nascimento?: string | null
           email?: string | null
+          foto_url?: string | null
           id?: string
-          name?: string | null
-          plan?: string | null
-          transaction_count?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      recurring_transactions: {
-        Row: {
-          active: boolean
-          category: string
-          created_at: string
-          description: string | null
-          end_date: string | null
-          frequency: string
-          id: string
-          next_date: string
-          start_date: string
-          type: string
-          updated_at: string
-          user_id: string
-          value: number
-        }
-        Insert: {
-          active?: boolean
-          category: string
-          created_at?: string
-          description?: string | null
-          end_date?: string | null
-          frequency: string
-          id?: string
-          next_date: string
-          start_date: string
-          type: string
-          updated_at?: string
-          user_id: string
-          value: number
-        }
-        Update: {
-          active?: boolean
-          category?: string
-          created_at?: string
-          description?: string | null
-          end_date?: string | null
-          frequency?: string
-          id?: string
-          next_date?: string
-          start_date?: string
-          type?: string
-          updated_at?: string
-          user_id?: string
-          value?: number
-        }
-        Relationships: []
-      }
-      tasks: {
-        Row: {
-          created_at: string
-          description: string | null
-          due_date: string | null
-          id: string
-          priority: string | null
-          status: string
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: string | null
-          status?: string
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: string | null
-          status?: string
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      transactions: {
-        Row: {
-          category: string
-          created_at: string
-          date: string
-          description: string | null
-          id: string
-          type: string
-          user_id: string
-          value: number
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          date: string
-          description?: string | null
-          id?: string
-          type: string
-          user_id: string
-          value: number
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          date?: string
-          description?: string | null
-          id?: string
-          type?: string
-          user_id?: string
-          value?: number
+          nome?: string | null
+          telefone?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      order_items: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          order_id: string | null
+          price: number | null
+          product_id: string | null
+          quantity: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          order_id?: string | null
+          price?: number | null
+          product_id?: string | null
+          quantity?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          order_id?: string | null
+          price?: number | null
+          product_id?: string | null
+          quantity?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      painel_consultas_completo: {
+        Row: {
+          consulta_id: string | null
+          data_consulta: string | null
+          email_paciente: string | null
+          hora_consulta: string | null
+          nome_paciente: string | null
+          telefone_paciente: string | null
+          tipo_consulta: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

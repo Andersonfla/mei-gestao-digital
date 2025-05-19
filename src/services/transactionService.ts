@@ -41,7 +41,7 @@ export async function getFilteredTransactions(startDate: string, endDate: string
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("*")
+    .select("id, user_id, value, date, type, category, created_at, description")
     .eq("user_id", session.session.user.id)
     .gte("date", startDate)
     .lte("date", endDate)

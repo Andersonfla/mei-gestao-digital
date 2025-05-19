@@ -46,9 +46,9 @@ export function useFinanceData() {
     data: transactions = [], 
     isLoading: isLoadingTransactions 
   } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: getTransactions,
-    enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
+    queryKey: ['transactions', user?.id], // adiciona o ID do usuário na chave
+    queryFn: () => getTransactions(user?.id), // passa o ID do usuário para a função
+    enabled: !!user, // executa apenas se o usuário estiver carregado
     retry: (failureCount, error) => {
       // Não tenta novamente se o erro for relacionado à autenticação
       if (error instanceof Error && error.message.includes("autenticação")) {

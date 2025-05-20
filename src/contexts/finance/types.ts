@@ -22,4 +22,5 @@ export interface FinanceContextType {
   calculateTotalByType: (type: 'entrada' | 'saida') => number;
   getCategoryBreakdown: (type: 'entrada' | 'saida') => CategoryBreakdownItem[];
   upgradeToPremium: () => Promise<void>;
+  refetchUserSettings: () => Promise<any>; // Added missing property
 }

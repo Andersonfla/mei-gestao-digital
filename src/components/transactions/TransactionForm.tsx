@@ -36,6 +36,7 @@ export function TransactionForm() {
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       date: new Date().toISOString().split('T')[0],
+      value: "",
       description: "",
       category: "",
     },
@@ -82,6 +83,7 @@ export function TransactionForm() {
       
       form.reset({
         date: new Date().toISOString().split('T')[0],
+        value: "",
         description: "",
         category: "",
       });

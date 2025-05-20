@@ -26,7 +26,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     deleteTransaction,
     upgradeToPremium,
     setFilterDates,
-    setFilterPeriod
+    setFilterPeriod,
+    refetchUserSettings
   } = useFinanceData();
 
   // Monthly reports
@@ -62,6 +63,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         calculateTotalByType: (type) => calculateTotalByType(filteredTransactions, type),
         getCategoryBreakdown: (type) => getCategoryBreakdown(filteredTransactions, type),
         upgradeToPremium,
+        refetchUserSettings,
       }}
     >
       {children}

@@ -98,7 +98,7 @@ async function canAddTransaction(): Promise<boolean> {
   // Contar diretamente as transações do usuário no mês atual
   const { count: transactionCount, error: countError } = await supabase
     .from("transactions")
-    .select("*", { count: "exact", head: false })
+    .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
     .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
     .lte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-31`);
@@ -108,8 +108,11 @@ async function canAddTransaction(): Promise<boolean> {
     return false;
   }
   
+  const count = transactionCount || 0;
+  console.log(`Verificando limites: contagem atual = ${count} de 20 permitidas`);
+  
   // Verificar se ultrapassou o limite de 20 transações
-  return (transactionCount || 0) < 20;
+  return count < 20;
 }
 
 /**

@@ -19,9 +19,17 @@ export function TransactionForm() {
   const [activeTab, setActiveTab] = useState<TransactionType>("entrada");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Revalidar configurações do usuário quando o componente montar
+  // Revalidar configurações do usuário quando o componente montar e a cada 30 segundos
   useEffect(() => {
-    refetchUserSettings?.();
+    // Consulta inicial
+    refetchUserSettings();
+    
+    // Configurar revalidação periódica para manter os dados atualizados
+    const intervalId = setInterval(() => {
+      refetchUserSettings();
+    }, 30000); // Revalidar a cada 30 segundos
+    
+    return () => clearInterval(intervalId);
   }, [refetchUserSettings]);
   
   const form = useForm<TransactionFormValues>({
@@ -39,9 +47,10 @@ export function TransactionForm() {
   async function onSubmit(data: TransactionFormValues) {
     try {
       // Revalidar as configurações do usuário antes de adicionar uma transação
-      await refetchUserSettings?.();
+      // para ter certeza de que temos os dados mais recentes
+      await refetchUserSettings();
       
-      // Verificamos se o usuário do plano gratuito atingiu o limite de lançamentos
+      // Verificar se o usuário atingiu o limite ANTES de tentar adicionar
       if (userSettings.plan === 'free' && 
           userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
         toast({
@@ -67,6 +76,11 @@ export function TransactionForm() {
       };
       
       await addTransaction(newTransaction);
+      
+      // Revalidar as configurações após adicionar uma transação
+      // para atualizar o contador imediatamente
+      await refetchUserSettings();
+      
       form.reset({
         date: new Date().toISOString().split('T')[0],
         value: "",
@@ -85,8 +99,14 @@ export function TransactionForm() {
         
         // Automatically redirect to the upgrade page
         navigate("/upgrade");
+      } else {
+        // Outros erros
+        toast({
+          title: "Erro",
+          description: error.message || "Ocorreu um erro ao adicionar a transação.",
+          variant: "destructive",
+        });
       }
-      // Outros erros são tratados na mutação
     } finally {
       setIsSubmitting(false);
     }

@@ -19,7 +19,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     // Buscar perfil do usuário
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
-      .select("plan, transaction_count")
+      .select("plan")
       .eq("id", userId)
       .single();
 
@@ -39,10 +39,11 @@ export async function getUserSettings(): Promise<UserSettings> {
     const currentMonth = currentDate.getMonth() + 1; // JavaScript meses são 0-indexados
     const currentYear = currentDate.getFullYear();
 
-    // Contar diretamente as transações do usuário no mês atual para garantir precisão
+    // IMPORTANTE: Contar diretamente as transações do usuário no mês atual 
+    // para garantir precisão e evitar inconsistências com recargas de página
     const { count: transactionCount, error: countError } = await supabase
       .from("transactions")
-      .select("*", { count: "exact", head: false })
+      .select("*", { count: "exact", head: true })
       .eq("user_id", userId)
       .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
       .lte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-31`);
@@ -51,6 +52,22 @@ export async function getUserSettings(): Promise<UserSettings> {
       console.error("Erro ao contar transações:", countError);
     }
 
+    // Consulta específica para verificar as transações do usuário (para debugging)
+    const { data: transactionsDebug, error: transactionsError } = await supabase
+      .from("transactions")
+      .select("id, date")
+      .eq("user_id", userId)
+      .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
+      .lte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-31`);
+    
+    if (transactionsError) {
+      console.error("Erro ao buscar transações para debug:", transactionsError);
+    } else {
+      console.log(`Quantidade de transações encontradas: ${transactionsDebug?.length}, userId: ${userId}`);
+      console.log(`IDs das transações: ${transactionsDebug?.map(t => t.id).join(', ')}`);
+    }
+
+    // Atualizar o registro de plan_limits para refletir a contagem real
     // Verificar se existe um registro de limites para este mês/ano
     const { data: limitsData, error: limitsError } = await supabase
       .from("plan_limits")
@@ -63,8 +80,9 @@ export async function getUserSettings(): Promise<UserSettings> {
     // Definir limite com base no plano
     const transactionLimit = profileData?.plan === "premium" ? 999999 : 20;
     
-    // Calcular contagem de transações do banco de dados (mais confiável)
+    // Calcular contagem real de transações do banco de dados (mais confiável)
     const actualTransactionCount = transactionCount || 0;
+    console.log(`Contagem real de transações: ${actualTransactionCount}`);
     
     // Se não encontrou limites para este mês, criar um novo registro
     if (limitsError && limitsError.code === "PGRST116") {
@@ -87,6 +105,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     } else if (limitsData) {
       // Atualizar o registro existente para garantir que reflete a contagem real
       if (limitsData.transactions !== actualTransactionCount) {
+        console.log(`Atualizando contagem de ${limitsData.transactions} para ${actualTransactionCount}`);
         const { error: updateError } = await supabase
           .from("plan_limits")
           .update({

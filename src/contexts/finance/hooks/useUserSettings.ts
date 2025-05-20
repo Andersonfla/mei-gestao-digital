@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts";
 import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/services/profileService";
 import { useEffect } from "react";
+import { UserPlan } from "@/types/finance";
 
 /**
  * Hook for managing user settings and plan details
@@ -25,7 +26,7 @@ export function useUserSettings() {
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     initialData: {
-      plan: 'free',
+      plan: 'free' as UserPlan,
       darkMode: false,
       transactionCountThisMonth: 0,
       transactionLimit: 20,

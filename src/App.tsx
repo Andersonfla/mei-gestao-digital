@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FinanceProvider, AuthProvider } from "./contexts";
+import { ThemeProvider } from "./contexts/theme/ThemeContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -28,23 +30,25 @@ const App = () => (
     <BrowserRouter>
       <TooltipProvider>
         <AuthProvider>
-          <SidebarProvider>
-            <FinanceProvider>
-              <Toaster />
-              <Sonner />
-              <Routes>
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/" element={<AppLayout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="transactions" element={<Transactions />} />
-                  <Route path="reports" element={<Reports />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="upgrade" element={<Upgrade />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </FinanceProvider>
-          </SidebarProvider>
+          <ThemeProvider>
+            <SidebarProvider>
+              <FinanceProvider>
+                <Toaster />
+                <Sonner />
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/" element={<AppLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="transactions" element={<Transactions />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="upgrade" element={<Upgrade />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </FinanceProvider>
+            </SidebarProvider>
+          </ThemeProvider>
         </AuthProvider>
       </TooltipProvider>
     </BrowserRouter>

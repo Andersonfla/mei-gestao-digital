@@ -9,29 +9,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
-import { format, parseISO } from "date-fns";
 import { TransactionChart } from "@/components/dashboard/TransactionChart";
 import { useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const Reports = () => {
   const { filteredTransactions, userSettings } = useFinance();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
+  const isPremium = userSettings.plan === 'premium';
 
   const handleExport = async () => {
+    if (!isPremium) {
+      // Let the premium alert dialog handle this
+      return;
+    }
+    
     // In a real app, this would generate a PDF or Excel file
     setIsExporting(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsExporting(false);
-    
-    if (userSettings.plan === 'free') {
-      toast({
-        title: "Recurso Premium",
-        description: "Faça upgrade para o plano Premium para exportar relatórios.",
-        variant: "destructive",
-      });
-      return;
-    }
     
     toast({
       title: "Relatório exportado",
@@ -45,9 +42,35 @@ const Reports = () => {
         <h1 className="text-3xl font-bold">Relatórios</h1>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <FilterPeriod />
-          <Button variant="default" onClick={handleExport} disabled={isExporting}>
-            {isExporting ? "Exportando..." : "Exportar Relatório"}
-          </Button>
+          
+          {isPremium ? (
+            <Button variant="default" onClick={handleExport} disabled={isExporting}>
+              {isExporting ? "Exportando..." : "Exportar Relatório"}
+            </Button>
+          ) : (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="default">
+                  Exportar Relatório
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Recurso Premium</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    A exportação de relatórios é um recurso exclusivo do plano Premium. 
+                    Faça upgrade agora para desbloquear esta e outras funcionalidades avançadas.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => window.location.href = '/upgrade'}>
+                    Ver Planos
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
       
@@ -95,15 +118,15 @@ const Reports = () => {
                     ) : (
                       filteredTransactions.map(transaction => (
                         <TableRow key={transaction.id}>
-                          <TableCell>{format(new Date(transaction.date), 'dd/MM/yyyy')}</TableCell>
+                          <TableCell>{new Date(transaction.date).toLocaleDateString('pt-BR')}</TableCell>
                           <TableCell>{transaction.description || '-'}</TableCell>
                           <TableCell>{transaction.category}</TableCell>
                           <TableCell>
                             <span
                               className={`inline-block px-2 py-1 rounded-full text-xs ${
                                 transaction.type === 'entrada'
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                               }`}
                             >
                               {transaction.type === 'entrada' ? 'Receita' : 'Despesa'}

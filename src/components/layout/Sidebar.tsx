@@ -17,15 +17,47 @@ import { useFinance } from "@/contexts";
 import { useAuth } from "@/contexts";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { TransactionLimitIndicator } from "@/components/transactions/TransactionLimitIndicator";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { userSettings } = useFinance();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const isMobile = useIsMobile();
+  const [userName, setUserName] = useState("");
+
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        try {
+          const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("name")
+            .eq("id", user.id)
+            .single();
+            
+          if (error) throw error;
+          if (profile?.name) {
+            setUserName(profile.name);
+          } else {
+            // Fallback to email if name is not available
+            setUserName(user.email?.split('@')[0] || "Usuário");
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          // Fallback to email if there's an error
+          setUserName(user.email?.split('@')[0] || "Usuário");
+        }
+      }
+    };
+    
+    fetchUserProfile();
+  }, [user]);
 
   // Check if the current route matches
   const isActive = (path: string) => {
@@ -79,6 +111,23 @@ export function AppSidebar() {
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
+              {/* User Profile Display */}
+              <div className="px-3 py-3 mb-4">
+                <div className="flex items-center gap-3 p-2 rounded-md bg-sidebar-accent">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                    <User size={18} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium truncate max-w-[150px]">
+                      {userName}
+                    </p>
+                    <p className="text-xs opacity-70">
+                      {userSettings?.plan === 'premium' ? 'Plano Premium' : 'Plano Gratuito'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <SidebarMenu>
                 {menuItems.map((item) => (
                   <SidebarMenuItem key={item.path}>

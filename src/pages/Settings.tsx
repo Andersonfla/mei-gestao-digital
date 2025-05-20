@@ -5,23 +5,43 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { PlanUpgrade } from "@/components/settings/PlanUpgrade";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTheme } from "@/contexts/theme/ThemeContext";
+import { useAuth, useFinance } from "@/contexts";
+import { UserProfileSection } from "@/components/settings/UserProfileSection";
 
 const Settings = () => {
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
+  const { userSettings, refetchUserSettings } = useFinance();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Sync the darkMode state with the theme context
+  useEffect(() => {
+    setDarkMode(theme === "dark");
+  }, [theme]);
   
   const handleSaveSettings = async () => {
     setIsSaving(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSaving(false);
+    
+    // Refetch user settings to ensure we have the latest data
+    refetchUserSettings();
+    
     toast({
       title: "Configurações salvas",
       description: "Suas preferências foram atualizadas com sucesso.",
     });
+  };
+
+  // Handler for dark mode toggle
+  const handleDarkModeChange = (checked: boolean) => {
+    setDarkMode(checked);
+    toggleTheme();
   };
 
   return (
@@ -29,8 +49,9 @@ const Settings = () => {
       <h1 className="text-3xl font-bold">Configurações</h1>
       
       <Tabs defaultValue="preferences" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="preferences">Preferências</TabsTrigger>
+          <TabsTrigger value="profile">Perfil</TabsTrigger>
           <TabsTrigger value="plan">Plano</TabsTrigger>
         </TabsList>
         
@@ -53,7 +74,7 @@ const Settings = () => {
                 <Switch
                   id="dark-mode"
                   checked={darkMode}
-                  onCheckedChange={setDarkMode}
+                  onCheckedChange={handleDarkModeChange}
                 />
               </div>
               
@@ -77,6 +98,10 @@ const Settings = () => {
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="profile" className="mt-6">
+          <UserProfileSection />
         </TabsContent>
         
         <TabsContent value="plan" className="mt-6">

@@ -14,10 +14,13 @@ export async function getTransactions(): Promise<Transaction[]> {
     throw new Error("Autenticação necessária");
   }
 
+  const userId = session.session.user.id;
+  console.log("Buscando transações para o usuário:", userId);
+
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
-    .eq("user_id", session.session.user.id)
+    .eq("user_id", userId)
     .order("date", { ascending: false });
 
   if (error) {
@@ -39,10 +42,13 @@ export async function getFilteredTransactions(startDate: string, endDate: string
     throw new Error("Autenticação necessária");
   }
 
+  const userId = session.session.user.id;
+  console.log(`Buscando transações filtradas para o usuário ${userId} entre ${startDate} e ${endDate}`);
+
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
-    .eq("user_id", session.session.user.id)
+    .eq("user_id", userId)
     .gte("date", startDate)
     .lte("date", endDate)
     .order("date", { ascending: false });
@@ -68,6 +74,9 @@ export async function addTransaction(
     throw new Error("Você precisa estar logado para adicionar transações");
   }
 
+  const userId = session.session.user.id;
+  console.log("Adicionando transação para o usuário:", userId);
+
   // Formatar a data
   const formattedDate = transaction.date instanceof Date
     ? format(transaction.date, 'yyyy-MM-dd')
@@ -80,7 +89,7 @@ export async function addTransaction(
     .from("transactions")
     .select("*")
     .eq("type", "limite")
-    .eq("user_id", session.session.user.id) // Importante garantir que estamos filtrando pelo usuário atual
+    .eq("user_id", userId)
     .gte("date", `${monthKey}-01`)
     .lte("date", `${monthKey}-31`);
 
@@ -96,7 +105,7 @@ export async function addTransaction(
       value: 20, // ou outro valor do seu plano
       date: `${monthKey}-01`,
       category: "limite",
-      user_id: session.session.user.id // Adicionando o user_id explicitamente
+      user_id: userId
     });
   }
 
@@ -107,7 +116,7 @@ export async function addTransaction(
     description: transaction.description || "",
     value: transaction.value,
     date: formattedDate,
-    user_id: session.session.user.id // Adicionando o user_id explicitamente
+    user_id: userId
   };
 
   const { data, error } = await supabase
@@ -121,6 +130,7 @@ export async function addTransaction(
     throw error;
   }
 
+  console.log("Transação adicionada com sucesso para o usuário:", userId);
   return data as unknown as Transaction;
 }
 
@@ -131,17 +141,23 @@ export async function deleteTransaction(id: string): Promise<void> {
   const { data: session } = await supabase.auth.getSession();
   
   if (!session?.session?.user?.id) {
+    console.error("Nenhum usuário autenticado encontrado para deleteTransaction");
     throw new Error("Autenticação necessária");
   }
+  
+  const userId = session.session.user.id;
+  console.log(`Tentando excluir transação ${id} para o usuário ${userId}`);
   
   const { error } = await supabase
     .from("transactions")
     .delete()
     .eq("id", id)
-    .eq("user_id", session.session.user.id);
+    .eq("user_id", userId);
 
   if (error) {
-    console.error("Erro ao excluir transação:", error);
+    console.error(`Erro ao excluir transação ${id}:`, error);
     throw error;
   }
+
+  console.log(`Transação ${id} excluída com sucesso para o usuário ${userId}`);
 }

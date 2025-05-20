@@ -23,13 +23,13 @@ export function useFinanceData() {
   const { user } = useAuth();
   
   // Query de configurações do usuário
-  console.log("Usuário:", user);
+  console.log("useFinanceData - Usuário atual:", user?.id);
 
   const { 
     data: userSettings, 
     isLoading: isLoadingSettings 
   } = useQuery({
-    queryKey: ['userSettings'],
+    queryKey: ['userSettings', user?.id], // Incluir o ID do usuário na chave
     queryFn: getUserSettings,
     enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
     staleTime: 1000 * 60 * 5, // 5 minutos
@@ -46,9 +46,9 @@ export function useFinanceData() {
     data: transactions = [], 
     isLoading: isLoadingTransactions 
   } = useQuery({
-    queryKey: ['transactions', user?.id], // adiciona o ID do usuário na chave
+    queryKey: ['transactions', user?.id], // Adiciona o ID do usuário na chave
     queryFn: getTransactions,
-    enabled: !!user, // executa apenas se o usuário estiver carregado
+    enabled: !!user, // Executa apenas se o usuário estiver carregado
     retry: (failureCount, error) => {
       // Não tenta novamente se o erro for relacionado à autenticação
       if (error instanceof Error && error.message.includes("autenticação")) {
@@ -63,7 +63,7 @@ export function useFinanceData() {
     data: filteredTransactions = [], 
     isLoading: isLoadingFilteredTransactions 
   } = useQuery({
-    queryKey: ['filteredTransactions', filterDates],
+    queryKey: ['filteredTransactions', filterDates, user?.id], // Incluir o usuário na chave
     queryFn: () => getFilteredTransactions(
       format(filterDates.startDate, 'yyyy-MM-dd'),
       format(filterDates.endDate, 'yyyy-MM-dd')
@@ -83,14 +83,14 @@ export function useFinanceData() {
     data: categories = [], 
     isLoading: isLoadingCategories 
   } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', user?.id], // Incluir o usuário na chave
     queryFn: getCategories,
     enabled: !!user, // Garantir que só seja executado quando o usuário estiver autenticado
   });
 
   // Mutação para adicionar transação
   const addTransactionMutation = useMutation({
-    mutationFn: (newTransaction: Omit<Transaction, "id" | "created_at">) => 
+    mutationFn: (newTransaction: Omit<Transaction, "id" | "created_at" | "user_id">) => 
       addTransactionService(newTransaction),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -173,7 +173,7 @@ export function useFinanceData() {
     filterDates,
     filterPeriod,
     isLoading,
-    addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => 
+    addTransaction: (transaction: Omit<Transaction, "id" | "created_at" | "user_id">) => 
       addTransactionMutation.mutateAsync(transaction),
     deleteTransaction: (id: string) => 
       deleteTransactionMutation.mutateAsync(id),

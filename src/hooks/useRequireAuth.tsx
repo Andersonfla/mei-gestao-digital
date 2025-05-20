@@ -46,7 +46,7 @@ export const useRequireAuth = () => {
             return;
           }
           
-          console.log("Sessão válida até:", sessionExpiryTime.toLocaleString());
+          console.log("Sessão válida até:", sessionExpiryTime.toLocaleString(), "para usuário:", user.id);
         } catch (error) {
           console.error("Erro ao verificar sessão:", error);
           // Se houver um erro ao verificar a validade da sessão, assumimos que é melhor fazer login novamente

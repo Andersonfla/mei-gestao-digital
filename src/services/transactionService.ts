@@ -80,7 +80,7 @@ export async function addTransaction(
     .from("transactions")
     .select("*")
     .eq("type", "limite")
-    .eq("user_id", session.session.user.id)
+    .eq("user_id", session.session.user.id) // Importante garantir que estamos filtrando pelo usuário atual
     .gte("date", `${monthKey}-01`)
     .lte("date", `${monthKey}-31`);
 

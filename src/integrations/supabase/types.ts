@@ -306,14 +306,6 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
-      limites_do_plano_de_incremento_publico: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      limites_do_plano_incremento: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
     }
     Enums: {
       [_ in never]: never

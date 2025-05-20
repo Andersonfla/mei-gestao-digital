@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast";
 import { useFinance } from "@/contexts";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionType } from "@/types/finance";
@@ -13,11 +13,16 @@ import { TransactionLimitIndicator } from "./TransactionLimitIndicator";
 import { TransactionFormValues, transactionSchema } from "./transactionSchema";
 
 export function TransactionForm() {
-  const { categories, addTransaction, userSettings } = useFinance();
+  const { categories, addTransaction, userSettings, refetchUserSettings } = useFinance();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TransactionType>("entrada");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Revalidar configurações do usuário quando o componente montar
+  useEffect(() => {
+    refetchUserSettings?.();
+  }, [refetchUserSettings]);
   
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -32,21 +37,24 @@ export function TransactionForm() {
   const filteredCategories = categories.filter(category => category.type === activeTab);
 
   async function onSubmit(data: TransactionFormValues) {
-    // Verificamos se o usuário do plano gratuito atingiu o limite de lançamentos
-    if (userSettings.plan === 'free' && 
-        userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
-      toast({
-        title: "Limite atingido",
-        description: `Você atingiu o limite de ${userSettings.transactionLimit} lançamentos no plano gratuito.`,
-        variant: "destructive",
-      });
-      
-      // Automatically redirect to the upgrade page
-      navigate("/upgrade");
-      return;
-    }
-    
     try {
+      // Revalidar as configurações do usuário antes de adicionar uma transação
+      await refetchUserSettings?.();
+      
+      // Verificamos se o usuário do plano gratuito atingiu o limite de lançamentos
+      if (userSettings.plan === 'free' && 
+          userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
+        toast({
+          title: "Limite atingido",
+          description: `Você atingiu o limite de ${userSettings.transactionLimit} lançamentos no plano gratuito.`,
+          variant: "destructive",
+        });
+        
+        // Automatically redirect to the upgrade page
+        navigate("/upgrade");
+        return;
+      }
+      
       setIsSubmitting(true);
       
       const newTransaction = {
@@ -66,8 +74,19 @@ export function TransactionForm() {
         category: "",
       });
       
-    } catch (error) {
-      // Error handling is done in the mutation
+    } catch (error: any) {
+      // Verificar se o erro é relacionado ao limite
+      if (error.message && error.message.includes("Limite de transações atingido")) {
+        toast({
+          title: "Limite atingido",
+          description: `Você atingiu o limite de ${userSettings.transactionLimit} lançamentos no plano gratuito.`,
+          variant: "destructive",
+        });
+        
+        // Automatically redirect to the upgrade page
+        navigate("/upgrade");
+      }
+      // Outros erros são tratados na mutação
     } finally {
       setIsSubmitting(false);
     }

@@ -39,9 +39,22 @@ export async function getUserSettings(): Promise<UserSettings> {
     const currentMonth = currentDate.getMonth() + 1; // JavaScript meses são 0-indexados
     const currentYear = currentDate.getFullYear();
 
+    // Contar diretamente as transações do usuário no mês atual para garantir precisão
+    const { count: transactionCount, error: countError } = await supabase
+      .from("transactions")
+      .select("*", { count: "exact", head: false })
+      .eq("user_id", userId)
+      .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
+      .lte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-31`);
+
+    if (countError) {
+      console.error("Erro ao contar transações:", countError);
+    }
+
+    // Verificar se existe um registro de limites para este mês/ano
     const { data: limitsData, error: limitsError } = await supabase
       .from("plan_limits")
-      .select("transactions")
+      .select("transactions, limit_reached")
       .eq("user_id", userId)
       .eq("month", currentMonth)
       .eq("year", currentYear)
@@ -49,6 +62,9 @@ export async function getUserSettings(): Promise<UserSettings> {
 
     // Definir limite com base no plano
     const transactionLimit = profileData?.plan === "premium" ? 999999 : 20;
+    
+    // Calcular contagem de transações do banco de dados (mais confiável)
+    const actualTransactionCount = transactionCount || 0;
     
     // Se não encontrou limites para este mês, criar um novo registro
     if (limitsError && limitsError.code === "PGRST116") {
@@ -58,22 +74,40 @@ export async function getUserSettings(): Promise<UserSettings> {
       const { error: insertError } = await supabase
         .from("plan_limits")
         .insert({
-          user_id: userId, // Explicitamente incluir o user_id
+          user_id: userId,
           month: currentMonth,
           year: currentYear,
-          transactions: 0,
-          limit_reached: false
+          transactions: actualTransactionCount, // Usar contagem real
+          limit_reached: actualTransactionCount >= transactionLimit
         });
       
       if (insertError) {
         console.error("Erro ao criar limite para o mês:", insertError);
       }
+    } else if (limitsData) {
+      // Atualizar o registro existente para garantir que reflete a contagem real
+      if (limitsData.transactions !== actualTransactionCount) {
+        const { error: updateError } = await supabase
+          .from("plan_limits")
+          .update({
+            transactions: actualTransactionCount,
+            limit_reached: actualTransactionCount >= transactionLimit
+          })
+          .eq("user_id", userId)
+          .eq("month", currentMonth)
+          .eq("year", currentYear);
+        
+        if (updateError) {
+          console.error("Erro ao atualizar limite para o mês:", updateError);
+        }
+      }
     }
 
+    // Sempre use a contagem real de transações do banco
     return {
       plan: (profileData?.plan || "free") as UserPlan,
       darkMode: false, // Por enquanto, modo escuro é fixo
-      transactionCountThisMonth: limitsData?.transactions || 0,
+      transactionCountThisMonth: actualTransactionCount,
       transactionLimit,
     };
   } catch (error) {

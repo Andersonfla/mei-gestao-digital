@@ -62,6 +62,57 @@ export async function getFilteredTransactions(startDate: string, endDate: string
 }
 
 /**
+ * Verificar se o usuário pode adicionar mais transações (limites do plano)
+ */
+async function canAddTransaction(): Promise<boolean> {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session?.session?.user?.id) {
+    throw new Error("Usuário não autenticado");
+  }
+  
+  const userId = session.session.user.id;
+  
+  // Buscar perfil do usuário
+  const { data: profileData, error: profileError } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", userId)
+    .single();
+    
+  if (profileError) {
+    console.error("Erro ao verificar plano do usuário:", profileError);
+    return false;
+  }
+  
+  // Usuários premium não têm limite
+  if (profileData.plan === "premium") {
+    return true;
+  }
+  
+  // Para usuários do plano gratuito, verificar o limite mensal
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+  
+  // Contar diretamente as transações do usuário no mês atual
+  const { count: transactionCount, error: countError } = await supabase
+    .from("transactions")
+    .select("*", { count: "exact", head: false })
+    .eq("user_id", userId)
+    .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
+    .lte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-31`);
+    
+  if (countError) {
+    console.error("Erro ao contar transações:", countError);
+    return false;
+  }
+  
+  // Verificar se ultrapassou o limite de 20 transações
+  return (transactionCount || 0) < 20;
+}
+
+/**
  * Adicionar nova transação para o usuário autenticado.
  */
 export async function addTransaction(
@@ -76,38 +127,17 @@ export async function addTransaction(
 
   const userId = session.session.user.id;
   console.log("Adicionando transação para o usuário:", userId);
+  
+  // Verificar se o usuário pode adicionar mais transações
+  const canAdd = await canAddTransaction();
+  if (!canAdd) {
+    throw new Error("Limite de transações atingido para o plano gratuito");
+  }
 
   // Formatar a data
   const formattedDate = transaction.date instanceof Date
     ? format(transaction.date, 'yyyy-MM-dd')
     : transaction.date;
-
-  const monthKey = formattedDate.slice(0, 7); // "YYYY-MM"
-
-  // ⚠️ Verificar se já existe uma transação de tipo "limite" para esse mês
-  const { data: existingLimit, error: limitError } = await supabase
-    .from("transactions")
-    .select("*")
-    .eq("type", "limite")
-    .eq("user_id", userId)
-    .gte("date", `${monthKey}-01`)
-    .lte("date", `${monthKey}-31`);
-
-  if (limitError) {
-    console.error("Erro ao verificar limite do mês:", limitError);
-  }
-
-  // ⚠️ Inserir automaticamente o limite caso não exista
-  if (!existingLimit || existingLimit.length === 0) {
-    await supabase.from("transactions").insert({
-      type: "limite",
-      description: "Limite mensal de transações",
-      value: 20, // ou outro valor do seu plano
-      date: `${monthKey}-01`,
-      category: "limite",
-      user_id: userId
-    });
-  }
 
   // Inserir a transação principal com o user_id explícito
   const formattedTransaction = {

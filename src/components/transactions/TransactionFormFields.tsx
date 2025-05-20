@@ -40,7 +40,7 @@ export function TransactionFormFields({
               </FormItem>
             )}
           />
-          
+          {/*
           <FormField
             control={form.control}
             name="value"
@@ -60,6 +60,7 @@ export function TransactionFormFields({
               </FormItem>
             )}
           />
+          */}
         </div>
         
         <FormField

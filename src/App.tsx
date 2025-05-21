@@ -14,6 +14,7 @@ import Transactions from "./pages/Transactions";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Upgrade from "./pages/Upgrade";
+import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ const App = () => (
                     <Route path="reports" element={<Reports />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="upgrade" element={<Upgrade />} />
+                    <Route path="thanks" element={<Thanks />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>

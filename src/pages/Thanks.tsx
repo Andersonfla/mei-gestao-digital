@@ -1,9 +1,19 @@
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 const Thanks = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+  if (typeof window.fbq !== "undefined") {
+    window.fbq("track", "Purchase", {
+      value: 19.90,
+      currency: "BRL",
+    });
+  }
+}, []);
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4 text-center">

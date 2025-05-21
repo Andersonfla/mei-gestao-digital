@@ -13,7 +13,7 @@ export interface FinanceContextType {
   };
   filterPeriod: string;
   isLoading: boolean;
-  isPremiumActive: boolean; // Nova propriedade para verificar se o plano premium está ativo
+  isPremiumActive: boolean; // Changed from function to boolean
   addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   getCategoryById: (id: string) => TransactionCategory | undefined;

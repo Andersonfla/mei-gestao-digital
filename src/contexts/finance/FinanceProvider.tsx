@@ -55,7 +55,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         filterDates,
         filterPeriod,
         isLoading,
-        isPremiumActive,
+        isPremiumActive: isPremiumActive(), // Call the function to get the boolean value
         addTransaction,
         deleteTransaction,
         getCategoryById,

@@ -36,8 +36,8 @@ export async function getUserSettings(): Promise<UserSettings> {
     }
 
     // Verificar se o plano premium expirou
-    let currentPlan = profileData.plan || 'free';
-    let subscriptionEnd = profileData.subscription_end ? new Date(profileData.subscription_end) : null;
+    let currentPlan = profileData?.plan || 'free';
+    let subscriptionEnd = profileData?.subscription_end ? new Date(profileData.subscription_end) : null;
     
     // Se o plano é premium mas a data de expiração já passou, fazer downgrade automático
     if (currentPlan === 'premium' && subscriptionEnd && subscriptionEnd < new Date()) {

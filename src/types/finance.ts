@@ -50,6 +50,7 @@ export type UserSettings = {
   darkMode: boolean;
   transactionCountThisMonth: number;
   transactionLimit: number;
+  subscriptionEnd?: Date | null; // Data de expiração do plano premium
 };
 
 export type CategoryBreakdownItem = {

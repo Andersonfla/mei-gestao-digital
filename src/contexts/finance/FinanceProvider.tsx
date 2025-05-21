@@ -25,6 +25,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     addTransaction: addTransactionHook,
     deleteTransaction,
     upgradeToPremium,
+    isPremiumActive,
     setFilterDates,
     setFilterPeriod,
     refetchUserSettings
@@ -54,6 +55,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         filterDates,
         filterPeriod,
         isLoading,
+        isPremiumActive,
         addTransaction,
         deleteTransaction,
         getCategoryById,

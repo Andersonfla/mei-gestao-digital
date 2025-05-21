@@ -14,13 +14,12 @@ import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const Reports = () => {
-  const { filteredTransactions, userSettings } = useFinance();
+  const { filteredTransactions, userSettings, isPremiumActive } = useFinance();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
-  const isPremium = userSettings.plan === 'premium';
 
   const handleExport = async () => {
-    if (!isPremium) {
+    if (!isPremiumActive) {
       // Let the premium alert dialog handle this
       return;
     }
@@ -43,7 +42,7 @@ const Reports = () => {
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <FilterPeriod />
           
-          {isPremium ? (
+          {isPremiumActive ? (
             <Button variant="default" onClick={handleExport} disabled={isExporting}>
               {isExporting ? "Exportando..." : "Exportar Relatório"}
             </Button>
@@ -60,12 +59,17 @@ const Reports = () => {
                   <AlertDialogDescription>
                     A exportação de relatórios é um recurso exclusivo do plano Premium. 
                     Faça upgrade agora para desbloquear esta e outras funcionalidades avançadas.
+                    {userSettings.plan === 'premium' && (
+                      <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 rounded-md">
+                        <strong>Seu plano Premium expirou.</strong> Para continuar usando os recursos avançados, renove sua assinatura mensal.
+                      </div>
+                    )}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction onClick={() => window.location.href = '/upgrade'}>
-                    Ver Planos
+                    {userSettings.plan === 'premium' ? 'Renovar Assinatura' : 'Ver Planos'}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

@@ -35,7 +35,8 @@ export function useFinanceData() {
     userSettings,
     isLoadingSettings,
     refetchUserSettings,
-    upgradeToPremium
+    upgradeToPremium,
+    isPremiumActive
   } = useUserSettings();
 
   // Combine loading states
@@ -55,6 +56,9 @@ export function useFinanceData() {
     
     // Loading state
     isLoading,
+    
+    // Premium status
+    isPremiumActive,
     
     // Actions
     addTransaction,

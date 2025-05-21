@@ -35,10 +35,17 @@ serve(async (req) => {
     
     // For demonstration, we're assuming validation passed
     
+    // Definir data de expiração para 30 dias a partir de hoje
+    const subscriptionEnd = new Date();
+    subscriptionEnd.setDate(subscriptionEnd.getDate() + 30);
+    
     // Upgrade user to premium plan in the database
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
-      .update({ plan: "premium" })
+      .update({ 
+        plan: "premium",
+        subscription_end: subscriptionEnd.toISOString()
+      })
       .eq("id", userId);
 
     if (updateError) {
@@ -63,7 +70,10 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ 
+        success: true,
+        subscription_end: subscriptionEnd.toISOString()
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

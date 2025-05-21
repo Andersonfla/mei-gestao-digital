@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useFinance } from "@/contexts";
 
 declare global {
   interface Window {
@@ -11,15 +12,26 @@ declare global {
 
 const Thanks = () => {
   const navigate = useNavigate();
+  const { userSettings, refetchUserSettings } = useFinance();
 
   useEffect(() => {
-  if (typeof window.fbq !== "undefined") {
-    window.fbq("track", "Purchase", {
-      value: 19.90,
-      currency: "BRL",
-    });
-  }
-}, []);
+    // Atualiza as configurações do usuário para garantir que temos os dados mais recentes
+    refetchUserSettings();
+    
+    // Pixel do Facebook
+    if (typeof window.fbq !== "undefined") {
+      window.fbq("track", "Purchase", {
+        value: 19.90,
+        currency: "BRL",
+      });
+    }
+  }, [refetchUserSettings]);
+  
+  // Formatar a data de expiração da assinatura
+  const formatExpirationDate = (date: Date | null | undefined) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('pt-BR');
+  };
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4 text-center">
@@ -50,6 +62,17 @@ const Thanks = () => {
             <h3 className="font-medium">O que esperar agora?</h3>
             <p className="text-sm text-muted-foreground">
               Seu plano Premium já está ativado! Você tem acesso imediato a todas as funcionalidades premium.
+            </p>
+          </div>
+          
+          <div className="p-4 rounded-lg bg-muted">
+            <h3 className="font-medium">Duração da sua assinatura</h3>
+            <p className="text-sm text-muted-foreground">
+              Seu plano Premium expira em: <strong>{formatExpirationDate(userSettings?.subscriptionEnd)}</strong>
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Após essa data, você será rebaixado automaticamente para o plano gratuito. Para continuar 
+              usando recursos premium, renove sua assinatura antes da data de expiração.
             </p>
           </div>
           

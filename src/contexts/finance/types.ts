@@ -13,6 +13,7 @@ export interface FinanceContextType {
   };
   filterPeriod: string;
   isLoading: boolean;
+  isPremiumActive: boolean; // Nova propriedade para verificar se o plano premium está ativo
   addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   getCategoryById: (id: string) => TransactionCategory | undefined;
@@ -22,5 +23,5 @@ export interface FinanceContextType {
   calculateTotalByType: (type: 'entrada' | 'saida') => number;
   getCategoryBreakdown: (type: 'entrada' | 'saida') => CategoryBreakdownItem[];
   upgradeToPremium: () => Promise<void>;
-  refetchUserSettings: () => Promise<any>; // Added missing property
+  refetchUserSettings: () => Promise<any>;
 }

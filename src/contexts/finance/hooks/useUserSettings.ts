@@ -30,10 +30,11 @@ export function useUserSettings() {
       darkMode: false,
       transactionCountThisMonth: 0,
       transactionLimit: 20,
+      subscriptionEnd: null,
     },
   });
 
-  // Revalidate user settings periodically
+  // Revalidate user settings periodically to check subscription status
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (user?.id) {
@@ -43,6 +44,25 @@ export function useUserSettings() {
     
     return () => clearInterval(intervalId);
   }, [refetchUserSettings, user?.id]);
+
+  // Check if premium plan has expired
+  useEffect(() => {
+    if (userSettings?.plan === 'premium' && userSettings?.subscriptionEnd) {
+      const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
+      const currentDate = new Date();
+      
+      if (subscriptionEndDate < currentDate) {
+        // O plano premium expirou, acionar verificação
+        refetchUserSettings();
+        
+        toast({
+          title: "Plano Premium expirado",
+          description: "Seu plano Premium expirou. Para continuar usando os recursos avançados, renove sua assinatura mensal.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [userSettings, refetchUserSettings, toast]);
 
   // Mutation for upgrading to premium
   const upgradeToPremiumMutation = useMutation({
@@ -65,10 +85,24 @@ export function useUserSettings() {
     },
   });
 
+  // Verifica se o plano premium está ativo
+  const isPremiumActive = () => {
+    if (userSettings?.plan !== 'premium') return false;
+    
+    if (userSettings?.subscriptionEnd) {
+      const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
+      const currentDate = new Date();
+      return subscriptionEndDate > currentDate;
+    }
+    
+    return false;
+  };
+
   return {
     userSettings: userSettings!,
     isLoadingSettings,
     refetchUserSettings,
+    isPremiumActive,
     upgradeToPremium: () => 
       upgradeToPremiumMutation.mutateAsync(),
   };

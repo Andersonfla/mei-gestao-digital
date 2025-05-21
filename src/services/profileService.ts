@@ -19,7 +19,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     // Buscar perfil do usuário
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
-      .select("plan")
+      .select("plan, subscription_end")
       .eq("id", userId)
       .single();
 
@@ -31,7 +31,29 @@ export async function getUserSettings(): Promise<UserSettings> {
         darkMode: false,
         transactionCountThisMonth: 0,
         transactionLimit: 20,
+        subscriptionEnd: null,
       };
+    }
+
+    // Verificar se o plano premium expirou
+    let currentPlan = profileData.plan || 'free';
+    let subscriptionEnd = profileData.subscription_end ? new Date(profileData.subscription_end) : null;
+    
+    // Se o plano é premium mas a data de expiração já passou, fazer downgrade automático
+    if (currentPlan === 'premium' && subscriptionEnd && subscriptionEnd < new Date()) {
+      console.log("Plano premium expirado, fazendo downgrade automático");
+      
+      // Atualizar o plano para free no banco de dados
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ plan: 'free' })
+        .eq("id", userId);
+      
+      if (updateError) {
+        console.error("Erro ao fazer downgrade do plano:", updateError);
+      } else {
+        currentPlan = 'free';
+      }
     }
 
     // Buscar limite de transações para o mês atual
@@ -39,8 +61,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     const currentMonth = currentDate.getMonth() + 1; // JavaScript meses são 0-indexados
     const currentYear = currentDate.getFullYear();
 
-    // IMPORTANTE: Contar diretamente as transações do usuário no mês atual 
-    // para garantir precisão e evitar inconsistências com recargas de página
+    // Contar diretamente as transações do usuário no mês atual 
     const { count: transactionCount, error: countError } = await supabase
       .from("transactions")
       .select("*", { count: "exact", head: true })
@@ -64,10 +85,8 @@ export async function getUserSettings(): Promise<UserSettings> {
       console.error("Erro ao buscar transações para debug:", transactionsError);
     } else {
       console.log(`Quantidade de transações encontradas: ${transactionsDebug?.length}, userId: ${userId}`);
-      console.log(`IDs das transações: ${transactionsDebug?.map(t => t.id).join(', ')}`);
     }
 
-    // Atualizar o registro de plan_limits para refletir a contagem real
     // Verificar se existe um registro de limites para este mês/ano
     const { data: limitsData, error: limitsError } = await supabase
       .from("plan_limits")
@@ -78,9 +97,9 @@ export async function getUserSettings(): Promise<UserSettings> {
       .single();
 
     // Definir limite com base no plano
-    const transactionLimit = profileData?.plan === "premium" ? 999999 : 20;
+    const transactionLimit = currentPlan === "premium" ? 999999 : 20;
     
-    // Calcular contagem real de transações do banco de dados (mais confiável)
+    // Calcular contagem real de transações do banco de dados
     const actualTransactionCount = transactionCount || 0;
     console.log(`Contagem real de transações: ${actualTransactionCount}`);
     
@@ -95,7 +114,7 @@ export async function getUserSettings(): Promise<UserSettings> {
           user_id: userId,
           month: currentMonth,
           year: currentYear,
-          transactions: actualTransactionCount, // Usar contagem real
+          transactions: actualTransactionCount,
           limit_reached: actualTransactionCount >= transactionLimit
         });
       
@@ -124,10 +143,11 @@ export async function getUserSettings(): Promise<UserSettings> {
 
     // Sempre use a contagem real de transações do banco
     return {
-      plan: (profileData?.plan || "free") as UserPlan,
+      plan: currentPlan as UserPlan,
       darkMode: false, // Por enquanto, modo escuro é fixo
       transactionCountThisMonth: actualTransactionCount,
       transactionLimit,
+      subscriptionEnd: subscriptionEnd,
     };
   } catch (error) {
     console.error("Erro ao buscar configurações do usuário:", error);
@@ -137,6 +157,7 @@ export async function getUserSettings(): Promise<UserSettings> {
       darkMode: false,
       transactionCountThisMonth: 0,
       transactionLimit: 20,
+      subscriptionEnd: null,
     };
   }
 }
@@ -154,9 +175,16 @@ export async function upgradeToPremium(): Promise<void> {
   const userId = session.session.user.id;
   console.log("Atualizando plano para premium para o usuário:", userId);
 
+  // Definir data de expiração para 30 dias a partir de hoje
+  const subscriptionEnd = new Date();
+  subscriptionEnd.setDate(subscriptionEnd.getDate() + 30);
+
   const { error } = await supabase
     .from("profiles")
-    .update({ plan: "premium" })
+    .update({ 
+      plan: "premium",
+      subscription_end: subscriptionEnd.toISOString()
+    })
     .eq("id", userId);
 
   if (error) {

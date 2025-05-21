@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSearchParams } from "react-router-dom";
 
 export function PlanUpgrade() {
-  const { userSettings, upgradeToPremium } = useFinance();
+  const { userSettings, upgradeToPremium, isPremiumActive } = useFinance();
   const [isUpgrading, setIsUpgrading] = useState(false);
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -50,6 +50,9 @@ export function PlanUpgrade() {
         title: "Pagamento confirmado!",
         description: "Seu plano foi atualizado para Premium com sucesso!",
       });
+      
+      // Redirecionar para a página de agradecimento
+      window.location.href = "/thanks";
     } catch (error) {
       console.error("Error verifying payment:", error);
       toast({
@@ -87,6 +90,19 @@ export function PlanUpgrade() {
     }
   };
   
+  // Formatar a data de expiração
+  const formatExpirationDate = (date: Date | null | undefined) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('pt-BR');
+  };
+  
+  // Verificar se a assinatura expirou
+  const hasExpired = () => {
+    if (!userSettings.subscriptionEnd) return false;
+    const expirationDate = new Date(userSettings.subscriptionEnd);
+    return expirationDate < new Date();
+  };
+  
   const freePlanFeatures = [
     "Limite de 20 lançamentos/mês", 
     "Acesso ao dashboard",
@@ -106,21 +122,51 @@ export function PlanUpgrade() {
   if (userSettings.plan === 'premium') {
     return (
       <div className="max-w-3xl mx-auto">
-        <Card className="border-2 border-primary shadow-sm">
+        <Card className={`border-2 ${isPremiumActive ? 'border-primary' : 'border-yellow-500'} shadow-sm`}>
           <CardHeader>
-            <CardTitle className="text-primary">Plano Premium</CardTitle>
-            <CardDescription>Você já está aproveitando todos os benefícios do plano Premium!</CardDescription>
+            <CardTitle className={isPremiumActive ? 'text-primary' : 'text-yellow-600'}>
+              {isPremiumActive ? 'Plano Premium' : 'Plano Premium (Expirado)'}
+            </CardTitle>
+            <CardDescription>
+              {isPremiumActive ? (
+                <>Você está aproveitando todos os benefícios do plano Premium!</>
+              ) : (
+                <>Seu plano Premium expirou. Renove agora para continuar com acesso a todos os recursos.</>
+              )}
+            </CardDescription>
           </CardHeader>
           <CardContent>
+            {userSettings.subscriptionEnd && (
+              <div className={`mb-4 p-3 rounded-md ${
+                isPremiumActive ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300' : 
+                'bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
+              }`}>
+                <p>
+                  <strong>{isPremiumActive ? 'Validade do seu plano:' : 'Seu plano expirou em:'}</strong><br />
+                  {formatExpirationDate(userSettings.subscriptionEnd)}
+                </p>
+              </div>
+            )}
             <ul className="space-y-2">
               {premiumPlanFeatures.map((feature, index) => (
                 <li key={index} className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-primary" />
+                  <Check className={`h-5 w-5 ${isPremiumActive ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
           </CardContent>
+          {!isPremiumActive && (
+            <CardFooter>
+              <Button 
+                className="w-full" 
+                onClick={handleUpgrade} 
+                disabled={isUpgrading}
+              >
+                {isUpgrading ? "Processando..." : "Renovar Assinatura"}
+              </Button>
+            </CardFooter>
+          )}
         </Card>
       </div>
     );
@@ -155,7 +201,7 @@ export function PlanUpgrade() {
         <Card className="border-2 border-primary shadow-sm">
           <CardHeader>
             <CardTitle className="text-primary">Plano Premium</CardTitle>
-            <CardDescription>Desbloqueie recursos avançados</CardDescription>
+            <CardDescription>Desbloqueie recursos avançados por 30 dias</CardDescription>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <div className="text-3xl font-bold mb-4">R$ 19,90<span className="text-base font-normal">/mês</span></div>

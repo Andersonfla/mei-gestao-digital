@@ -3,6 +3,12 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
+declare global {
+  interface Window {
+    fbq: (...args: any[]) => void;
+  }
+}
+
 const Thanks = () => {
   const navigate = useNavigate();
 

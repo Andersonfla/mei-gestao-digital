@@ -1,8 +1,7 @@
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts";
-import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/services/profileService";
+import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/services/profileService/index";
 import { useEffect } from "react";
 import { UserPlan } from "@/types/finance";
 

@@ -21,19 +21,15 @@ export const useAuthState = () => {
           setSession(currentSession);
           setUser(currentSession.user);
           
-          // Handle specific auth events
+          // Handle specific auth events but don't automatically redirect
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-            // If on auth page, navigate to dashboard
-            if (window.location.pathname === '/auth') {
-              navigate('/');
-            }
+            // Don't automatically navigate/redirect
           }
         } else if (event === 'SIGNED_OUT') {
-          // Clear user state and redirect to auth page
+          // Clear user state but don't redirect
           console.log("User signed out, clearing session and user data");
           setSession(null);
           setUser(null);
-          navigate('/auth');
         }
       }
     );
@@ -56,15 +52,9 @@ export const useAuthState = () => {
           setSession(currentSession);
           setUser(currentSession.user);
           
-          // If user is logged in and on auth page, redirect to dashboard
-          if (window.location.pathname === '/auth') {
-            navigate('/');
-          }
+          // Don't automatically redirect
         } else {
-          // If no session and not on auth page, redirect to auth
-          if (window.location.pathname !== '/auth') {
-            navigate('/auth');
-          }
+          // Don't automatically redirect if no session
         }
       } catch (error) {
         console.error("Error checking session:", error);

@@ -44,7 +44,7 @@ const App = () => (
                   {/* Página de autenticação */}
                   <Route path="/auth" element={<Auth />} />
                   
-                  {/* Área de aplicativo - sem proteção de rota */}
+                  {/* Área de aplicativo - acessível para todos, autenticação opcional */}
                   <Route path="/app" element={<AppLayout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="transactions" element={<Transactions />} />

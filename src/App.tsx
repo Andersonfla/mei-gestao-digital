@@ -17,7 +17,6 @@ import Settings from "./pages/Settings";
 import Upgrade from "./pages/Upgrade";
 import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
-import { PrivateRoute } from "./routes/PrivateRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,15 +44,8 @@ const App = () => (
                   {/* Página de autenticação */}
                   <Route path="/auth" element={<Auth />} />
                   
-                  {/* Área logada protegida */}
-                  <Route
-                    path="/app/*"
-                    element={
-                      <PrivateRoute>
-                        <AppLayout />
-                      </PrivateRoute>
-                    }
-                  >
+                  {/* Área de aplicativo - sem proteção de rota */}
+                  <Route path="/app" element={<AppLayout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="transactions" element={<Transactions />} />
                     <Route path="reports" element={<Reports />} />

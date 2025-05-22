@@ -1,23 +1,13 @@
 
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts';
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  
-  // If user is already logged in, redirect to app
-  useEffect(() => {
-    if (user && !loading) {
-      navigate('/app');
-    }
-  }, [user, loading, navigate]);
   
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* Header com botões de login e experiência grátis */}
       <header className="py-4 px-6 flex justify-between items-center border-b">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
@@ -25,24 +15,33 @@ const Landing = () => {
           </div>
           <span className="font-semibold text-xl">MEI Finanças</span>
         </div>
-        <Button onClick={() => navigate('/auth')}>Entrar</Button>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={() => navigate('/auth')}>
+            Login
+          </Button>
+          <Button onClick={() => navigate('/auth?tab=signup')} className="bg-violet-500 hover:bg-violet-600">
+            Experimente Grátis
+          </Button>
+        </div>
       </header>
       
       {/* Main Content */}
       <main className="flex-1 container mx-auto py-16 px-4 md:px-6 flex flex-col items-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6">
-          Simplifique suas finanças como MEI
+          <span className="block">Agenda financeira</span>
+          <span className="block text-violet-500">simplificada</span>
+          <span className="block">para MEI</span>
         </h1>
         <p className="text-xl text-center text-muted-foreground max-w-2xl mb-10">
-          Uma ferramenta completa para gerenciar transações, acompanhar receitas e despesas, e tomar melhores decisões financeiras para o seu negócio.
+          Reduza faltas, otimize sua agenda e proporcione uma experiência superior aos seus clientes com nossa plataforma de agendamento inteligente.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button size="lg" onClick={() => navigate('/auth')}>
-            Começar Agora
+          <Button size="lg" className="bg-violet-500 hover:bg-violet-600" onClick={() => navigate('/auth?tab=signup')}>
+            Comece grátis por 14 dias
           </Button>
-          <Button size="lg" variant="outline" onClick={() => navigate('/auth?tab=signup')}>
-            Criar Conta
+          <Button size="lg" variant="outline" onClick={() => navigate('/app')}>
+            Agende uma demonstração
           </Button>
         </div>
         
@@ -82,6 +81,10 @@ const Landing = () => {
             <p className="text-muted-foreground">Comece gratuitamente e atualize quando precisar de recursos avançados.</p>
           </div>
         </div>
+        
+        <p className="mt-8 text-center text-lg">
+          +500 profissionais MEI já utilizam nossa plataforma
+        </p>
       </main>
       
       {/* Footer */}

@@ -64,12 +64,12 @@ export function AppSidebar() {
     return location.pathname === path;
   };
 
-  // Menu items
+  // Menu items - Updated to use /app prefix
   const menuItems = [
-    { path: "/", label: "Dashboard" },
-    { path: "/transactions", label: "Transações" },
-    { path: "/reports", label: "Relatórios" },
-    { path: "/settings", label: "Configurações" },
+    { path: "/app", label: "Dashboard" },
+    { path: "/app/transactions", label: "Transações" },
+    { path: "/app/reports", label: "Relatórios" },
+    { path: "/app/settings", label: "Configurações" },
   ];
 
   return (
@@ -161,7 +161,7 @@ export function AppSidebar() {
                   <Button 
                     className="w-full mt-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
                     size="sm"
-                    onClick={() => navigate('/upgrade')}
+                    onClick={() => navigate('/app/upgrade')}
                   >
                     Fazer upgrade
                   </Button>

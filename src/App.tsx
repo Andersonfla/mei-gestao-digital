@@ -1,13 +1,14 @@
 
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FinanceProvider, AuthProvider } from "./contexts";
 import { ThemeProvider } from "./contexts/theme/ThemeContext";
 import { AppLayout } from "./components/layout/AppLayout";
+import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
@@ -16,6 +17,7 @@ import Settings from "./pages/Settings";
 import Upgrade from "./pages/Upgrade";
 import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
+import { PrivateRoute } from "./routes/PrivateRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,8 +39,21 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <Routes>
+                  {/* Landing page pública */}
+                  <Route path="/" element={<Landing />} />
+                  
+                  {/* Página de autenticação */}
                   <Route path="/auth" element={<Auth />} />
-                  <Route path="/" element={<AppLayout />}>
+                  
+                  {/* Área logada protegida */}
+                  <Route
+                    path="/app/*"
+                    element={
+                      <PrivateRoute>
+                        <AppLayout />
+                      </PrivateRoute>
+                    }
+                  >
                     <Route index element={<Dashboard />} />
                     <Route path="transactions" element={<Transactions />} />
                     <Route path="reports" element={<Reports />} />
@@ -46,6 +61,7 @@ const App = () => (
                     <Route path="upgrade" element={<Upgrade />} />
                     <Route path="thanks" element={<Thanks />} />
                   </Route>
+                  
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </FinanceProvider>

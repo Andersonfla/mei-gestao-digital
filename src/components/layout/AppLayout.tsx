@@ -1,12 +1,11 @@
 
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "./Sidebar";
-import { useAuth } from "@/contexts";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export function AppLayout() {
-  const { user, loading } = useAuth();
+  const { loading } = useRequireAuth();
   
-  // Se estiver carregando, mostra um spinner
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -15,7 +14,6 @@ export function AppLayout() {
     );
   }
   
-  // Mostra o layout para todos os usuários, autenticados ou não
   return (
     <div className="flex min-h-screen w-full">
       <AppSidebar />

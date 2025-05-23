@@ -149,37 +149,31 @@ export type Database = {
       }
       profiles: {
         Row: {
-          contagem_de_transações: number | null
-          created_at: string | null
+          dark_mode: boolean | null
           email: string | null
           id: string
           name: string | null
           plan: string | null
           subscription_end: string | null
           transaction_count: number | null
-          updated_at: string | null
         }
         Insert: {
-          contagem_de_transações?: number | null
-          created_at?: string | null
+          dark_mode?: boolean | null
           email?: string | null
           id: string
           name?: string | null
           plan?: string | null
           subscription_end?: string | null
           transaction_count?: number | null
-          updated_at?: string | null
         }
         Update: {
-          contagem_de_transações?: number | null
-          created_at?: string | null
+          dark_mode?: boolean | null
           email?: string | null
           id?: string
           name?: string | null
           plan?: string | null
           subscription_end?: string | null
           transaction_count?: number | null
-          updated_at?: string | null
         }
         Relationships: []
       }

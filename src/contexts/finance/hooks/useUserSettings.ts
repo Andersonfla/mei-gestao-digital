@@ -52,7 +52,7 @@ export function useUserSettings() {
       const currentDate = new Date();
       
       if (subscriptionEndDate < currentDate) {
-        // O plano premium expirou, acionar verificação
+        // Premium plan has expired, trigger verification
         refetchUserSettings();
         
         toast({
@@ -85,7 +85,7 @@ export function useUserSettings() {
     },
   });
 
-  // Verifica se o plano premium está ativo
+  // Check if the premium plan is active
   const isPremiumActive = () => {
     if (userSettings?.plan !== 'premium') return false;
     

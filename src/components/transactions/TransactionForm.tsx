@@ -67,7 +67,7 @@ export function TransactionForm() {
       setIsSubmitting(true);
       
       const newTransaction = {
-        user_id: '', // This will be set automatically by the backend
+        // Não precisamos definir user_id aqui, o serviço irá adicioná-lo automaticamente
         date: data.date,
         value: parseFloat(data.value),
         description: data.description || null,

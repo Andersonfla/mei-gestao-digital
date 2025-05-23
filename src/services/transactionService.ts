@@ -149,7 +149,7 @@ export async function addTransaction(
     description: transaction.description || "",
     value: transaction.value,
     date: formattedDate,
-    user_id: userId
+    user_id: userId  // Garantir que o user_id seja sempre preenchido
   };
 
   const { data, error } = await supabase
@@ -185,7 +185,7 @@ export async function deleteTransaction(id: string): Promise<void> {
     .from("transactions")
     .delete()
     .eq("id", id)
-    .eq("user_id", userId);
+    .eq("user_id", userId);  // Garantir que apenas as transações do usuário sejam excluídas
 
   if (error) {
     console.error(`Erro ao excluir transação ${id}:`, error);

@@ -21,7 +21,7 @@ export function useUserSettings() {
   } = useQuery({
     queryKey: ['userSettings', user?.id],
     queryFn: getUserSettings,
-    enabled: !!user,
+    enabled: !!user,  // Garantir que a consulta só aconteça com usuário autenticado
     staleTime: 1000 * 60,
     refetchOnMount: true,
     refetchOnWindowFocus: true,

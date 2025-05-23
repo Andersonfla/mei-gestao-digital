@@ -27,7 +27,7 @@ export function useTransactions(filterDates: { startDate: Date; endDate: Date })
   } = useQuery({
     queryKey: ['transactions', user?.id],
     queryFn: getTransactions,
-    enabled: !!user,
+    enabled: !!user,  // Garantir que consultas só aconteçam com usuário autenticado
     staleTime: 1000 * 60,
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes("autenticação")) {
@@ -48,7 +48,7 @@ export function useTransactions(filterDates: { startDate: Date; endDate: Date })
       format(filterDates.startDate, 'yyyy-MM-dd'),
       format(filterDates.endDate, 'yyyy-MM-dd')
     ),
-    enabled: !!user,
+    enabled: !!user,  // Garantir que consultas só aconteçam com usuário autenticado
     staleTime: 1000 * 60,
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes("autenticação")) {

@@ -1,11 +1,15 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, CheckCircle, AlertTriangle } from "lucide-react";
+import { Eye, EyeOff, Info, AlertTriangle, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SignupFormProps {
+  onSubmit: (e: React.FormEvent) => void;
+  isSubmitting: boolean;
+  signupSuccess: boolean;
   name: string;
   setName: (name: string) => void;
   email: string;
@@ -21,12 +25,12 @@ interface SignupFormProps {
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
   signupError?: string;
-  signupSuccess: boolean;
-  isSubmitting: boolean;
-  handleSignup: (e: React.FormEvent) => void;
 }
 
 export const SignupForm = ({
+  onSubmit,
+  isSubmitting,
+  signupSuccess,
   name,
   setName,
   email,
@@ -42,9 +46,6 @@ export const SignupForm = ({
   showPassword,
   setShowPassword,
   signupError,
-  signupSuccess,
-  isSubmitting,
-  handleSignup,
 }: SignupFormProps) => {
   if (signupSuccess) {
     return (
@@ -59,7 +60,7 @@ export const SignupForm = ({
   }
 
   return (
-    <form onSubmit={handleSignup} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       {signupError && (
         <Alert className="bg-red-50 border-red-200 mb-4">
           <AlertTriangle className="h-4 w-4 text-red-500" />
@@ -152,4 +153,4 @@ export const SignupForm = ({
       </Button>
     </form>
   );
-}
+};

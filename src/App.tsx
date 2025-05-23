@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import Upgrade from "./pages/Upgrade";
 import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,8 +38,9 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <Routes>
+                  <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<Auth />} />
-                  <Route path="/" element={<AppLayout />}>
+                  <Route path="/dashboard" element={<AppLayout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="transactions" element={<Transactions />} />
                     <Route path="reports" element={<Reports />} />

@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlan, UserSettings } from "@/types/finance";
-import { updateTransactionLimits } from "./planLimits";
 
 /**
  * Buscar configurações de usuário autenticado
@@ -88,14 +87,59 @@ export async function getUserSettings(): Promise<UserSettings> {
       console.log(`Quantidade de transações encontradas: ${transactionsDebug?.length}, userId: ${userId}`);
     }
 
-    // Atualizar os limites de transações para o mês atual
-    const actualTransactionCount = transactionCount || 0;
-    console.log(`Contagem real de transações: ${actualTransactionCount}`);
-    
+    // Verificar se existe um registro de limites para este mês/ano
+    const { data: limitsData, error: limitsError } = await supabase
+      .from("plan_limits")
+      .select("transactions, limit_reached")
+      .eq("user_id", userId)
+      .eq("month", currentMonth)
+      .eq("year", currentYear)
+      .single();
+
     // Definir limite com base no plano
     const transactionLimit = currentPlan === "premium" ? 999999 : 20;
     
-    await updateTransactionLimits(userId, currentMonth, currentYear, actualTransactionCount, transactionLimit);
+    // Calcular contagem real de transações do banco de dados
+    const actualTransactionCount = transactionCount || 0;
+    console.log(`Contagem real de transações: ${actualTransactionCount}`);
+    
+    // Se não encontrou limites para este mês, criar um novo registro
+    if (limitsError && limitsError.code === "PGRST116") {
+      // Código PGRST116 geralmente indica que nenhum resultado foi encontrado
+      console.log("Criando novo registro de limites para o mês atual");
+      
+      const { error: insertError } = await supabase
+        .from("plan_limits")
+        .insert({
+          user_id: userId,
+          month: currentMonth,
+          year: currentYear,
+          transactions: actualTransactionCount,
+          limit_reached: actualTransactionCount >= transactionLimit
+        });
+      
+      if (insertError) {
+        console.error("Erro ao criar limite para o mês:", insertError);
+      }
+    } else if (limitsData) {
+      // Atualizar o registro existente para garantir que reflete a contagem real
+      if (limitsData.transactions !== actualTransactionCount) {
+        console.log(`Atualizando contagem de ${limitsData.transactions} para ${actualTransactionCount}`);
+        const { error: updateError } = await supabase
+          .from("plan_limits")
+          .update({
+            transactions: actualTransactionCount,
+            limit_reached: actualTransactionCount >= transactionLimit
+          })
+          .eq("user_id", userId)
+          .eq("month", currentMonth)
+          .eq("year", currentYear);
+        
+        if (updateError) {
+          console.error("Erro ao atualizar limite para o mês:", updateError);
+        }
+      }
+    }
 
     // Sempre use a contagem real de transações do banco
     return {
@@ -116,4 +160,47 @@ export async function getUserSettings(): Promise<UserSettings> {
       subscriptionEnd: null,
     };
   }
+}
+
+/**
+ * Atualizar plano do usuário para premium
+ */
+export async function upgradeToPremium(): Promise<void> {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session?.session?.user?.id) {
+    throw new Error("Usuário não autenticado");
+  }
+
+  const userId = session.session.user.id;
+  console.log("Atualizando plano para premium para o usuário:", userId);
+
+  // Definir data de expiração para 30 dias a partir de hoje
+  const subscriptionEnd = new Date();
+  subscriptionEnd.setDate(subscriptionEnd.getDate() + 30);
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ 
+      plan: "premium",
+      subscription_end: subscriptionEnd.toISOString()
+    })
+    .eq("id", userId);
+
+  if (error) {
+    console.error("Erro ao atualizar para premium:", error);
+    throw error;
+  }
+
+  // Limpar qualquer flag de limite atingido
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+  
+  await supabase
+    .from("plan_limits")
+    .update({ limit_reached: false })
+    .eq("user_id", userId)
+    .eq("month", currentMonth)
+    .eq("year", currentYear);
 }

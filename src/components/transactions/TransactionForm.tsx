@@ -11,9 +11,11 @@ import { useNavigate } from "react-router-dom";
 import { TransactionFormFields } from "./TransactionFormFields";
 import { TransactionLimitIndicator } from "./TransactionLimitIndicator";
 import { TransactionFormValues, transactionSchema } from "./transactionSchema";
+import { useAuth } from "@/contexts";
 
 export function TransactionForm() {
   const { categories, addTransaction, userSettings, refetchUserSettings } = useFinance();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TransactionType>("entrada");
@@ -67,7 +69,7 @@ export function TransactionForm() {
       setIsSubmitting(true);
       
       const newTransaction = {
-        // Não precisamos definir user_id aqui, o serviço irá adicioná-lo automaticamente
+        user_id: user?.id || "", // Adicionando user_id aqui para corresponder ao tipo esperado
         date: data.date,
         value: parseFloat(data.value),
         description: data.description || null,

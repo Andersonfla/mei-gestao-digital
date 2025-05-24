@@ -16,8 +16,9 @@ export const useRequireAuth = () => {
     const checkAuth = async () => {
       // Somente verificar após o loading inicial para evitar redirecionamentos desnecessários
       if (!loading) {
-        // Skip auth checks for non-protected routes
+        // Skip auth checks completely for public routes
         if (location.pathname === "/" || location.pathname === "/auth") {
+          console.log("Skipping auth check for public route:", location.pathname);
           return;
         }
         

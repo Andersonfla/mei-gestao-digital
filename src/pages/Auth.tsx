@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -9,7 +9,6 @@ import { useAuthForm } from "@/hooks/useAuthForm";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   
   const {
     user, 
@@ -21,7 +20,7 @@ const Auth = () => {
     signupProps
   } = useAuthForm();
   
-  // Redirect if already logged in - to /app instead of /dashboard
+  // Redirect if already logged in
   useEffect(() => {
     if (user && !loading) {
       console.log("Auth page: User is already logged in, redirecting to app");

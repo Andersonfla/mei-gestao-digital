@@ -43,9 +43,9 @@ const App = () => (
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<Auth />} />
                   
-                  {/* Protected routes */}
-                  <Route element={<RequireAuth />}>
-                    <Route path="/dashboard" element={<AppLayout />}>
+                  {/* Protected routes - App routes */}
+                  <Route path="/app" element={<RequireAuth />}>
+                    <Route element={<AppLayout />}>
                       <Route index element={<Dashboard />} />
                       <Route path="transactions" element={<Transactions />} />
                       <Route path="reports" element={<Reports />} />
@@ -54,6 +54,9 @@ const App = () => (
                       <Route path="thanks" element={<Thanks />} />
                     </Route>
                   </Route>
+                  
+                  {/* Legacy dashboard routes - redirect to /app */}
+                  <Route path="/dashboard" element={<Navigate to="/app" replace />} />
                   
                   {/* Catch all route */}
                   <Route path="*" element={<NotFound />} />

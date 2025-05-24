@@ -28,7 +28,7 @@ export default function LandingPage() {
           
           <div className="flex items-center gap-2">
             {user ? (
-              <Link to="/dashboard">
+              <Link to="/app">
                 <Button variant="default" className="bg-primary hover:bg-primary/90">
                   Ir para o Dashboard
                 </Button>
@@ -62,7 +62,7 @@ export default function LandingPage() {
           </p>
 
           {user ? (
-            <Link to="/dashboard">
+            <Link to="/app">
               <Button size="lg" className="text-base px-6 py-6 h-auto">
                 Ir para o Dashboard
               </Button>

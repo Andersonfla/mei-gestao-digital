@@ -10,7 +10,6 @@ import { useAuthForm } from "@/hooks/useAuthForm";
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/dashboard";
   
   const {
     user, 
@@ -22,11 +21,11 @@ const Auth = () => {
     signupProps
   } = useAuthForm();
   
-  // Redirect if already logged in
+  // Redirect if already logged in - to /app instead of /dashboard
   useEffect(() => {
     if (user && !loading) {
-      console.log("Auth page: User is already logged in, redirecting to dashboard");
-      navigate("/dashboard", { replace: true });
+      console.log("Auth page: User is already logged in, redirecting to app");
+      navigate("/app", { replace: true });
     }
   }, [user, loading, navigate]);
 

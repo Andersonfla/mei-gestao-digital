@@ -2,7 +2,7 @@
 import { Navigate } from "react-router-dom";
 
 const Index = () => {
-  // Redirect to dashboard
+  // Redirect to root page which is now the landing page
   return <Navigate to="/" replace />;
 };
 

@@ -1,4 +1,4 @@
-
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,35 +26,48 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <TooltipProvider>
-        <AuthProvider>
-          <ThemeProvider>
-            <SidebarProvider>
-              <FinanceProvider>
-                <Toaster />
-                <Sonner />
-                <Routes>
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/" element={<AppLayout />}>
-                    <Route index element={<Dashboard />} />
-                    <Route path="transactions" element={<Transactions />} />
-                    <Route path="reports" element={<Reports />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="upgrade" element={<Upgrade />} />
-                    <Route path="thanks" element={<Thanks />} />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </FinanceProvider>
-            </SidebarProvider>
-          </ThemeProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+const App = () => {
+  useEffect(() => {
+    (function(h,o,t,j,a,r){
+      h.hj = h.hj || function(){(h.hj.q = h.hj.q || []).push(arguments)};
+      h._hjSettings = { hjid: 6414077, hjsv: 6 };
+      a = o.getElementsByTagName('head')[0];
+      r = o.createElement('script'); r.async = 1;
+      r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+      a.appendChild(r);
+    })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <TooltipProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <SidebarProvider>
+                <FinanceProvider>
+                  <Toaster />
+                  <Sonner />
+                  <Routes>
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/" element={<AppLayout />}>
+                      <Route index element={<Dashboard />} />
+                      <Route path="transactions" element={<Transactions />} />
+                      <Route path="reports" element={<Reports />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="upgrade" element={<Upgrade />} />
+                      <Route path="thanks" element={<Thanks />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </FinanceProvider>
+              </SidebarProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

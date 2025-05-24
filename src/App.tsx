@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { FinanceProvider, AuthProvider } from "./contexts";
 import { ThemeProvider } from "./contexts/theme/ThemeContext";
 import { AppLayout } from "./components/layout/AppLayout";
@@ -17,6 +17,7 @@ import Upgrade from "./pages/Upgrade";
 import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
+import { RequireAuth } from "./components/auth/RequireAuth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,16 +39,22 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <Routes>
+                  {/* Public routes */}
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<Auth />} />
-                  <Route path="/dashboard" element={<AppLayout />}>
-                    <Route index element={<Dashboard />} />
-                    <Route path="transactions" element={<Transactions />} />
-                    <Route path="reports" element={<Reports />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="upgrade" element={<Upgrade />} />
-                    <Route path="thanks" element={<Thanks />} />
+                  
+                  {/* Protected routes */}
+                  <Route element={<RequireAuth />}>
+                    <Route path="/dashboard" element={<AppLayout />}>
+                      <Route index element={<Dashboard />} />
+                      <Route path="transactions" element={<Transactions />} />
+                      <Route path="reports" element={<Reports />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="upgrade" element={<Upgrade />} />
+                      <Route path="thanks" element={<Thanks />} />
+                    </Route>
                   </Route>
+                  
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </FinanceProvider>

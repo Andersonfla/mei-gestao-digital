@@ -2,10 +2,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
+import { useAuth } from "@/contexts";
 
 export default function LandingPage() {
+  const { user } = useAuth();
+
   return (
-    <div className="min-h-screen bg-[#f9f9f9] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#f9f9f9] flex flex-col">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white z-10 shadow-sm">
         <div className="container mx-auto flex items-center justify-between p-4">
@@ -16,20 +19,32 @@ export default function LandingPage() {
               <p className="text-xs text-muted-foreground">Gestão Simplificada</p>
             </div>
           </div>
+          
           <nav className="hidden md:flex items-center gap-8">
             <a href="#beneficios" className="text-muted-foreground hover:text-primary transition">Benefícios</a>
             <a href="#depoimentos" className="text-muted-foreground hover:text-primary transition">Depoimentos</a>
             <a href="#planos" className="text-muted-foreground hover:text-primary transition">Planos</a>
           </nav>
+          
           <div className="flex items-center gap-2">
-            <Link to="/auth">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="default" className="bg-primary hover:bg-primary/90">
-                Experimente Grátis
-              </Button>
-            </Link>
+            {user ? (
+              <Link to="/dashboard">
+                <Button variant="default" className="bg-primary hover:bg-primary/90">
+                  Ir para o Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="outline">Entrar</Button>
+                </Link>
+                <Link to="/auth">
+                  <Button variant="default" className="bg-primary hover:bg-primary/90">
+                    Experimente Grátis
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -46,11 +61,19 @@ export default function LandingPage() {
             Evite bagunça nas suas contas, acompanhe seus ganhos e despesas e fique em dia com o governo.
           </p>
 
-          <Link to="/auth">
-            <Button size="lg" className="text-base px-6 py-6 h-auto">
-              Comece com 20 lançamentos
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/dashboard">
+              <Button size="lg" className="text-base px-6 py-6 h-auto">
+                Ir para o Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/auth">
+              <Button size="lg" className="text-base px-6 py-6 h-auto">
+                Comece com 20 lançamentos
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Right: transaction simulation */}
@@ -72,7 +95,7 @@ export default function LandingPage() {
                   <div className="text-sm font-semibold">{item.hora}</div>
                   <div>
                     <div className="font-medium">{item.desc}</div>
-                    <div className={`text-sm ${item.tipo === "entrada" ? "text-income" : "text-expense"}`}>
+                    <div className={`text-sm ${item.tipo === "entrada" ? "text-green-600" : "text-red-600"}`}>
                       {item.tipo === "entrada" ? "+" : "-"}{item.valor}
                     </div>
                   </div>
@@ -87,6 +110,13 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+      
+      {/* Footer placeholder */}
+      <footer className="bg-gray-100 py-8">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          © 2025 MEI Finanças. Todos os direitos reservados.
+        </div>
+      </footer>
     </div>
   );
 }

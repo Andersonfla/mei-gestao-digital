@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -9,6 +9,9 @@ import { useAuthForm } from "@/hooks/useAuthForm";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/dashboard";
+  
   const {
     user, 
     loading,
@@ -23,7 +26,7 @@ const Auth = () => {
   useEffect(() => {
     if (user && !loading) {
       console.log("Auth page: User is already logged in, redirecting to dashboard");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [user, loading, navigate]);
 

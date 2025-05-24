@@ -1,4 +1,5 @@
 
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
@@ -6,6 +7,16 @@ import { useAuth } from "@/contexts";
 
 export default function LandingPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Handle dashboard button click
+  const handleDashboardClick = () => {
+    if (user) {
+      navigate("/app");
+    } else {
+      navigate("/auth");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f9f9f9] flex flex-col">
@@ -28,11 +39,13 @@ export default function LandingPage() {
           
           <div className="flex items-center gap-2">
             {user ? (
-              <Link to="/app">
-                <Button variant="default" className="bg-primary hover:bg-primary/90">
-                  Ir para o Dashboard
-                </Button>
-              </Link>
+              <Button 
+                variant="default" 
+                className="bg-primary hover:bg-primary/90"
+                onClick={handleDashboardClick}
+              >
+                Ir para o Dashboard
+              </Button>
             ) : (
               <>
                 <Link to="/auth">
@@ -61,19 +74,13 @@ export default function LandingPage() {
             Evite bagunça nas suas contas, acompanhe seus ganhos e despesas e fique em dia com o governo.
           </p>
 
-          {user ? (
-            <Link to="/app">
-              <Button size="lg" className="text-base px-6 py-6 h-auto">
-                Ir para o Dashboard
-              </Button>
-            </Link>
-          ) : (
-            <Link to="/auth">
-              <Button size="lg" className="text-base px-6 py-6 h-auto">
-                Comece com 20 lançamentos
-              </Button>
-            </Link>
-          )}
+          <Button 
+            size="lg" 
+            className="text-base px-6 py-6 h-auto"
+            onClick={handleDashboardClick}
+          >
+            {user ? "Ir para o Dashboard" : "Comece com 20 lançamentos"}
+          </Button>
         </div>
 
         {/* Right: transaction simulation */}

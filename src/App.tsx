@@ -55,6 +55,7 @@ const App = () => (
                     </Route>
                   </Route>
                   
+                  {/* Catch all route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </FinanceProvider>

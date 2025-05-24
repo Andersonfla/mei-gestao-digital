@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";

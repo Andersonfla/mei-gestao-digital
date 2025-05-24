@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FinanceProvider, AuthProvider } from "./contexts";
 import { ThemeProvider } from "./contexts/theme/ThemeContext";
 import { AppLayout } from "./components/layout/AppLayout";
@@ -16,8 +16,6 @@ import Settings from "./pages/Settings";
 import Upgrade from "./pages/Upgrade";
 import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
-import LandingPage from "./pages/LandingPage";
-import { RequireAuth } from "./components/auth/RequireAuth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,26 +37,15 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<Auth />} />
-                  
-                  {/* Protected routes - App routes */}
-                  <Route path="/app" element={<RequireAuth />}>
-                    <Route element={<AppLayout />}>
-                      <Route index element={<Dashboard />} />
-                      <Route path="transactions" element={<Transactions />} />
-                      <Route path="reports" element={<Reports />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="upgrade" element={<Upgrade />} />
-                      <Route path="thanks" element={<Thanks />} />
-                    </Route>
+                  <Route path="/" element={<AppLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="transactions" element={<Transactions />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="upgrade" element={<Upgrade />} />
+                    <Route path="thanks" element={<Thanks />} />
                   </Route>
-                  
-                  {/* Legacy dashboard routes - redirect to /app */}
-                  <Route path="/dashboard" element={<Navigate to="/app" replace />} />
-                  
-                  {/* Catch all route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </FinanceProvider>

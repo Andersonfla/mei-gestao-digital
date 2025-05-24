@@ -1,10 +1,14 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/contexts";
 
 interface LoginFormProps {
+  onSubmit: (e: React.FormEvent) => void;
+  isSubmitting: boolean;
   email: string;
   setEmail: (email: string) => void;
   password: string;
@@ -13,11 +17,11 @@ interface LoginFormProps {
   passwordError: string;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
-  isSubmitting: boolean;
-  handleLogin: (e: React.FormEvent) => void;
 }
 
 export const LoginForm = ({
+  onSubmit,
+  isSubmitting,
   email,
   setEmail,
   password,
@@ -26,11 +30,9 @@ export const LoginForm = ({
   passwordError,
   showPassword,
   setShowPassword,
-  isSubmitting,
-  handleLogin,
 }: LoginFormProps) => {
   return (
-    <form onSubmit={handleLogin} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="email" className="flex items-center justify-between">
           Email

@@ -1,15 +1,65 @@
 
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  CreditCard,
+  ShoppingCart,
+  Wrench,
+  Banknote,
+  HandCoins,
+} from "lucide-react";
 
-const transactions = [
-  { hora: "09:00", desc: "Venda no cartão", valor: "R$ 150,00", tipo: "entrada", status: "confirmado" },
-  { hora: "10:00", desc: "Compra de material", valor: "R$ 50,00", tipo: "saida", status: "confirmado" },
-  { hora: "11:00", desc: "Pagamento de serviço", valor: "R$ 30,00", tipo: "saida", status: "pendente" },
-  { hora: "14:00", desc: "Recebimento via PIX", valor: "R$ 200,00", tipo: "entrada", status: "confirmado" },
-  { hora: "15:00", desc: "Venda à vista", valor: "R$ 85,00", tipo: "entrada", status: "confirmado" },
+const lancamentos = [
+  {
+    hora: "09:00",
+    titulo: "Venda no cartão",
+    valor: "+R$ 150,00",
+    tipo: "entrada",
+    icone: CreditCard,
+  },
+  {
+    hora: "10:00",
+    titulo: "Compra de material",
+    valor: "-R$ 50,00",
+    tipo: "saida",
+    icone: ShoppingCart,
+  },
+  {
+    hora: "11:00",
+    titulo: "Pagamento de serviço",
+    valor: "-R$ 30,00",
+    tipo: "saida",
+    icone: Wrench,
+  },
+  {
+    hora: "14:00",
+    titulo: "Recebimento via PIX",
+    valor: "+R$ 200,00",
+    tipo: "entrada",
+    icone: Banknote,
+  },
+  {
+    hora: "15:00",
+    titulo: "Venda à vista",
+    valor: "+R$ 85,00",
+    tipo: "entrada",
+    icone: HandCoins,
+  },
 ];
 
 export function AnimatedTransactions() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % lancamentos.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const atual = lancamentos[index];
+  const Icone = atual.icone;
+
   return (
     <div className="md:w-1/2 p-10 bg-white rounded-lg shadow-md mx-5 my-10 md:my-20">
       <motion.h2 
@@ -21,56 +71,65 @@ export function AnimatedTransactions() {
         Lançamentos de Maio
       </motion.h2>
       
-      <div className="space-y-4">
-        {transactions.map((item, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ 
-              duration: 0.5, 
-              delay: index * 0.1,
-              ease: "easeOut"
-            }}
-            whileHover={{ 
-              scale: 1.02, 
-              transition: { duration: 0.2 }
-            }}
-            className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-gray-50 hover:shadow-md transition-all duration-300 cursor-pointer"
-          >
-            <div className="flex gap-4 items-center">
+      <div className="max-w-md mx-auto">
+        <h3 className="text-lg font-semibold mb-4 text-gray-700">Últimos lançamentos</h3>
+        <div className="h-28 overflow-hidden relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={atual.hora}
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -40, opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between cursor-pointer"
+              whileHover={{ 
+                scale: 1.02, 
+                transition: { duration: 0.2 }
+              }}
+            >
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
                 className="text-sm font-semibold bg-primary/10 px-2 py-1 rounded"
               >
-                {item.hora}
+                {atual.hora}
               </motion.div>
-              <div>
-                <div className="font-medium">{item.desc}</div>
-                <motion.div 
-                  className={`text-sm font-semibold ${
-                    item.tipo === "entrada" ? "text-green-600" : "text-red-600"
-                  }`}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 + 0.3 }}
+              
+              <div className="flex items-center gap-3 flex-1 ml-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
                 >
-                  {item.tipo === "entrada" ? "+" : "-"}{item.valor}
+                  <Icone className="w-5 h-5 text-gray-500" />
                 </motion.div>
+                <div>
+                  <div className="font-medium">{atual.titulo}</div>
+                  <motion.div 
+                    className={`text-sm font-semibold ${
+                      atual.tipo === "entrada" ? "text-green-600" : "text-red-600"
+                    }`}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.3 }}
+                  >
+                    {atual.valor}
+                  </motion.div>
+                </div>
               </div>
-            </div>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3, delay: index * 0.1 + 0.4 }}
-              className={`w-3 h-3 rounded-full ${
-                item.status === "confirmado" ? "bg-green-500" : "bg-blue-400"
-              }`}
-            />
-          </motion.div>
-        ))}
+              
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.4 }}
+                className={`w-3 h-3 rounded-full ${
+                  atual.tipo === "entrada" ? "bg-green-500" : "bg-blue-400"
+                }`}
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

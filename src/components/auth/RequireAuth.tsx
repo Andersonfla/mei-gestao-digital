@@ -7,11 +7,6 @@ export const RequireAuth = () => {
   const { user, loading } = useRequireAuth();
   const location = useLocation();
   
-  useEffect(() => {
-    console.log("RequireAuth - Current path:", location.pathname);
-    console.log("RequireAuth - User authenticated:", !!user);
-  }, [location.pathname, user]);
-  
   // Show loading state while checking auth
   if (loading) {
     return (
@@ -23,11 +18,9 @@ export const RequireAuth = () => {
   
   // Redirect to login if not authenticated
   if (!user) {
-    console.log("RequireAuth - No user found, redirecting to /auth");
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
   
   // If authenticated, render the protected routes
-  console.log("RequireAuth - Rendering protected routes");
   return <Outlet />;
 };

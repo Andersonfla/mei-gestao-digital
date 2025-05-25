@@ -21,8 +21,11 @@ export const useRequireAuth = () => {
           return;
         }
         
-        // Verificar se o usuário está autenticado para rotas protegidas
-        if (!user && location.pathname.startsWith("/app")) {
+        // Protected routes - check if user is authenticated
+        const protectedRoutes = ["/dashboard", "/transacoes", "/relatorios", "/configuracoes", "/upgrade", "/thanks"];
+        const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
+        
+        if (!user && isProtectedRoute) {
           console.log("Nenhum usuário autenticado, redirecionando para /auth");
           
           toast({
@@ -36,7 +39,7 @@ export const useRequireAuth = () => {
         }
         
         // Verificar se a sessão é válida
-        if (session) {
+        if (session && isProtectedRoute) {
           try {
             const sessionExpiryTime = new Date(session.expires_at * 1000);
             const currentTime = new Date();
@@ -58,7 +61,7 @@ export const useRequireAuth = () => {
             
             // Verificar se a sessão ainda é válida no servidor
             const { data: sessionData } = await supabase.auth.getSession();
-            if (!sessionData.session && location.pathname.startsWith("/app")) {
+            if (!sessionData.session && isProtectedRoute) {
               console.log("Sessão invalidada no servidor, redirecionando para /auth");
               await signOut();
               navigate("/auth", { replace: true });
@@ -69,11 +72,11 @@ export const useRequireAuth = () => {
           } catch (error) {
             console.error("Erro ao verificar sessão:", error);
             // Se houver um erro ao verificar a validade da sessão, assumimos que é melhor fazer login novamente
-            if (location.pathname.startsWith("/app")) {
+            if (isProtectedRoute) {
               navigate("/auth", { replace: true });
             }
           }
-        } else if (location.pathname.startsWith("/app")) {
+        } else if (isProtectedRoute && !session) {
           console.log("Sessão não encontrada, redirecionando para /auth");
           navigate("/auth", { replace: true });
         }
@@ -85,7 +88,10 @@ export const useRequireAuth = () => {
     // Verificar periodicamente a autenticação para garantir que a sessão seja válida
     const intervalId = setInterval(() => {
       // Only check for protected routes
-      if (location.pathname.startsWith("/app")) {
+      const protectedRoutes = ["/dashboard", "/transacoes", "/relatorios", "/configuracoes", "/upgrade", "/thanks"];
+      const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
+      
+      if (isProtectedRoute) {
         checkAuth();
       }
     }, 60000); // Verificar a cada minuto

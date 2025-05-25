@@ -43,20 +43,24 @@ const App = () => (
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<Auth />} />
                   
-                  {/* Protected routes - App routes */}
-                  <Route path="/app" element={<RequireAuth />}>
+                  {/* Protected routes */}
+                  <Route element={<RequireAuth />}>
                     <Route element={<AppLayout />}>
-                      <Route index element={<Dashboard />} />
-                      <Route path="transactions" element={<Transactions />} />
-                      <Route path="reports" element={<Reports />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="upgrade" element={<Upgrade />} />
-                      <Route path="thanks" element={<Thanks />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/transacoes" element={<Transactions />} />
+                      <Route path="/relatorios" element={<Reports />} />
+                      <Route path="/configuracoes" element={<Settings />} />
+                      <Route path="/upgrade" element={<Upgrade />} />
+                      <Route path="/thanks" element={<Thanks />} />
                     </Route>
                   </Route>
                   
-                  {/* Legacy dashboard routes - redirect to /app */}
-                  <Route path="/dashboard" element={<Navigate to="/app" replace />} />
+                  {/* Legacy routes - redirect to new structure */}
+                  <Route path="/app" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/app/*" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/transactions" element={<Navigate to="/transacoes" replace />} />
+                  <Route path="/reports" element={<Navigate to="/relatorios" replace />} />
+                  <Route path="/settings" element={<Navigate to="/configuracoes" replace />} />
                   
                   {/* Catch all route */}
                   <Route path="*" element={<NotFound />} />

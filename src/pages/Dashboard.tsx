@@ -28,7 +28,7 @@ const Dashboard = () => {
         <div className="md:col-span-2 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <h2 className="text-xl font-semibold">Últimas Transações</h2>
-            <Button variant="outline" onClick={() => navigate('/transactions')}>
+            <Button variant="outline" onClick={() => navigate('/transacoes')}>
               Ver todas
             </Button>
           </div>

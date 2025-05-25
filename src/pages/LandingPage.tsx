@@ -12,7 +12,7 @@ export default function LandingPage() {
   // Handle dashboard button click
   const handleDashboardClick = () => {
     if (user) {
-      navigate("/app");
+      navigate("/dashboard");
     } else {
       navigate("/auth");
     }

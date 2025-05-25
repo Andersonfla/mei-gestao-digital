@@ -64,12 +64,12 @@ export function AppSidebar() {
     return location.pathname === path;
   };
 
-  // Menu items
+  // Menu items with updated paths
   const menuItems = [
-    { path: "/", label: "Dashboard" },
-    { path: "/transactions", label: "Transações" },
-    { path: "/reports", label: "Relatórios" },
-    { path: "/settings", label: "Configurações" },
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/transacoes", label: "Transações" },
+    { path: "/relatorios", label: "Relatórios" },
+    { path: "/configuracoes", label: "Configurações" },
   ];
 
   return (

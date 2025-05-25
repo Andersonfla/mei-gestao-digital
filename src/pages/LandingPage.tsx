@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { useAuth } from "@/contexts";
+import { BenefitsSection } from "@/components/landing/BenefitsSection";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { AnimatedTransactions } from "@/components/landing/AnimatedTransactions";
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -83,42 +86,35 @@ export default function LandingPage() {
           </Button>
         </div>
 
-        {/* Right: transaction simulation */}
-        <div className="md:w-1/2 p-10 bg-white rounded-lg shadow-md mx-5 my-10 md:my-20">
-          <h2 className="text-2xl font-bold mb-6">Lançamentos de Maio</h2>
-          <div className="space-y-4">
-            {[
-              { hora: "09:00", desc: "Venda no cartão", valor: "R$ 150,00", tipo: "entrada", status: "confirmado" },
-              { hora: "10:00", desc: "Compra de material", valor: "R$ 50,00", tipo: "saida", status: "confirmado" },
-              { hora: "11:00", desc: "Pagamento de serviço", valor: "R$ 30,00", tipo: "saida", status: "pendente" },
-              { hora: "14:00", desc: "Recebimento via PIX", valor: "R$ 200,00", tipo: "entrada", status: "confirmado" },
-              { hora: "15:00", desc: "Venda à vista", valor: "R$ 85,00", tipo: "entrada", status: "confirmado" },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-gray-50"
-              >
-                <div className="flex gap-4 items-center">
-                  <div className="text-sm font-semibold">{item.hora}</div>
-                  <div>
-                    <div className="font-medium">{item.desc}</div>
-                    <div className={`text-sm ${item.tipo === "entrada" ? "text-green-600" : "text-red-600"}`}>
-                      {item.tipo === "entrada" ? "+" : "-"}{item.valor}
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    item.status === "confirmado" ? "bg-green-500" : "bg-blue-400"
-                  }`}
-                ></div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Right: animated transaction simulation */}
+        <AnimatedTransactions />
       </div>
       
-      {/* Footer placeholder */}
+      {/* Benefits Section */}
+      <BenefitsSection />
+      
+      {/* Testimonials Section */}
+      <TestimonialsSection />
+      
+      {/* Planos Section Placeholder */}
+      <section id="planos" className="py-20 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Planos Simples e Acessíveis
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8">
+            Escolha o plano ideal para seu negócio
+          </p>
+          <Button 
+            size="lg"
+            onClick={handleDashboardClick}
+          >
+            {user ? "Ir para o Dashboard" : "Começar Agora"}
+          </Button>
+        </div>
+      </section>
+      
+      {/* Footer */}
       <footer className="bg-gray-100 py-8">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           © 2025 MEI Finanças. Todos os direitos reservados.

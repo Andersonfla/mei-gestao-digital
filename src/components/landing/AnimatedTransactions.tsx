@@ -3,7 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { CreditCard, ShoppingCart, Wrench, Banknote, HandCoins } from "lucide-react";
 
-const baseTransactions = [
+interface Transaction {
+  hora: string;
+  desc: string;
+  valor: string;
+  tipo: string;
+  status: string;
+  icone: React.ComponentType<any>;
+  id?: string | number;
+}
+
+const baseTransactions: Transaction[] = [
   { hora: "09:00", desc: "Venda no cartão", valor: "R$ 150,00", tipo: "entrada", status: "confirmado", icone: CreditCard },
   { hora: "10:00", desc: "Compra de material", valor: "R$ 50,00", tipo: "saida", status: "confirmado", icone: ShoppingCart },
   { hora: "11:00", desc: "Pagamento de serviço", valor: "R$ 30,00", tipo: "saida", status: "pendente", icone: Wrench },
@@ -15,7 +25,12 @@ const baseTransactions = [
 ];
 
 export function AnimatedTransactions() {
-  const [visibleTransactions, setVisibleTransactions] = useState(baseTransactions.slice(0, 4));
+  const [visibleTransactions, setVisibleTransactions] = useState<Transaction[]>(
+    baseTransactions.slice(0, 4).map((item, index) => ({
+      ...item,
+      id: `initial-${index}`,
+    }))
+  );
   const [nextIndex, setNextIndex] = useState(4);
 
   useEffect(() => {
@@ -28,7 +43,7 @@ export function AnimatedTransactions() {
         const nextTransaction = baseTransactions[nextIndex % baseTransactions.length];
         newTransactions.push({
           ...nextTransaction,
-          id: Date.now() + Math.random(), // ID único para animação
+          id: `transaction-${Date.now()}-${Math.random()}`, // ID único para animação
         });
         return newTransactions;
       });
@@ -56,7 +71,7 @@ export function AnimatedTransactions() {
             const IconeComponent = item.icone;
             return (
               <motion.div
-                key={item.id || `${item.hora}-${index}`}
+                key={item.id}
                 layout
                 initial={{ opacity: 0, y: 60, scale: 0.8 }}
                 animate={{ 

@@ -15,7 +15,7 @@ export const AuthLayout = ({ activeTab, children, footerText }: AuthLayoutProps)
         <CardHeader className="text-center">
           <div className="flex justify-center mb-2">
             <img 
-              src="/lovable-uploads/f6ce2415-ffec-4117-bd68-a123f7b433f4.png" 
+              src="/lovable-uploads/ce3c76bc-dc40-4d39-b9eb-f9154e5e9dbe.png" 
               alt="MEI Finanças" 
               className="h-12 w-auto"
             />

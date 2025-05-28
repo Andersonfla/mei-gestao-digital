@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ export default function LandingPage() {
         <div className="container mx-auto flex items-center justify-between p-4">
           <div className="flex items-center gap-2">
             <img 
-              src="/lovable-uploads/f6ce2415-ffec-4117-bd68-a123f7b433f4.png" 
+              src="/lovable-uploads/ce3c76bc-dc40-4d39-b9eb-f9154e5e9dbe.png" 
               alt="MEI Finanças" 
               className="h-10 w-auto"
             />

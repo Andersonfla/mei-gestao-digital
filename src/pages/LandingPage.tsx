@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,11 @@ export default function LandingPage() {
       <header className="fixed top-0 left-0 right-0 bg-white z-10 shadow-sm">
         <div className="container mx-auto flex items-center justify-between p-4">
           <div className="flex items-center gap-2">
-            <Heart className="text-primary h-6 w-6" />
+            <img 
+              src="/lovable-uploads/f6ce2415-ffec-4117-bd68-a123f7b433f4.png" 
+              alt="MEI Finanças" 
+              className="h-10 w-auto"
+            />
             <div>
               <h1 className="font-bold text-lg">MEI Finanças</h1>
               <p className="text-xs text-muted-foreground">Gestão Simplificada</p>

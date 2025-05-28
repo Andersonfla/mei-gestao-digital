@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -101,9 +100,11 @@ export function AppSidebar() {
       <Sidebar className="border-r">
         <SidebarHeader className="px-6 py-5">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">MEI</span>
-            </div>
+            <img 
+              src="/lovable-uploads/f6ce2415-ffec-4117-bd68-a123f7b433f4.png" 
+              alt="MEI Finanças" 
+              className="h-8 w-auto"
+            />
             <span className="font-semibold text-lg">MEI Finanças</span>
           </div>
         </SidebarHeader>

@@ -14,9 +14,11 @@ export const AuthLayout = ({ activeTab, children, footerText }: AuthLayoutProps)
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-2">
-            <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-white font-semibold text-xl">MEI</span>
-            </div>
+            <img 
+              src="/lovable-uploads/f6ce2415-ffec-4117-bd68-a123f7b433f4.png" 
+              alt="MEI Finanças" 
+              className="h-12 w-auto"
+            />
           </div>
           <CardTitle className="text-2xl">MEI Finanças</CardTitle>
           <CardDescription>Gerencie suas finanças de maneira simples e eficiente</CardDescription>

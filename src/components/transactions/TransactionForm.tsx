@@ -48,28 +48,10 @@ export function TransactionForm() {
 
   async function onSubmit(data: TransactionFormValues) {
     try {
-      // Revalidar as configurações do usuário antes de adicionar uma transação
-      // para ter certeza de que temos os dados mais recentes
-      await refetchUserSettings();
-      
-      // Verificar se o usuário atingiu o limite ANTES de tentar adicionar
-      if (userSettings.plan === 'free' && 
-          userSettings.transactionCountThisMonth >= userSettings.transactionLimit) {
-        toast({
-          title: "Limite atingido",
-          description: `Você atingiu o limite de ${userSettings.transactionLimit} lançamentos no plano gratuito.`,
-          variant: "destructive",
-        });
-        
-        // Automatically redirect to the upgrade page
-        navigate("/upgrade");
-        return;
-      }
-      
       setIsSubmitting(true);
       
       const newTransaction = {
-        user_id: user?.id || "", // Adicionando user_id aqui para corresponder ao tipo esperado
+        user_id: user?.id || "", 
         date: data.date,
         value: parseFloat(data.value),
         description: data.description || null,

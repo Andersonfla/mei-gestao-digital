@@ -62,7 +62,7 @@ export async function getFilteredTransactions(startDate: string, endDate: string
 }
 
 /**
- * Verificar se o usuário pode adicionar mais transações (limites do plano)
+ * Verificar se o usuário pode adicionar mais transações usando a função do banco
  */
 async function canAddTransaction(): Promise<boolean> {
   const { data: session } = await supabase.auth.getSession();
@@ -73,46 +73,18 @@ async function canAddTransaction(): Promise<boolean> {
   
   const userId = session.session.user.id;
   
-  // Buscar perfil do usuário
-  const { data: profileData, error: profileError } = await supabase
-    .from("profiles")
-    .select("plan")
-    .eq("id", userId)
-    .single();
-    
-  if (profileError) {
-    console.error("Erro ao verificar plano do usuário:", profileError);
+  // Usar a função do banco de dados para verificar se pode adicionar transação
+  const { data, error } = await supabase.rpc('can_add_transaction', { 
+    user_id_param: userId 
+  });
+  
+  if (error) {
+    console.error("Erro ao verificar limite de transações:", error);
     return false;
   }
   
-  // Usuários premium não têm limite
-  if (profileData.plan === "premium") {
-    return true;
-  }
-  
-  // Para usuários do plano gratuito, verificar o limite mensal
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
-  const currentYear = currentDate.getFullYear();
-  
-  // Contar diretamente as transações do usuário no mês atual
-  const { count: transactionCount, error: countError } = await supabase
-    .from("transactions")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`)
-    .lte("date", `${currentYear}-${String(currentMonth).padStart(2, '0')}-31`);
-    
-  if (countError) {
-    console.error("Erro ao contar transações:", countError);
-    return false;
-  }
-  
-  const count = transactionCount || 0;
-  console.log(`Verificando limites: contagem atual = ${count} de 20 permitidas`);
-  
-  // Verificar se ultrapassou o limite de 20 transações
-  return count < 20;
+  console.log(`Resultado da verificação de limite: ${data}`);
+  return data || false;
 }
 
 /**
@@ -149,7 +121,7 @@ export async function addTransaction(
     description: transaction.description || "",
     value: transaction.value,
     date: formattedDate,
-    user_id: userId  // Garantir que o user_id seja sempre preenchido
+    user_id: userId
   };
 
   const { data, error } = await supabase
@@ -185,7 +157,7 @@ export async function deleteTransaction(id: string): Promise<void> {
     .from("transactions")
     .delete()
     .eq("id", id)
-    .eq("user_id", userId);  // Garantir que apenas as transações do usuário sejam excluídas
+    .eq("user_id", userId);
 
   if (error) {
     console.error(`Erro ao excluir transação ${id}:`, error);

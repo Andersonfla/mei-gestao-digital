@@ -125,23 +125,29 @@ export type Database = {
       }
       plan_limits: {
         Row: {
+          created_at: string | null
           limit_reached: boolean
           month: number
           transactions: number
+          updated_at: string | null
           user_id: string
           year: number
         }
         Insert: {
+          created_at?: string | null
           limit_reached?: boolean
           month: number
           transactions?: number
+          updated_at?: string | null
           user_id: string
           year: number
         }
         Update: {
+          created_at?: string | null
           limit_reached?: boolean
           month?: number
           transactions?: number
+          updated_at?: string | null
           user_id?: string
           year?: number
         }
@@ -299,6 +305,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_add_transaction: {
+        Args: { user_id_param: string; transaction_date?: string }
+        Returns: boolean
+      }
       identificador_novo_usuario: {
         Args: { p_user_id: string }
         Returns: undefined

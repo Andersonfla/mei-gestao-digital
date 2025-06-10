@@ -21,17 +21,9 @@ export function TransactionForm() {
   const [activeTab, setActiveTab] = useState<TransactionType>("entrada");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Revalidar configurações do usuário quando o componente montar e a cada 30 segundos
+  // Revalidar configurações do usuário quando o componente montar
   useEffect(() => {
-    // Consulta inicial
     refetchUserSettings();
-    
-    // Configurar revalidação periódica para manter os dados atualizados
-    const intervalId = setInterval(() => {
-      refetchUserSettings();
-    }, 30000); // Revalidar a cada 30 segundos
-    
-    return () => clearInterval(intervalId);
   }, [refetchUserSettings]);
   
   const form = useForm<TransactionFormValues>({
@@ -62,7 +54,6 @@ export function TransactionForm() {
       await addTransaction(newTransaction);
       
       // Revalidar as configurações após adicionar uma transação
-      // para atualizar o contador imediatamente
       await refetchUserSettings();
       
       form.reset({
@@ -73,6 +64,8 @@ export function TransactionForm() {
       });
       
     } catch (error: any) {
+      console.error("Erro ao adicionar transação:", error);
+      
       // Verificar se o erro é relacionado ao limite
       if (error.message && error.message.includes("Limite de transações atingido")) {
         toast({
@@ -81,7 +74,7 @@ export function TransactionForm() {
           variant: "destructive",
         });
         
-        // Automatically redirect to the upgrade page
+        // Automaticamente redirecionar para a página de upgrade
         navigate("/upgrade");
       } else {
         // Outros erros

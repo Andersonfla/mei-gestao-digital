@@ -21,10 +21,10 @@ export function useUserSettings() {
   } = useQuery({
     queryKey: ['userSettings', user?.id],
     queryFn: getUserSettings,
-    enabled: !!user,  // Garantir que a consulta só aconteça com usuário autenticado
-    staleTime: 1000 * 60,
+    enabled: !!user,
+    staleTime: 1000 * 30, // 30 segundos
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     initialData: {
       plan: 'free' as UserPlan,
       darkMode: false,
@@ -33,17 +33,6 @@ export function useUserSettings() {
       subscriptionEnd: null,
     },
   });
-
-  // Revalidate user settings periodically to check subscription status
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (user?.id) {
-        refetchUserSettings();
-      }
-    }, 30000); // Every 30 seconds
-    
-    return () => clearInterval(intervalId);
-  }, [refetchUserSettings, user?.id]);
 
   // Check if premium plan has expired
   useEffect(() => {

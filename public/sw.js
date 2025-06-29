@@ -1,45 +1,42 @@
 
-const CACHE_NAME = 'mei-financas-v1';
+const CACHE_NAME = 'mei-financas-v2';
+const STATIC_CACHE = 'mei-static-v2';
+const DYNAMIC_CACHE = 'mei-dynamic-v2';
+
 const urlsToCache = [
   '/',
   '/dashboard',
   '/transacoes', 
   '/relatorios',
   '/configuracoes',
-  '/manifest.json'
+  '/manifest.json',
+  '/offline.html'
 ];
 
-// Install event - cache resources
+// Install event - cache essential resources
 self.addEventListener('install', (event) => {
+  console.log('Service Worker installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('Caching static assets');
+        return cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' })));
+      })
+      .catch((error) => {
+        console.error('Failed to cache static assets:', error);
       })
   );
   self.skipWaiting();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      }
-    )
-  );
-});
-
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -50,16 +47,91 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Fetch event - network first with cache fallback strategy
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip cross-origin requests
+  if (url.origin !== location.origin) {
+    return;
+  }
+
+  // Handle API requests with network-first strategy
+  if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Cache successful responses
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // Handle navigation requests
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .catch(() => {
+          return caches.match('/') || caches.match('/offline.html');
+        })
+    );
+    return;
+  }
+
+  // Handle other requests with cache-first strategy
+  event.respondWith(
+    caches.match(request)
+      .then((response) => {
+        if (response) {
+          return response;
+        }
+        
+        return fetch(request)
+          .then((response) => {
+            // Don't cache if not a valid response
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+
+            const responseToCache = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, responseToCache);
+            });
+
+            return response;
+          });
+      })
+  );
+});
+
 // Background sync for offline transactions
 self.addEventListener('sync', (event) => {
+  console.log('Background sync triggered:', event.tag);
   if (event.tag === 'background-sync') {
     event.waitUntil(syncTransactions());
   }
 });
 
 async function syncTransactions() {
-  // Sync offline transactions when online
-  console.log('Syncing offline transactions...');
+  try {
+    console.log('Syncing offline transactions...');
+    // This would sync any offline transactions when back online
+    // Implementation would depend on your offline storage strategy
+  } catch (error) {
+    console.error('Failed to sync transactions:', error);
+  }
 }
 
 // Push notifications

@@ -23,18 +23,31 @@ export default defineConfig(({ mode }) => ({
   build: {
     // PWA optimizations
     target: 'es2015',
-    minify: 'terser',
-    sourcemap: false,
+    minify: mode === 'production' ? 'terser' : false,
+    sourcemap: mode === 'development',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
           ui: ['@radix-ui/react-tabs', '@radix-ui/react-select', '@radix-ui/react-dialog'],
+          supabase: ['@supabase/supabase-js'],
+          query: ['@tanstack/react-query'],
         },
       },
     },
+    // Terser options for better PWA optimization
+    terserOptions: mode === 'production' ? {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    } : undefined,
   },
   // Service worker and manifest handling
   publicDir: 'public',
+  // PWA specific optimizations
+  define: {
+    __PWA_VERSION__: JSON.stringify(new Date().toISOString()),
+  },
 }));

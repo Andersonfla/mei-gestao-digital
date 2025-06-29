@@ -15,23 +15,49 @@
     fbq('track', 'PageView');
   </script>
     
-  <meta charset="UTF-8" />
-  ...
-</head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="MEI Finanças" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="MEI Finanças" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="theme-color" content="#3b82f6" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/pwa-assets/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/pwa-assets/icon-180x180.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/pwa-assets/icon-32x32.png" type="image/png" />
+    
     <title>MEI Finanças - Controle Financeiro para Microempreendedores</title>
-    <meta name="description" content="Sistema de controle financeiro simples e intuitivo para MEIs" />
+    <meta name="description" content="Sistema de controle financeiro simples e intuitivo para MEIs. Gerencie receitas, despesas e tenha controle total das suas finanças empresariais." />
     <meta name="author" content="Lovable" />
+    <meta name="keywords" content="MEI, finanças, controle financeiro, microempreendedor, gestão, receitas, despesas" />
 
+    <!-- Open Graph -->
     <meta property="og:title" content="MEI Finanças - Controle Financeiro para Microempreendedores" />
     <meta property="og:description" content="Sistema de controle financeiro simples e intuitivo para MEIs" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://ceef05bf-2fc0-4502-b5ad-c86d8c15d545.lovableproject.com" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:title" content="MEI Finanças - Controle Financeiro para Microempreendedores" />
+    <meta name="twitter:description" content="Sistema de controle financeiro simples e intuitivo para MEIs" />
   </head>
 
   <body>
@@ -43,9 +69,23 @@
     src="https://www.facebook.com/tr?id=1601400293892087&ev=PageView&noscript=1"/>
   </noscript>
 
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+
   <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
   <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
-  

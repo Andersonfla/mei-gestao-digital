@@ -2,6 +2,8 @@
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "./Sidebar";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 
 export function AppLayout() {
   const { loading } = useRequireAuth();
@@ -19,6 +21,8 @@ export function AppLayout() {
       <AppSidebar />
       <div className="flex-1 overflow-auto">
         <main className="container py-6">
+          <OfflineIndicator />
+          <InstallPrompt />
           <Outlet />
         </main>
       </div>

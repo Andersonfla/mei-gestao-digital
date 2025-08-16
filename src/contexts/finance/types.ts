@@ -14,6 +14,7 @@ export interface FinanceContextType {
   filterPeriod: string;
   isLoading: boolean;
   isPremiumActive: boolean; // Changed from function to boolean
+  isPremiumCategory: (categoryName: string) => boolean;
   addTransaction: (transaction: Omit<Transaction, "id" | "created_at">) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   getCategoryById: (id: string) => TransactionCategory | undefined;

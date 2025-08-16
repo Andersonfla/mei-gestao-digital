@@ -28,7 +28,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     isPremiumActive,
     setFilterDates,
     setFilterPeriod,
-    refetchUserSettings
+    refetchUserSettings,
+    isPremiumCategory
   } = useFinanceData();
 
   // Monthly reports
@@ -56,6 +57,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         filterPeriod,
         isLoading,
         isPremiumActive: isPremiumActive(), // Call the function to get the boolean value
+        isPremiumCategory,
         addTransaction,
         deleteTransaction,
         getCategoryById,

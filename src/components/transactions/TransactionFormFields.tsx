@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { TransactionCategory, TransactionType } from "@/types/finance";
 import { UseFormReturn } from "react-hook-form";
 import { TransactionFormValues } from "./transactionSchema";
+import { Badge } from "@/components/ui/badge";
+import { Crown } from "lucide-react";
 
 interface TransactionFormFieldsProps {
   form: UseFormReturn<TransactionFormValues>;
@@ -14,6 +16,7 @@ interface TransactionFormFieldsProps {
   onSubmit: (data: TransactionFormValues) => void;
   isSubmitting: boolean;
   type: TransactionType;
+  isPremiumCategory?: (categoryName: string) => boolean;
 }
 
 export function TransactionFormFields({ 
@@ -21,7 +24,8 @@ export function TransactionFormFields({
   categories, 
   onSubmit, 
   isSubmitting, 
-  type 
+  type,
+  isPremiumCategory 
 }: TransactionFormFieldsProps) {
   return (
     <Form {...form}>
@@ -77,7 +81,15 @@ export function TransactionFormFields({
                 <SelectContent>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.name}>
-                      {category.name}
+                      <div className="flex items-center gap-2">
+                        <span>{category.name}</span>
+                        {isPremiumCategory?.(category.name) && (
+                          <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                            <Crown className="h-3 w-3" />
+                            Premium
+                          </Badge>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

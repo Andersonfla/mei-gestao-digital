@@ -10,11 +10,12 @@ import { TransactionType } from "@/types/finance";
 import { useNavigate } from "react-router-dom";
 import { TransactionFormFields } from "./TransactionFormFields";
 import { TransactionLimitIndicator } from "./TransactionLimitIndicator";
+import { PremiumCategoriesInfo } from "./PremiumCategoriesInfo";
 import { TransactionFormValues, transactionSchema } from "./transactionSchema";
 import { useAuth } from "@/contexts";
 
 export function TransactionForm() {
-  const { categories, addTransaction, userSettings, refetchUserSettings } = useFinance();
+  const { categories, addTransaction, userSettings, refetchUserSettings, isPremiumCategory } = useFinance();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -111,6 +112,7 @@ export function TransactionForm() {
               onSubmit={onSubmit} 
               isSubmitting={isSubmitting} 
               type="entrada"
+              isPremiumCategory={isPremiumCategory}
             />
           </TabsContent>
           <TabsContent value="saida" className="mt-0">
@@ -120,9 +122,13 @@ export function TransactionForm() {
               onSubmit={onSubmit} 
               isSubmitting={isSubmitting}
               type="saida"
+              isPremiumCategory={isPremiumCategory}
             />
           </TabsContent>
         </Tabs>
+        
+        {/* Mostrar informações sobre categorias premium para usuários gratuitos */}
+        <PremiumCategoriesInfo />
       </CardContent>
     </Card>
   );

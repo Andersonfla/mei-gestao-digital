@@ -28,7 +28,8 @@ export function useFinanceData() {
 
   const {
     categories,
-    isLoadingCategories
+    isLoadingCategories,
+    isPremiumCategory
   } = useCategories();
 
   const {
@@ -59,6 +60,7 @@ export function useFinanceData() {
     
     // Premium status
     isPremiumActive,
+    isPremiumCategory,
     
     // Actions
     addTransaction,

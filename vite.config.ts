@@ -28,9 +28,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          ui: ['@radix-ui/react-tabs', '@radix-ui/react-select', '@radix-ui/react-dialog'],
           supabase: ['@supabase/supabase-js'],
           query: ['@tanstack/react-query'],
         },

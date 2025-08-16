@@ -17,6 +17,7 @@ import Upgrade from "./pages/Upgrade";
 import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
+import Support from "./pages/Support";
 import { RequireAuth } from "./components/auth/RequireAuth";
 
 const queryClient = new QueryClient({
@@ -42,6 +43,7 @@ const App = () => (
                   {/* Public routes */}
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/suporte" element={<Support />} />
                   
                   {/* Protected routes */}
                   <Route element={<RequireAuth />}>

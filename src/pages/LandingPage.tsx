@@ -42,6 +42,7 @@ export default function LandingPage() {
             <a href="#beneficios" className="text-muted-foreground hover:text-primary transition">Benefícios</a>
             <a href="#depoimentos" className="text-muted-foreground hover:text-primary transition">Depoimentos</a>
             <a href="#planos" className="text-muted-foreground hover:text-primary transition">Planos</a>
+            <Link to="/suporte" className="text-muted-foreground hover:text-primary transition">Suporte</Link>
           </nav>
           
           <div className="flex items-center gap-2">
@@ -120,8 +121,20 @@ export default function LandingPage() {
       
       {/* Footer */}
       <footer className="bg-gray-100 py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          © 2025 MEI Finanças. Todos os direitos reservados.
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-muted-foreground">
+              © 2025 MEI Finanças. Todos os direitos reservados.
+            </div>
+            <div className="flex items-center gap-6">
+              <Link to="/suporte" className="text-sm text-muted-foreground hover:text-primary transition">
+                Suporte e Ajuda
+              </Link>
+              <a href="mailto:suporte@meifinancas.com" className="text-sm text-muted-foreground hover:text-primary transition">
+                Contato
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

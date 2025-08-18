@@ -42,7 +42,7 @@ const Upgrade = () => {
           <div>
             <h3 className="font-medium">Como funciona o plano gratuito?</h3>
             <p className="text-muted-foreground">
-              O plano gratuito oferece acesso à maioria das funcionalidades, porém com um limite de 50 lançamentos por mês.
+              O plano gratuito oferece acesso à maioria das funcionalidades, porém com um limite de 20 lançamentos por mês.
             </p>
           </div>
           

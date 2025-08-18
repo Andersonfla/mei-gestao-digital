@@ -10,12 +10,10 @@ export async function getTransactions(): Promise<Transaction[]> {
   const { data: session } = await supabase.auth.getSession();
 
   if (!session?.session?.user?.id) {
-    console.error("Nenhum usuário autenticado encontrado para getTransactions");
     throw new Error("Autenticação necessária");
   }
 
   const userId = session.session.user.id;
-  console.log("Buscando transações para o usuário:", userId);
 
   const { data, error } = await supabase
     .from("transactions")
@@ -24,7 +22,6 @@ export async function getTransactions(): Promise<Transaction[]> {
     .order("date", { ascending: false });
 
   if (error) {
-    console.error("Erro ao buscar transações:", error);
     throw error;
   }
 
@@ -38,12 +35,10 @@ export async function getFilteredTransactions(startDate: string, endDate: string
   const { data: session } = await supabase.auth.getSession();
 
   if (!session?.session?.user?.id) {
-    console.error("Nenhum usuário autenticado encontrado para getFilteredTransactions");
     throw new Error("Autenticação necessária");
   }
 
   const userId = session.session.user.id;
-  console.log(`Buscando transações filtradas para o usuário ${userId} entre ${startDate} e ${endDate}`);
 
   const { data, error } = await supabase
     .from("transactions")
@@ -54,7 +49,6 @@ export async function getFilteredTransactions(startDate: string, endDate: string
     .order("date", { ascending: false });
 
   if (error) {
-    console.error("Erro ao buscar transações filtradas:", error);
     throw error;
   }
 
@@ -96,12 +90,10 @@ export async function addTransaction(
   const { data: session } = await supabase.auth.getSession();
 
   if (!session?.session?.user?.id) {
-    console.error("Nenhum usuário autenticado encontrado para addTransaction");
     throw new Error("Você precisa estar logado para adicionar transações");
   }
 
   const userId = session.session.user.id;
-  console.log("Adicionando transação para o usuário:", userId);
   
   // Verificar se o usuário pode adicionar mais transações
   const canAdd = await canAddTransaction();
@@ -131,11 +123,9 @@ export async function addTransaction(
     .single();
 
   if (error) {
-    console.error("Erro ao adicionar transação:", error);
     throw error;
   }
 
-  console.log("Transação adicionada com sucesso para o usuário:", userId);
   return data as unknown as Transaction;
 }
 
@@ -146,12 +136,10 @@ export async function deleteTransaction(id: string): Promise<void> {
   const { data: session } = await supabase.auth.getSession();
   
   if (!session?.session?.user?.id) {
-    console.error("Nenhum usuário autenticado encontrado para deleteTransaction");
     throw new Error("Autenticação necessária");
   }
   
   const userId = session.session.user.id;
-  console.log(`Tentando excluir transação ${id} para o usuário ${userId}`);
   
   const { error } = await supabase
     .from("transactions")
@@ -160,9 +148,6 @@ export async function deleteTransaction(id: string): Promise<void> {
     .eq("user_id", userId);
 
   if (error) {
-    console.error(`Erro ao excluir transação ${id}:`, error);
     throw error;
   }
-
-  console.log(`Transação ${id} excluída com sucesso para o usuário ${userId}`);
 }

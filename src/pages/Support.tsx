@@ -96,9 +96,8 @@ export default function Support() {
                   asChild 
                   variant="secondary" 
                   className="w-full bg-green-500 hover:bg-green-600 text-white"
-                  onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
                 >
-                  <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer">
+                  <a href="https://wa.me/5511987654321?text=Olá! Preciso de suporte com o MEI Finanças" target="_blank" rel="noopener noreferrer">
                     Abrir WhatsApp
                   </a>
                 </Button>

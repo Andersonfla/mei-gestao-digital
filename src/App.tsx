@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { FinanceProvider, AuthProvider } from "./contexts";
 import { ThemeProvider } from "./contexts/theme/ThemeContext";
 import { AppLayout } from "./components/layout/AppLayout";
+import { ErrorBoundary } from "./components/ui/error-boundary";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
@@ -31,15 +32,16 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <TooltipProvider>
-        <AuthProvider>
-          <ThemeProvider>
-            <SidebarProvider>
-              <FinanceProvider>
-                <Toaster />
-                <Sonner />
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <TooltipProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <SidebarProvider>
+                <FinanceProvider>
+                  <Toaster />
+                  <Sonner />
                 <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<LandingPage />} />
@@ -67,14 +69,15 @@ const App = () => (
                   
                   {/* Catch all route */}
                   <Route path="*" element={<NotFound />} />
-                </Routes>
-              </FinanceProvider>
-            </SidebarProvider>
-          </ThemeProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+                    </Routes>
+                  </FinanceProvider>
+                </SidebarProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </TooltipProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
 
 export default App;

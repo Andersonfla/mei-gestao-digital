@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts";
 import { getCategories } from "@/services/categoryService";
 import { TransactionCategory } from "@/types/finance";
-import { useFinance } from "@/contexts";
+import { useUserSettings } from "./useUserSettings";
 
 // Categorias premium - só disponíveis para usuários premium
 const PREMIUM_CATEGORIES = [
@@ -28,7 +28,7 @@ function isPremiumCategory(categoryName: string): boolean {
  */
 export function useCategories() {
   const { user } = useAuth();
-  const { userSettings } = useFinance();
+  const { userSettings } = useUserSettings();
 
   const { 
     data: allCategories = [] as TransactionCategory[], 

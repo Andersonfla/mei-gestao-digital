@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { TransactionCategory } from "@/types/finance";
+import { handleApiError } from "@/lib/errorHandling";
 
 export async function getCategories(): Promise<TransactionCategory[]> {
   // Aqui não precisamos filtrar por usuário pois as políticas de RLS já permitem
@@ -11,7 +12,7 @@ export async function getCategories(): Promise<TransactionCategory[]> {
 
   if (error) {
     console.error('Erro ao buscar categorias:', error);
-    throw error;
+    throw new Error(`Falha ao carregar categorias: ${error.message}`);
   }
 
   return data as unknown as TransactionCategory[];

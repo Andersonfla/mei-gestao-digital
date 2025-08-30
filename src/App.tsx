@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
 import Support from "./pages/Support";
 import { RequireAuth } from "./components/auth/RequireAuth";
+import { ToastListener } from "./components/ui/toast-listener";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,9 +40,10 @@ const App = () => (
           <AuthProvider>
             <ThemeProvider>
               <SidebarProvider>
-                <FinanceProvider>
-                  <Toaster />
-                  <Sonner />
+                  <FinanceProvider>
+                    <Toaster />
+                    <Sonner />
+                    <ToastListener />
                 <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<LandingPage />} />

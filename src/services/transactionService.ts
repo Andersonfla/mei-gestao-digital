@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/types/finance";
 import { format } from "date-fns";
+import { handleApiError } from "@/lib/errorHandling";
 
 /**
  * Buscar todas as transações do usuário autenticado.
@@ -22,7 +23,8 @@ export async function getTransactions(): Promise<Transaction[]> {
     .order("date", { ascending: false });
 
   if (error) {
-    throw error;
+    console.error('Erro ao buscar transações:', error);
+    throw new Error(`Falha ao carregar transações: ${error.message}`);
   }
 
   return data as unknown as Transaction[];

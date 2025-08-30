@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlan, UserSettings } from "@/types/finance";
+import { handleApiError } from "@/lib/errorHandling";
 
 /**
  * Buscar configurações de usuário autenticado

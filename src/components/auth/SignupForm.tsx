@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, CheckCircle, AlertTriangle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, AlertTriangle, Mail, Lock, User } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SignupFormProps {
@@ -70,50 +70,57 @@ export const SignupForm = ({
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="name" className="flex items-center justify-between">
+        <Label htmlFor="name" className="flex items-center justify-between text-gray-700">
           Nome
-          {nameError && <span className="text-xs text-destructive">{nameError}</span>}
+          {nameError && <span className="text-xs text-red-500">{nameError}</span>}
         </Label>
-        <Input
-          id="name"
-          type="text"
-          placeholder="Seu nome"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={nameError ? "border-destructive" : ""}
-          autoComplete="name"
-        />
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-500">
+          <User className="w-5 h-5 text-gray-400 mr-2" />
+          <Input
+            id="name"
+            type="text"
+            placeholder="Seu nome"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border-0 bg-transparent focus-visible:ring-0"
+            autoComplete="name"
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="signupEmail" className="flex items-center justify-between">
+        <Label htmlFor="signupEmail" className="flex items-center justify-between text-gray-700">
           Email
-          {emailError && <span className="text-xs text-destructive">{emailError}</span>}
+          {emailError && <span className="text-xs text-red-500">{emailError}</span>}
         </Label>
-        <Input
-          id="signupEmail"
-          type="email"
-          placeholder="seu@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className={emailError ? "border-destructive" : ""}
-          autoComplete="email"
-        />
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-500">
+          <Mail className="w-5 h-5 text-gray-400 mr-2" />
+          <Input
+            id="signupEmail"
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border-0 bg-transparent focus-visible:ring-0"
+            autoComplete="email"
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="signupPassword" className="flex items-center justify-between">
+        <Label htmlFor="signupPassword" className="flex items-center justify-between text-gray-700">
           Senha
-          {passwordError && <span className="text-xs text-destructive">{passwordError}</span>}
+          {passwordError && <span className="text-xs text-red-500">{passwordError}</span>}
         </Label>
-        <div className="relative">
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-500">
+          <Lock className="w-5 h-5 text-gray-400 mr-2" />
           <Input
             id="signupPassword"
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={passwordError ? "border-destructive" : ""}
+            className="border-0 bg-transparent focus-visible:ring-0 pr-10"
             minLength={6}
             autoComplete="new-password"
           />
@@ -121,33 +128,40 @@ export const SignupForm = ({
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-0 h-full px-3"
+            className="h-auto p-0"
             onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeOff size={18} className="text-gray-400" /> : <Eye size={18} className="text-gray-400" />}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">Senha deve ter pelo menos 6 caracteres</p>
+        <p className="text-xs text-gray-500">Senha deve ter pelo menos 6 caracteres</p>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="passwordConfirm" className="flex items-center justify-between">
+        <Label htmlFor="passwordConfirm" className="flex items-center justify-between text-gray-700">
           Confirme a senha
-          {passwordConfirmError && <span className="text-xs text-destructive">{passwordConfirmError}</span>}
+          {passwordConfirmError && <span className="text-xs text-red-500">{passwordConfirmError}</span>}
         </Label>
-        <Input
-          id="passwordConfirm"
-          type={showPassword ? "text" : "password"}
-          placeholder="••••••••"
-          value={passwordConfirm}
-          onChange={(e) => setPasswordConfirm(e.target.value)}
-          className={passwordConfirmError ? "border-destructive" : ""}
-          minLength={6}
-          autoComplete="new-password"
-        />
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-500">
+          <Lock className="w-5 h-5 text-gray-400 mr-2" />
+          <Input
+            id="passwordConfirm"
+            type={showPassword ? "text" : "password"}
+            placeholder="••••••••"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+            className="border-0 bg-transparent focus-visible:ring-0"
+            minLength={6}
+            autoComplete="new-password"
+          />
+        </div>
       </div>
       
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button 
+        type="submit" 
+        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-2 rounded-lg shadow-lg transition-all duration-300" 
+        disabled={isSubmitting}
+      >
         {isSubmitting ? "Cadastrando..." : "Criar conta"}
       </Button>
     </form>

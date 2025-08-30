@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts";
 import { getCategories } from "@/services/categoryService";
 import { TransactionCategory } from "@/types/finance";
-import { useUserSettings } from "./useUserSettings";
+import { getUserSettings } from "@/services/profileService";
 
 // Categorias premium - só disponíveis para usuários premium
 const PREMIUM_CATEGORIES = [
@@ -24,11 +24,27 @@ function isPremiumCategory(categoryName: string): boolean {
 }
 
 /**
- * Hook for managing categories data
+ * Hook for managing categories data - ISOLATED VERSION
  */
 export function useCategories() {
   const { user } = useAuth();
-  const { userSettings } = useUserSettings();
+
+  // Buscar configurações do usuário diretamente, sem usar hooks
+  const { 
+    data: userSettings,
+    isLoading: isLoadingUserSettings 
+  } = useQuery({
+    queryKey: ['userSettings', user?.id],
+    queryFn: getUserSettings,
+    enabled: !!user,
+    initialData: {
+      plan: 'free' as any,
+      darkMode: false,
+      transactionCountThisMonth: 0,
+      transactionLimit: 20,
+      subscriptionEnd: null,
+    },
+  });
 
   const { 
     data: allCategories = [] as TransactionCategory[], 
@@ -44,7 +60,7 @@ export function useCategories() {
   const categories = allCategories.filter(category => {
     // Se for categoria premium, só mostrar para usuários premium
     if (isPremiumCategory(category.name)) {
-      return userSettings.plan === 'premium';
+      return userSettings?.plan === 'premium';
     }
     // Categorias normais são mostradas para todos
     return true;
@@ -52,7 +68,7 @@ export function useCategories() {
 
   return {
     categories,
-    isLoadingCategories,
+    isLoadingCategories: isLoadingCategories || isLoadingUserSettings,
     isPremiumCategory
   };
 }

@@ -1,31 +1,7 @@
 
 import { PlanUpgrade } from "@/components/settings/PlanUpgrade";
-import { useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
 
 const Upgrade = () => {
-  const [searchParams] = useSearchParams();
-  const { toast } = useToast();
-  
-  // Show toast messages based on URL parameters
-  useEffect(() => {
-    const success = searchParams.get('success');
-    const canceled = searchParams.get('canceled');
-    
-    if (success === 'true') {
-      toast({
-        title: "Processando pagamento",
-        description: "Estamos verificando seu pagamento...",
-      });
-    } else if (canceled === 'true') {
-      toast({
-        title: "Pagamento cancelado",
-        description: "Você cancelou o processo de pagamento.",
-        variant: "destructive",
-      });
-    }
-  }, [searchParams, toast]);
 
   return (
     <div className="space-y-6">
@@ -56,7 +32,7 @@ const Upgrade = () => {
           <div>
             <h3 className="font-medium">Quais formas de pagamento são aceitas?</h3>
             <p className="text-muted-foreground">
-              Aceitamos cartões de crédito de todas as bandeiras através de nossa integração segura com o Stripe.
+              O sistema de pagamento está temporariamente indisponível. Entre em contato pelo suporte para mais informações.
             </p>
           </div>
         </div>

@@ -3,91 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { useFinance } from "@/contexts";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useSearchParams } from "react-router-dom";
 
 export function PlanUpgrade() {
-  const { userSettings, upgradeToPremium, isPremiumActive } = useFinance();
-  const [isUpgrading, setIsUpgrading] = useState(false);
+  const { userSettings, isPremiumActive } = useFinance();
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
   
-  // Check for payment success/canceled parameters in URL
-  useEffect(() => {
-    const success = searchParams.get('success');
-    const canceled = searchParams.get('canceled');
-    
-    if (success === 'true') {
-      handlePaymentVerification();
-      // Clear the URL parameters
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (canceled === 'true') {
-      toast({
-        title: "Pagamento cancelado",
-        description: "Você cancelou o processo de pagamento.",
-        variant: "destructive"
-      });
-      // Clear the URL parameters
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [searchParams]);
-  
-  const handlePaymentVerification = async () => {
-    try {
-      // Call the verify-payment edge function
-      const { error } = await supabase.functions.invoke('verify-payment');
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      
-      // Update local state
-      upgradeToPremium();
-      
-      toast({
-        title: "Pagamento confirmado!",
-        description: "Seu plano foi atualizado para Premium com sucesso!",
-      });
-      
-      // Redirecionar para a página de agradecimento
-      window.location.href = "/thanks";
-    } catch (error) {
-      console.error("Error verifying payment:", error);
-      toast({
-        title: "Erro ao verificar pagamento",
-        description: "Ocorreu um problema ao verificar seu pagamento. Por favor, contate o suporte.",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleUpgrade = async () => {
-    setIsUpgrading(true);
-    try {
-      // Call the create-checkout edge function
-      const { data, error } = await supabase.functions.invoke('create-checkout');
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL received");
-      }
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-      toast({
-        title: "Erro ao processar pagamento",
-        description: "Não foi possível iniciar o processo de pagamento. Por favor, tente novamente.",
-        variant: "destructive"
-      });
-      setIsUpgrading(false);
-    }
+  const handleUpgradeUnavailable = () => {
+    toast({
+      title: "Método de pagamento indisponível",
+      description: "O sistema de pagamento está temporariamente indisponível. Entre em contato pelo suporte.",
+      variant: "destructive"
+    });
   };
   
   // Formatar a data de expiração
@@ -160,10 +87,11 @@ export function PlanUpgrade() {
             <CardFooter>
               <Button 
                 className="w-full" 
-                onClick={handleUpgrade} 
-                disabled={isUpgrading}
+                onClick={handleUpgradeUnavailable} 
+                variant="outline"
+                disabled
               >
-                {isUpgrading ? "Processando..." : "Renovar Assinatura"}
+                Método de pagamento temporariamente indisponível
               </Button>
             </CardFooter>
           )}
@@ -217,10 +145,11 @@ export function PlanUpgrade() {
           <CardFooter>
             <Button 
               className="w-full" 
-              onClick={handleUpgrade} 
-              disabled={isUpgrading}
+              onClick={handleUpgradeUnavailable} 
+              variant="outline"
+              disabled
             >
-              {isUpgrading ? "Processando..." : "Fazer Upgrade Agora"}
+              Método de pagamento temporariamente indisponível
             </Button>
           </CardFooter>
         </Card>

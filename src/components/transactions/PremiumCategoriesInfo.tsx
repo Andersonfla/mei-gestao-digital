@@ -55,10 +55,12 @@ export function PremiumCategoriesInfo() {
             </p>
             <Button 
               onClick={() => navigate("/upgrade")} 
-              className="w-full bg-amber-600 hover:bg-amber-700"
+              className="w-full"
+              variant="outline"
+              disabled
             >
               <Crown className="h-4 w-4 mr-2" />
-              Fazer Upgrade para Premium
+              Método de pagamento temporariamente indisponível
             </Button>
           </div>
         </div>

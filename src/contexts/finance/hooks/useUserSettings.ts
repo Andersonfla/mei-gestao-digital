@@ -2,7 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts";
-import { getUserSettings, upgradeToPremium as upgradeToPremiumService } from "@/services/profileService";
+import { getUserSettings } from "@/services/profileService";
 import { useEffect } from "react";
 import { UserPlan } from "@/types/finance";
 
@@ -53,26 +53,7 @@ export function useUserSettings() {
     }
   }, [userSettings, refetchUserSettings, toast]);
 
-  // Mutation for upgrading to premium
-  const upgradeToPremiumMutation = useMutation({
-    mutationFn: upgradeToPremiumService,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userSettings'] });
-      refetchUserSettings();
-      
-      toast({
-        title: "Plano atualizado",
-        description: "Seu plano foi atualizado para Premium com sucesso",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao atualizar o plano",
-        variant: "destructive",
-      });
-    },
-  });
+  // upgradeToPremium functionality temporarily disabled
 
   // Check if the premium plan is active
   const isPremiumActive = () => {
@@ -92,7 +73,8 @@ export function useUserSettings() {
     isLoadingSettings,
     refetchUserSettings,
     isPremiumActive,
-    upgradeToPremium: () => 
-      upgradeToPremiumMutation.mutateAsync(),
+    upgradeToPremium: async () => {
+      throw new Error("Sistema de pagamento temporariamente indisponível");
+    },
   };
 }

@@ -7,8 +7,4 @@ import { addDebugBanner } from '@/lib/errorHandling';
 // Adicionar banner de debug em desenvolvimento
 addDebugBanner();
 
-createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+createRoot(document.getElementById("root")!).render(<App />);

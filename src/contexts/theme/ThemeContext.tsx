@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 type Theme = "light" | "dark";

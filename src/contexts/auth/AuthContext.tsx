@@ -1,5 +1,5 @@
 
-import { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 import { useAuthState } from "./useAuthState";
 import { signIn, signOut, signUp } from "./authActions"; 
 import { useToast } from "@/hooks/use-toast";

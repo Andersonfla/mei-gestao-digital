@@ -32,54 +32,58 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <TooltipProvider>
-          <AuthProvider>
-            <ThemeProvider>
-              <SidebarProvider>
-                  <FinanceProvider>
-                    <Toaster />
-                    <Sonner />
-                    <ToastListener />
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/suporte" element={<Support />} />
-                  
-                  {/* Protected routes */}
-                  <Route element={<RequireAuth />}>
-                    <Route element={<AppLayout />}>
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/transacoes" element={<Transactions />} />
-                      <Route path="/relatorios" element={<Reports />} />
-                      <Route path="/configuracoes" element={<Settings />} />
-                      <Route path="/upgrade" element={<Upgrade />} />
-                      <Route path="/thanks" element={<Thanks />} />
-                    </Route>
-                  </Route>
-                  
-                  {/* Legacy routes - redirect to new structure */}
-                  <Route path="/app" element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/app/*" element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/transactions" element={<Navigate to="/transacoes" replace />} />
-                  <Route path="/reports" element={<Navigate to="/relatorios" replace />} />
-                  <Route path="/settings" element={<Navigate to="/configuracoes" replace />} />
-                  
-                  {/* Catch all route */}
-                  <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </FinanceProvider>
-                </SidebarProvider>
-              </ThemeProvider>
-            </AuthProvider>
-          </TooltipProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </ErrorBoundary>
+function App() {
+  return (
+    <React.StrictMode>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <TooltipProvider>
+              <AuthProvider>
+                <ThemeProvider>
+                  <SidebarProvider>
+                    <FinanceProvider>
+                      <Toaster />
+                      <Sonner />
+                      <ToastListener />
+                      <Routes>
+                        {/* Public routes */}
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/suporte" element={<Support />} />
+                        
+                        {/* Protected routes */}
+                        <Route element={<RequireAuth />}>
+                          <Route element={<AppLayout />}>
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/transacoes" element={<Transactions />} />
+                            <Route path="/relatorios" element={<Reports />} />
+                            <Route path="/configuracoes" element={<Settings />} />
+                            <Route path="/upgrade" element={<Upgrade />} />
+                            <Route path="/thanks" element={<Thanks />} />
+                          </Route>
+                        </Route>
+                        
+                        {/* Legacy routes - redirect to new structure */}
+                        <Route path="/app" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/app/*" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/transactions" element={<Navigate to="/transacoes" replace />} />
+                        <Route path="/reports" element={<Navigate to="/relatorios" replace />} />
+                        <Route path="/settings" element={<Navigate to="/configuracoes" replace />} />
+                        
+                        {/* Catch all route */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </FinanceProvider>
+                  </SidebarProvider>
+                </ThemeProvider>
+              </AuthProvider>
+            </TooltipProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </React.StrictMode>
   );
+}
 
 export default App;

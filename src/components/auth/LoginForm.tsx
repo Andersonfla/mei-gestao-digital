@@ -31,57 +31,70 @@ export const LoginForm = ({
 }: LoginFormProps) => {
   return (
     <form onSubmit={handleLogin} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email" className="flex items-center justify-between text-gray-700">
+      <div className="space-y-3">
+        <Label htmlFor="email" className="flex items-center justify-between text-slate-700 font-medium">
           Email
-          {emailError && <span className="text-xs text-red-500">{emailError}</span>}
+          {emailError && <span className="text-xs text-red-500 font-normal">{emailError}</span>}
         </Label>
-        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-500">
-          <Mail className="w-5 h-5 text-gray-400 mr-2" />
-          <Input
-            id="email"
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border-0 bg-transparent focus-visible:ring-0"
-            autoComplete="email"
-          />
+        <div className="relative group">
+          <div className="flex items-center border border-slate-200 rounded-xl px-4 py-3 bg-slate-50/50 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-400 transition-all duration-200 group-hover:border-slate-300">
+            <Mail className="w-5 h-5 text-slate-400 mr-3 transition-colors group-focus-within:text-purple-500" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border-0 bg-transparent focus-visible:ring-0 placeholder:text-slate-400"
+              autoComplete="email"
+            />
+          </div>
         </div>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="password" className="flex items-center justify-between text-gray-700">
+      
+      <div className="space-y-3">
+        <Label htmlFor="password" className="flex items-center justify-between text-slate-700 font-medium">
           Senha
-          {passwordError && <span className="text-xs text-red-500">{passwordError}</span>}
+          {passwordError && <span className="text-xs text-red-500 font-normal">{passwordError}</span>}
         </Label>
-        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-500">
-          <Lock className="w-5 h-5 text-gray-400 mr-2" />
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border-0 bg-transparent focus-visible:ring-0 pr-10"
-            autoComplete="current-password"
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-auto p-0"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <EyeOff size={18} className="text-gray-400" /> : <Eye size={18} className="text-gray-400" />}
-          </Button>
+        <div className="relative group">
+          <div className="flex items-center border border-slate-200 rounded-xl px-4 py-3 bg-slate-50/50 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-400 transition-all duration-200 group-hover:border-slate-300">
+            <Lock className="w-5 h-5 text-slate-400 mr-3 transition-colors group-focus-within:text-purple-500" />
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border-0 bg-transparent focus-visible:ring-0 placeholder:text-slate-400"
+              autoComplete="current-password"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-auto p-1 hover:bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={18} className="text-slate-400 hover:text-slate-600 transition-colors" /> : <Eye size={18} className="text-slate-400 hover:text-slate-600 transition-colors" />}
+            </Button>
+          </div>
         </div>
       </div>
+      
       <Button 
         type="submit" 
-        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-2 rounded-lg shadow-lg transition-all duration-300" 
+        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]" 
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Entrando..." : "Entrar"}
+        {isSubmitting ? (
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <span>Entrando...</span>
+          </div>
+        ) : (
+          "Entrar"
+        )}
       </Button>
     </form>
   );

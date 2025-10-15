@@ -69,6 +69,7 @@ export function AppSidebar() {
     { path: "/dashboard", label: "Dashboard" },
     { path: "/transacoes", label: "Transações" },
     { path: "/relatorios", label: "Relatórios" },
+    { path: "/admin/webhooks", label: "Webhooks Kiwify" },
     { path: "/configuracoes", label: "Configurações" },
   ];
 

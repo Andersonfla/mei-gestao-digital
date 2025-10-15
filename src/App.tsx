@@ -35,8 +35,7 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <React.StrictMode>
-      <ErrorBoundary>
+    <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <TooltipProvider>
@@ -84,7 +83,6 @@ function App() {
           </BrowserRouter>
         </QueryClientProvider>
       </ErrorBoundary>
-    </React.StrictMode>
   );
 }
 

@@ -20,6 +20,7 @@ import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
 import Support from "./pages/Support";
+import AdminWebhooks from "./pages/AdminWebhooks";
 import { RequireAuth } from "./components/auth/RequireAuth";
 import { ToastListener } from "./components/ui/toast-listener";
 
@@ -61,6 +62,7 @@ function App() {
                             <Route path="/configuracoes" element={<Settings />} />
                             <Route path="/upgrade" element={<Upgrade />} />
                             <Route path="/thanks" element={<Thanks />} />
+                            <Route path="/admin/webhooks" element={<AdminWebhooks />} />
                           </Route>
                         </Route>
                         

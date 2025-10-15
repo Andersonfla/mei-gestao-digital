@@ -305,6 +305,33 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_logs: {
+        Row: {
+          created_at: string | null
+          email: string
+          evento: string
+          id: string
+          produto: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          evento: string
+          id?: string
+          produto?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          evento?: string
+          id?: string
+          produto?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

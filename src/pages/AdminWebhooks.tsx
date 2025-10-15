@@ -50,7 +50,7 @@ export default function AdminWebhooks() {
           email: testEmail,
           evento: testEvento,
           produto: testProduto,
-          token: 'SEUTOKENAQUI'
+          token: '33codiyu0ng'
         })
       });
 
@@ -131,7 +131,7 @@ export default function AdminWebhooks() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Token de segurança: <code className="bg-muted px-2 py-1 rounded">SEUTOKENAQUI</code>
+            Token de segurança: <code className="bg-muted px-2 py-1 rounded">33codiyu0ng</code>
           </p>
         </CardContent>
       </Card>

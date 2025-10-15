@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const KIWIFY_TOKEN = 'SEUTOKENAQUI';
+const KIWIFY_TOKEN = '33codiyu0ng';
 
 interface KiwifyWebhookPayload {
   email: string;

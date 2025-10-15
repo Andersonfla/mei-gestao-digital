@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
-    include: ["@tanstack/react-query"],
+    include: [],
+    exclude: ["react", "react-dom"],
   },
   build: {
     target: 'es2015',

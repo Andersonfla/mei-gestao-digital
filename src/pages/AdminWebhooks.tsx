@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,19 +10,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Send } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Copy, Send, Shield, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { isUserAdmin } from "@/services/adminService";
 
 const WEBHOOK_URL = `https://ucnajqoapngtearuafkv.supabase.co/functions/v1/kiwify-webhook`;
 
 export default function AdminWebhooks() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   
   const [testEmail, setTestEmail] = useState("");
   const [testEvento, setTestEvento] = useState("assinatura renovada");
   const [testProduto, setTestProduto] = useState("Plano Premium");
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  // Check admin status on mount
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const adminStatus = await isUserAdmin();
+      setIsAdmin(adminStatus);
+      
+      if (!adminStatus) {
+        toast({
+          title: "Acesso negado",
+          description: "Você não tem permissão para acessar esta página.",
+          variant: "destructive",
+        });
+        navigate('/dashboard');
+      }
+    };
+    
+    checkAdminStatus();
+  }, [navigate, toast]);
 
   // Fetch webhook logs
   const { data: logs, isLoading } = useQuery({
@@ -35,31 +59,29 @@ export default function AdminWebhooks() {
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: isAdmin === true, // Only fetch if admin
   });
 
-  // Simulate webhook mutation
+  // Simulate webhook mutation - now calls edge function directly
   const simulateWebhook = useMutation({
     mutationFn: async () => {
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Call the edge function through Supabase SDK
+      // The token validation happens server-side
+      const { data, error } = await supabase.functions.invoke('kiwify-webhook', {
+        body: {
           email: testEmail,
           evento: testEvento,
           produto: testProduto,
-          token: '33codiyu0ng'
-        })
+          token: 'SIMULATED_REQUEST', // Server will validate this
+        }
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Erro ao processar webhook');
+      if (error) {
+        throw new Error(error.message || 'Erro ao processar webhook');
       }
 
-      return response.json();
+      return data;
     },
     onSuccess: (data) => {
       toast({
@@ -108,12 +130,46 @@ export default function AdminWebhooks() {
     return <Badge variant="secondary">{evento}</Badge>;
   };
 
+  // Show loading while checking admin status
+  if (isAdmin === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // If not admin, show access denied (they'll be redirected but this is a fallback)
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto py-8">
+        <Alert variant="destructive">
+          <Shield className="h-4 w-4" />
+          <AlertDescription>
+            Acesso negado. Você não tem permissão para acessar esta página administrativa.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold">Webhooks Kiwify</h1>
-        <p className="text-muted-foreground">Gerencie a integração com a Kiwify via webhooks</p>
+      <div className="flex items-center gap-3">
+        <Shield className="h-8 w-8 text-primary" />
+        <div>
+          <h1 className="text-3xl font-bold">Webhooks Kiwify</h1>
+          <p className="text-muted-foreground">Painel Administrativo - Gerencie a integração com a Kiwify</p>
+        </div>
       </div>
+
+      {/* Security Notice */}
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          O token de segurança está armazenado de forma segura no servidor. Configure o token "KIWIFY_WEBHOOK_SECRET" nos secrets do Supabase.
+        </AlertDescription>
+      </Alert>
 
       {/* Webhook URL */}
       <Card>
@@ -131,7 +187,7 @@ export default function AdminWebhooks() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Token de segurança: <code className="bg-muted px-2 py-1 rounded">33codiyu0ng</code>
+            O token de segurança é validado no servidor usando o secret KIWIFY_WEBHOOK_SECRET
           </p>
         </CardContent>
       </Card>

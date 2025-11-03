@@ -4,17 +4,36 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Check } from "lucide-react";
 import { useFinance } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 export function PlanUpgrade() {
   const { userSettings, isPremiumActive } = useFinance();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleUpgradeUnavailable = () => {
-    toast({
-      title: "Método de pagamento indisponível",
-      description: "O sistema de pagamento está temporariamente indisponível. Entre em contato pelo suporte.",
-      variant: "destructive"
-    });
+  const handleUpgrade = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-checkout-url');
+      
+      if (error) throw error;
+      
+      if (data?.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('URL de checkout não disponível');
+      }
+    } catch (error) {
+      console.error('Erro ao obter URL de checkout:', error);
+      toast({
+        title: "Erro ao processar upgrade",
+        description: "Não foi possível redirecionar para o checkout. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Formatar a data de expiração
@@ -87,11 +106,10 @@ export function PlanUpgrade() {
             <CardFooter>
               <Button 
                 className="w-full" 
-                onClick={handleUpgradeUnavailable} 
-                variant="outline"
-                disabled
+                onClick={handleUpgrade}
+                disabled={isLoading}
               >
-                Método de pagamento temporariamente indisponível
+                {isLoading ? 'Processando...' : 'Renovar Plano Premium'}
               </Button>
             </CardFooter>
           )}
@@ -145,11 +163,10 @@ export function PlanUpgrade() {
           <CardFooter>
             <Button 
               className="w-full" 
-              onClick={handleUpgradeUnavailable} 
-              variant="outline"
-              disabled
+              onClick={handleUpgrade}
+              disabled={isLoading}
             >
-              Método de pagamento temporariamente indisponível
+              {isLoading ? 'Processando...' : 'Fazer Upgrade para Premium'}
             </Button>
           </CardFooter>
         </Card>

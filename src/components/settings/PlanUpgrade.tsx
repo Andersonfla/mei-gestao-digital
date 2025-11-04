@@ -16,26 +16,30 @@ export function PlanUpgrade() {
     setIsLoading(true);
     
     toast({
-      title: "Redirecionando...",
-      description: "Aguarde enquanto preparamos o checkout para você.",
+      title: "🚀 Redirecionando para o pagamento...",
+      description: "Você será levado à página segura da Kiwify.",
     });
     
     try {
       const { data, error } = await supabase.functions.invoke('get-checkout-url');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao invocar função:', error);
+        throw error;
+      }
       
       if (data?.checkoutUrl) {
+        console.log('✅ URL de checkout obtida:', data.checkoutUrl);
         // Redirect to Kiwify checkout
         window.location.href = data.checkoutUrl;
       } else {
         throw new Error('URL de checkout não disponível');
       }
     } catch (error) {
-      console.error('Erro ao obter URL de checkout:', error);
+      console.error('❌ Erro ao obter URL de checkout:', error);
       toast({
         title: "Erro ao processar upgrade",
-        description: "Não foi possível redirecionar para o checkout. Tente novamente.",
+        description: "Não foi possível redirecionar para o checkout. Tente novamente em instantes.",
         variant: "destructive"
       });
       setIsLoading(false);

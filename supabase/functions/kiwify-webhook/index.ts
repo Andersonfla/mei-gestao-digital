@@ -72,24 +72,38 @@ Deno.serve(async (req) => {
     let newPlan = 'free';
     let subscriptionEnd = null;
 
-    const eventosNegativo = ['assinatura cancelada', 'assinatura atrasada', 'assinatura expirada'];
-    const eventosPositivo = ['assinatura renovada', 'assinatura aprovada', 'assinatura criada'];
+    const eventosNegativo = ['cancelada', 'atrasada', 'expirada', 'reembolsada', 'chargeback'];
+    const eventosPositivo = ['renovada', 'aprovada', 'criada', 'paga', 'completa'];
 
-    if (eventosNegativo.some(e => payload.evento.toLowerCase().includes(e))) {
+    const eventoLower = payload.evento.toLowerCase();
+
+    if (eventosNegativo.some(e => eventoLower.includes(e))) {
       // Downgrade to free plan
       newPlan = 'free';
       subscriptionEnd = null;
-      console.log('⬇️ Downgrade to free plan');
-    } else if (eventosPositivo.some(e => payload.evento.toLowerCase().includes(e))) {
-      // Upgrade to premium based on product
-      if (payload.produto.toLowerCase().includes('premium')) {
-        newPlan = 'premium';
-        // Set subscription end to 30 days from now
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 30);
-        subscriptionEnd = endDate.toISOString();
-        console.log('⬆️ Upgrade to premium plan');
-      }
+      console.log('⬇️ Downgrade to free plan - Event:', payload.evento);
+    } else if (eventosPositivo.some(e => eventoLower.includes(e))) {
+      // Upgrade to premium - always upgrade on positive events
+      newPlan = 'premium';
+      // Set subscription end to 30 days from now
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 30);
+      subscriptionEnd = endDate.toISOString();
+      console.log('⬆️ Upgrade to premium plan - Event:', payload.evento, 'Expiration:', subscriptionEnd);
+    } else {
+      // Unknown event - log but don't change plan
+      console.log('⚠️ Unknown event type:', payload.evento);
+      await supabase.from('webhook_logs').insert({
+        email: payload.email,
+        evento: payload.evento,
+        produto: payload.produto,
+        status: 'unknown_event'
+      });
+      
+      return new Response(
+        JSON.stringify({ message: 'Evento desconhecido, plano não alterado', email: payload.email }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Update user profile

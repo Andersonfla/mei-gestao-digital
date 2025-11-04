@@ -16,8 +16,24 @@ const Thanks = () => {
   const { userSettings, refetchUserSettings } = useFinance();
 
   useEffect(() => {
-    // Atualiza as configurações do usuário para garantir que temos os dados mais recentes
+    // Atualiza as configurações do usuário imediatamente
     refetchUserSettings();
+    
+    // Continua verificando a cada 3 segundos por até 30 segundos
+    // para capturar a atualização do webhook
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    const interval = setInterval(() => {
+      attempts++;
+      console.log(`🔄 Verificando status do plano (tentativa ${attempts}/${maxAttempts})`);
+      refetchUserSettings();
+      
+      if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        console.log('⏱️ Verificação finalizada');
+      }
+    }, 3000);
     
     // Pixel do Facebook
     if (typeof window.fbq !== "undefined") {
@@ -26,6 +42,8 @@ const Thanks = () => {
         currency: "BRL",
       });
     }
+    
+    return () => clearInterval(interval);
   }, [refetchUserSettings]);
   
   // Formatar a data de expiração da assinatura

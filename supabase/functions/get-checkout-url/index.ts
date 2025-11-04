@@ -39,23 +39,17 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get checkout URL from environment
-    const checkoutUrl = Deno.env.get('KIWIFY_CHECKOUT_URL');
+    // Use the fixed Kiwify checkout URL
+    const checkoutUrl = 'https://pay.kiwify.com.br/X8t3oZm';
     
-    if (!checkoutUrl) {
-      console.error('KIWIFY_CHECKOUT_URL não configurado');
-      return new Response(
-        JSON.stringify({ error: 'URL de checkout não configurado' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    console.log('✅ User authenticated:', user.email);
 
-    // Append user email to checkout URL if it doesn't have parameters
-    let finalUrl = checkoutUrl;
-    if (user.email) {
-      const separator = checkoutUrl.includes('?') ? '&' : '?';
-      finalUrl = `${checkoutUrl}${separator}email=${encodeURIComponent(user.email)}`;
-    }
+    // Append user email to checkout URL for pre-filling
+    const finalUrl = user.email 
+      ? `${checkoutUrl}?email=${encodeURIComponent(user.email)}`
+      : checkoutUrl;
+
+    console.log('✅ Returning checkout URL');
 
     return new Response(
       JSON.stringify({ checkoutUrl: finalUrl }),

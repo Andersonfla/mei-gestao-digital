@@ -45,10 +45,20 @@ export function useUserSettings() {
         refetchUserSettings();
         
         toast({
-          title: "Plano Premium expirado",
-          description: "Seu plano Premium expirou. Para continuar usando os recursos avançados, renove sua assinatura mensal.",
+          title: "⚠️ Plano Premium expirado",
+          description: "Seu plano Premium expirou. Renove sua assinatura para continuar aproveitando os recursos avançados.",
           variant: "destructive",
         });
+      }
+    } else if (userSettings?.plan === 'premium' && userSettings?.subscriptionEnd) {
+      // Premium active - show success message once
+      const hasShownWelcome = sessionStorage.getItem('premium_welcome_shown');
+      if (!hasShownWelcome) {
+        toast({
+          title: "🎉 Plano Premium ativo!",
+          description: "Aproveite todos os recursos exclusivos do seu plano.",
+        });
+        sessionStorage.setItem('premium_welcome_shown', 'true');
       }
     }
   }, [userSettings, refetchUserSettings, toast]);

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useFinance } from "@/contexts";
+import { CheckCircle2 } from "lucide-react";
 
 declare global {
   interface Window {
@@ -86,11 +87,11 @@ const Thanks = () => {
       </div>
       
       <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-        <Button onClick={() => navigate("/")}>
-          Ir para o Dashboard
+        <Button onClick={() => navigate("/premium")}>
+          Acessar Área Premium
         </Button>
-        <Button variant="outline" onClick={() => navigate("/settings")}>
-          Ir para Configurações
+        <Button variant="outline" onClick={() => navigate("/dashboard")}>
+          Ir para o Dashboard
         </Button>
       </div>
     </div>

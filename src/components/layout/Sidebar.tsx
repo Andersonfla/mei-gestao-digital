@@ -72,6 +72,12 @@ export function AppSidebar() {
     { path: "/admin/webhooks", label: "Webhooks Kiwify" },
     { path: "/configuracoes", label: "Configurações" },
   ];
+  
+  // Add Premium menu item for premium users
+  const premiumMenuItem = { path: "/premium", label: "Área Premium" };
+  const displayMenuItems = userSettings?.plan === 'premium' 
+    ? [menuItems[0], premiumMenuItem, ...menuItems.slice(1)] 
+    : menuItems;
 
   return (
     <>
@@ -132,7 +138,7 @@ export function AppSidebar() {
               </div>
 
               <SidebarMenu>
-                {menuItems.map((item) => (
+                {displayMenuItems.map((item) => (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       className={cn(

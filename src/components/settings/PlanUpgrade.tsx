@@ -14,12 +14,19 @@ export function PlanUpgrade() {
   
   const handleUpgrade = async () => {
     setIsLoading(true);
+    
+    toast({
+      title: "Redirecionando...",
+      description: "Aguarde enquanto preparamos o checkout para você.",
+    });
+    
     try {
       const { data, error } = await supabase.functions.invoke('get-checkout-url');
       
       if (error) throw error;
       
       if (data?.checkoutUrl) {
+        // Redirect to Kiwify checkout
         window.location.href = data.checkoutUrl;
       } else {
         throw new Error('URL de checkout não disponível');
@@ -31,7 +38,6 @@ export function PlanUpgrade() {
         description: "Não foi possível redirecionar para o checkout. Tente novamente.",
         variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
     }
   };

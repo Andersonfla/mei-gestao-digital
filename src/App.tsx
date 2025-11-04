@@ -21,7 +21,9 @@ import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
 import Support from "./pages/Support";
 import AdminWebhooks from "./pages/AdminWebhooks";
+import Premium from "./pages/Premium";
 import { RequireAuth } from "./components/auth/RequireAuth";
+import { RequirePremium } from "./components/auth/RequirePremium";
 import { ToastListener } from "./components/ui/toast-listener";
 
 const queryClient = new QueryClient({
@@ -62,6 +64,11 @@ function App() {
                             <Route path="/upgrade" element={<Upgrade />} />
                             <Route path="/thanks" element={<Thanks />} />
                             <Route path="/admin/webhooks" element={<AdminWebhooks />} />
+                            
+                            {/* Premium-only routes */}
+                            <Route element={<RequirePremium />}>
+                              <Route path="/premium" element={<Premium />} />
+                            </Route>
                           </Route>
                         </Route>
                         

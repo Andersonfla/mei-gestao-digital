@@ -21,6 +21,8 @@ import { LogOut, User } from "lucide-react";
 import { TransactionLimitIndicator } from "@/components/transactions/TransactionLimitIndicator";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { isUserAdmin } from "@/services/adminService";
+import { Shield } from "lucide-react";
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -29,6 +31,7 @@ export function AppSidebar() {
   const { signOut, user } = useAuth();
   const isMobile = useIsMobile();
   const [userName, setUserName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Fetch user profile data
   useEffect(() => {
@@ -57,6 +60,18 @@ export function AppSidebar() {
     };
     
     fetchUserProfile();
+  }, [user]);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (user) {
+        const adminStatus = await isUserAdmin();
+        setIsAdmin(adminStatus);
+      }
+    };
+    
+    checkAdmin();
   }, [user]);
 
   // Check if the current route matches
@@ -173,6 +188,18 @@ export function AppSidebar() {
                     onClick={() => navigate('/upgrade')}
                   >
                     Fazer upgrade
+                  </Button>
+                )}
+
+                {/* Admin Panel Access */}
+                {isAdmin && (
+                  <Button 
+                    className="w-full mt-2 bg-yellow-600 text-white hover:bg-yellow-700"
+                    size="sm"
+                    onClick={() => navigate('/admin')}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Painel Admin
                   </Button>
                 )}
               </div>

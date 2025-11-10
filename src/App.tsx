@@ -24,7 +24,9 @@ import AdminWebhooks from "./pages/AdminWebhooks";
 import Premium from "./pages/Premium";
 import { RequireAuth } from "./components/auth/RequireAuth";
 import { RequirePremium } from "./components/auth/RequirePremium";
+import { RequireAdmin } from "./components/auth/RequireAdmin";
 import { ToastListener } from "./components/ui/toast-listener";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +71,11 @@ function App() {
                             <Route element={<RequirePremium />}>
                               <Route path="/premium" element={<Premium />} />
                             </Route>
+                          </Route>
+
+                          {/* Admin-only routes */}
+                          <Route element={<RequireAdmin />}>
+                            <Route path="/admin" element={<AdminPanel />} />
                           </Route>
                         </Route>
                         

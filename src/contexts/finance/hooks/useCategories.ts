@@ -43,6 +43,7 @@ export function useCategories() {
       transactionCountThisMonth: 0,
       transactionLimit: 20,
       subscriptionEnd: null,
+      usedTransactions: 0,
     },
   });
 

@@ -167,6 +167,7 @@ export type Database = {
           plan: string | null
           subscription_end: string | null
           transaction_count: number | null
+          used_transactions: number
         }
         Insert: {
           dark_mode?: boolean | null
@@ -176,6 +177,7 @@ export type Database = {
           plan?: string | null
           subscription_end?: string | null
           transaction_count?: number | null
+          used_transactions?: number
         }
         Update: {
           dark_mode?: boolean | null
@@ -185,6 +187,7 @@ export type Database = {
           plan?: string | null
           subscription_end?: string | null
           transaction_count?: number | null
+          used_transactions?: number
         }
         Relationships: []
       }
@@ -371,6 +374,10 @@ export type Database = {
       }
       identificador_novo_usuario: {
         Args: { p_user_id: string }
+        Returns: undefined
+      }
+      increment_used_transactions: {
+        Args: { user_id_param: string }
         Returns: undefined
       }
       is_current_user_admin: { Args: never; Returns: boolean }

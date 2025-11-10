@@ -58,7 +58,7 @@ export async function getFilteredTransactions(startDate: string, endDate: string
 }
 
 /**
- * Verificar se o usuário pode adicionar mais transações usando a função do banco
+ * Verificar se o usuário pode adicionar mais transações baseado em used_transactions
  */
 async function canAddTransaction(): Promise<boolean> {
   const { data: session } = await supabase.auth.getSession();
@@ -69,18 +69,29 @@ async function canAddTransaction(): Promise<boolean> {
   
   const userId = session.session.user.id;
   
-  // Usar a função do banco de dados para verificar se pode adicionar transação
-  const { data, error } = await supabase.rpc('can_add_transaction', { 
-    user_id_param: userId 
-  });
+  // Buscar perfil do usuário para verificar plano e used_transactions
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('plan, used_transactions')
+    .eq('id', userId)
+    .single();
   
   if (error) {
     console.error("Erro ao verificar limite de transações:", error);
     return false;
   }
   
-  console.log(`Resultado da verificação de limite: ${data}`);
-  return data || false;
+  // Usuários premium não têm limite
+  if (profile?.plan === 'premium') {
+    return true;
+  }
+  
+  // Usuários free têm limite de 20 transações
+  const usedTransactions = profile?.used_transactions || 0;
+  const canAdd = usedTransactions < 20;
+  
+  console.log(`Verificação de limite: used_transactions=${usedTransactions}/20, pode adicionar=${canAdd}`);
+  return canAdd;
 }
 
 /**
@@ -126,6 +137,16 @@ export async function addTransaction(
 
   if (error) {
     throw error;
+  }
+
+  // Incrementar contador de transações usadas (não diminui com exclusões)
+  const { error: incrementError } = await supabase.rpc('increment_used_transactions', {
+    user_id_param: userId
+  });
+
+  if (incrementError) {
+    console.error("Erro ao incrementar contador de transações:", incrementError);
+    // Não bloqueia a transação se o incremento falhar
   }
 
   return data as unknown as Transaction;

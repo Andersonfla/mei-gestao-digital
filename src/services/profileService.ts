@@ -20,7 +20,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     // Buscar perfil do usuário
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
-      .select("plan, subscription_end")
+      .select("plan, subscription_end, used_transactions")
       .eq("id", userId)
       .single();
 
@@ -33,6 +33,7 @@ export async function getUserSettings(): Promise<UserSettings> {
         transactionCountThisMonth: 0,
         transactionLimit: 20,
         subscriptionEnd: null,
+        usedTransactions: 0,
       };
     }
 
@@ -109,7 +110,10 @@ export async function getUserSettings(): Promise<UserSettings> {
       transactionCountThisMonth = limitsData.transactions;
     }
 
-    console.log(`Configurações do usuário: plano=${currentPlan}, transações=${transactionCountThisMonth}/${transactionLimit}`);
+    // Buscar contador de transações usadas
+    const usedTransactions = profileData?.used_transactions || 0;
+
+    console.log(`Configurações do usuário: plano=${currentPlan}, transações usadas=${usedTransactions}, transações mês=${transactionCountThisMonth}/${transactionLimit}`);
 
     return {
       plan: currentPlan as UserPlan,
@@ -117,6 +121,7 @@ export async function getUserSettings(): Promise<UserSettings> {
       transactionCountThisMonth,
       transactionLimit,
       subscriptionEnd: subscriptionEnd,
+      usedTransactions,
     };
   } catch (error) {
     console.error("Erro ao buscar configurações do usuário:", error);
@@ -127,6 +132,7 @@ export async function getUserSettings(): Promise<UserSettings> {
       transactionCountThisMonth: 0,
       transactionLimit: 20,
       subscriptionEnd: null,
+      usedTransactions: 0,
     };
   }
 }

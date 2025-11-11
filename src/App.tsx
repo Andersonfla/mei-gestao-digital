@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -40,7 +38,7 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <TooltipProvider>
               <AuthProvider>
@@ -94,9 +92,9 @@ function App() {
                 </ThemeProvider>
               </AuthProvider>
             </TooltipProvider>
-          </BrowserRouter>
-        </QueryClientProvider>
-      </ErrorBoundary>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -235,6 +235,7 @@ export type Database = {
           name: string | null
           plan: string | null
           role: string | null
+          status: string
           subscription_end: string | null
           transaction_count: number | null
           used_transactions: number
@@ -246,6 +247,7 @@ export type Database = {
           name?: string | null
           plan?: string | null
           role?: string | null
+          status?: string
           subscription_end?: string | null
           transaction_count?: number | null
           used_transactions?: number
@@ -257,6 +259,7 @@ export type Database = {
           name?: string | null
           plan?: string | null
           role?: string | null
+          status?: string
           subscription_end?: string | null
           transaction_count?: number | null
           used_transactions?: number

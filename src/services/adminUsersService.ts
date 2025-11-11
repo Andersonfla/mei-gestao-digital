@@ -9,6 +9,7 @@ export type AdminUser = {
   used_transactions: number;
   transaction_count: number;
   subscription_end: string | null;
+  status: string | null;
 };
 
 /**
@@ -18,7 +19,7 @@ export async function getAllUsers(): Promise<AdminUser[]> {
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, used_transactions, transaction_count, subscription_end")
+      .select("id, email, name, plan, used_transactions, transaction_count, subscription_end, status")
       .order("email", { ascending: true });
 
     if (error) {
@@ -34,17 +35,22 @@ export async function getAllUsers(): Promise<AdminUser[]> {
 }
 
 /**
- * Update user plan
+ * Update user plan with custom duration
  */
 export async function updateUserPlan(
   userId: string,
-  plan: 'free' | 'premium',
-  userEmail?: string
+  plan: 'free' | 'premium' | 'pro',
+  userEmail?: string,
+  durationMonths?: number
 ): Promise<boolean> {
   try {
-    const subscriptionEnd = plan === 'premium' 
-      ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year from now
-      : null;
+    let subscriptionEnd = null;
+    
+    if (plan !== 'free' && durationMonths) {
+      subscriptionEnd = new Date(Date.now() + durationMonths * 30 * 24 * 60 * 60 * 1000).toISOString();
+    } else if (plan === 'premium' && !durationMonths) {
+      subscriptionEnd = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(); // default 1 year
+    }
 
     const { error } = await supabase
       .from("profiles")
@@ -60,15 +66,48 @@ export async function updateUserPlan(
     }
 
     await logAdminAction(
-      `Alterou plano para ${plan}`,
+      `Alterou plano para ${plan}${durationMonths ? ` (${durationMonths} meses)` : ''}`,
       userId,
       userEmail,
-      { previous_plan: plan === 'premium' ? 'free' : 'premium', new_plan: plan }
+      { new_plan: plan, duration_months: durationMonths }
     );
 
     return true;
   } catch (error) {
     console.error("Failed to update user plan:", error);
+    return false;
+  }
+}
+
+/**
+ * Suspend or activate user account
+ */
+export async function updateUserStatus(
+  userId: string,
+  status: 'active' | 'suspended',
+  userEmail?: string
+): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ status })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating user status:", error);
+      return false;
+    }
+
+    await logAdminAction(
+      status === 'suspended' ? 'Suspendeu usuário' : 'Ativou usuário',
+      userId,
+      userEmail,
+      { status }
+    );
+
+    return true;
+  } catch (error) {
+    console.error("Failed to update user status:", error);
     return false;
   }
 }

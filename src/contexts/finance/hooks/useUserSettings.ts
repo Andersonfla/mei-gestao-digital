@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts";
 import { getUserSettings } from "@/services/profileService";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { UserPlan } from "@/types/finance";
 
 /**
@@ -66,8 +66,8 @@ export function useUserSettings() {
 
   // upgradeToPremium functionality temporarily disabled
 
-  // Check if the premium plan is active
-  const isPremiumActive = () => {
+  // Check if the premium plan is active - computed as boolean
+  const isPremiumActive = useMemo(() => {
     if (userSettings?.plan !== 'premium') return false;
     
     if (userSettings?.subscriptionEnd) {
@@ -77,7 +77,7 @@ export function useUserSettings() {
     }
     
     return false;
-  };
+  }, [userSettings]);
 
   return {
     userSettings: userSettings!,

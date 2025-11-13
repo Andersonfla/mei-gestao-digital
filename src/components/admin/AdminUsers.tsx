@@ -383,8 +383,14 @@ export function AdminUsers() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o usuário <strong>{deleteDialog.user?.email}</strong>?
-              Esta ação não pode ser desfeita e todos os dados do usuário serão removidos permanentemente.
+              Tem certeza que deseja excluir permanentemente o usuário <strong>{deleteDialog.user?.email}</strong>?
+              <br /><br />
+              <strong>Esta ação irá:</strong>
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Remover todos os dados do usuário (transações, categorias, metas, etc.)</li>
+                <li>Excluir a conta de autenticação (o usuário não poderá mais fazer login)</li>
+                <li>Esta ação não pode ser desfeita</li>
+              </ul>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

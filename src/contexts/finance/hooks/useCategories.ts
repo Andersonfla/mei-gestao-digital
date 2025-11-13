@@ -57,11 +57,24 @@ export function useCategories() {
     staleTime: 1000 * 60 * 5, // Categories change less frequently
   });
 
+  // Verificar se o plano premium está ativo (não expirado)
+  const isPremiumActive = () => {
+    if (userSettings?.plan !== 'premium') return false;
+    
+    if (userSettings?.subscriptionEnd) {
+      const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
+      const currentDate = new Date();
+      return subscriptionEndDate > currentDate;
+    }
+    
+    return false;
+  };
+
   // Filtrar categorias baseado no plano do usuário
   const categories = allCategories.filter(category => {
-    // Se for categoria premium, só mostrar para usuários premium
+    // Se for categoria premium, só mostrar para usuários premium ATIVOS
     if (isPremiumCategory(category.name)) {
-      return userSettings?.plan === 'premium';
+      return isPremiumActive();
     }
     // Categorias normais são mostradas para todos
     return true;

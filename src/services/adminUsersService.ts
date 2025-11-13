@@ -46,17 +46,29 @@ export async function updateUserPlan(
   try {
     let subscriptionEnd = null;
     
-    if (plan !== 'free' && durationMonths) {
-      subscriptionEnd = new Date(Date.now() + durationMonths * 30 * 24 * 60 * 60 * 1000).toISOString();
-    } else if (plan === 'premium' && !durationMonths) {
-      subscriptionEnd = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(); // default 1 year
+    // Para plano free, sempre null
+    if (plan === 'free') {
+      subscriptionEnd = null;
+    } 
+    // Para premium/pro com duração especificada
+    else if (durationMonths && durationMonths > 0) {
+      const now = new Date();
+      now.setMonth(now.getMonth() + durationMonths);
+      subscriptionEnd = now.toISOString();
+    } 
+    // Para premium/pro sem duração especificada, default 1 ano
+    else {
+      const now = new Date();
+      now.setFullYear(now.getFullYear() + 1);
+      subscriptionEnd = now.toISOString();
     }
 
     const { error } = await supabase
       .from("profiles")
       .update({ 
         plan,
-        subscription_end: subscriptionEnd
+        subscription_end: subscriptionEnd,
+        status: 'active' // Reativa usuário ao atribuir plano
       })
       .eq("id", userId);
 
@@ -66,10 +78,14 @@ export async function updateUserPlan(
     }
 
     await logAdminAction(
-      `Alterou plano para ${plan}${durationMonths ? ` (${durationMonths} meses)` : ''}`,
+      `Alterou plano para ${plan}${durationMonths ? ` (${durationMonths} meses)` : ' (padrão: 1 ano)'}`,
       userId,
       userEmail,
-      { new_plan: plan, duration_months: durationMonths }
+      { 
+        new_plan: plan, 
+        duration_months: durationMonths || 12,
+        subscription_end: subscriptionEnd 
+      }
     );
 
     return true;
@@ -118,7 +134,7 @@ export async function updateUserStatus(
 export async function deleteUserProfile(userId: string, userEmail?: string): Promise<boolean> {
   try {
     // Call RPC function to delete user completely
-    const { error } = await supabase.rpc('delete_user_completely', {
+    const { error } = await supabase.rpc('delete_user_completely' as any, {
       target_user_id: userId
     });
 

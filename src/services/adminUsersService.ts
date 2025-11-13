@@ -113,33 +113,22 @@ export async function updateUserStatus(
 }
 
 /**
- * Delete user (only deletes from profiles, auth deletion requires service role)
+ * Delete user completely (including auth.users)
  */
 export async function deleteUserProfile(userId: string, userEmail?: string): Promise<boolean> {
   try {
-    // Delete user's transactions first
-    const { error: transError } = await supabase
-      .from("transactions")
-      .delete()
-      .eq("user_id", userId);
-
-    if (transError) {
-      console.error("Error deleting user transactions:", transError);
-    }
-
-    // Delete profile
-    const { error } = await supabase
-      .from("profiles")
-      .delete()
-      .eq("id", userId);
+    // Call RPC function to delete user completely
+    const { error } = await supabase.rpc('delete_user_completely', {
+      target_user_id: userId
+    });
 
     if (error) {
-      console.error("Error deleting user profile:", error);
+      console.error("Error deleting user completely:", error);
       return false;
     }
 
     await logAdminAction(
-      "Excluiu usuário",
+      "Excluiu usuário completamente",
       userId,
       userEmail
     );

@@ -96,10 +96,10 @@ export function AdminUsers() {
       ? parseInt(customDuration) 
       : parseInt(selectedDuration);
 
-    if (isNaN(duration) || duration <= 0) {
+    if (selectedPlan !== 'free' && (isNaN(duration) || duration <= 0)) {
       toast({
         title: "Erro",
-        description: "Duração inválida",
+        description: "Duração inválida. Por favor, insira um valor válido.",
         variant: "destructive",
       });
       return;
@@ -109,20 +109,25 @@ export function AdminUsers() {
       editDialog.user.id,
       selectedPlan,
       editDialog.user.email || undefined,
-      duration
+      selectedPlan === 'free' ? undefined : duration
     );
 
     if (success) {
+      const planName = selectedPlan === 'premium' ? 'Premium' : selectedPlan === 'pro' ? 'Pro' : 'Gratuito';
+      const durationText = selectedPlan === 'free' 
+        ? '' 
+        : ` por ${duration} ${duration === 1 ? 'mês' : 'meses'}`;
+      
       toast({
-        title: "Plano atualizado",
-        description: `Plano de ${editDialog.user.email} alterado para ${selectedPlan} (${duration} meses)`,
+        title: "✅ Plano atualizado com sucesso",
+        description: `${editDialog.user.email} agora tem plano ${planName}${durationText}`,
       });
       fetchUsers();
       setEditDialog({ open: false, user: null });
     } else {
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o plano",
+        title: "Erro ao atualizar plano",
+        description: "Não foi possível atualizar o plano. Verifique suas permissões.",
         variant: "destructive",
       });
     }
@@ -205,7 +210,9 @@ export function AdminUsers() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Gestão de Usuários</CardTitle>
-              <CardDescription>Gerencie todos os usuários da plataforma</CardDescription>
+              <CardDescription>
+                Gerencie planos, status e contas de todos os usuários da plataforma
+              </CardDescription>
             </div>
             <Button onClick={fetchUsers} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -214,6 +221,19 @@ export function AdminUsers() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Crown className="h-4 w-4 text-primary" />
+              Poderes de Administrador
+            </h3>
+            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
+              <li>Atribuir ou alterar plano de qualquer usuário (Free, Premium, Pro)</li>
+              <li>Definir duração personalizada do plano (1 mês até 10 anos)</li>
+              <li>Suspender ou reativar contas temporariamente</li>
+              <li>Excluir usuários permanentemente (remove acesso completo)</li>
+            </ul>
+          </div>
+
           <div className="flex items-center gap-2">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
@@ -326,42 +346,69 @@ export function AdminUsers() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="free">Gratuito</SelectItem>
-                  <SelectItem value="premium">Premium</SelectItem>
-                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="free">🆓 Gratuito (Sem acesso premium)</SelectItem>
+                  <SelectItem value="premium">👑 Premium (Acesso completo)</SelectItem>
+                  <SelectItem value="pro">💎 Pro (Máximo acesso)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {selectedPlan !== 'free' && (
-              <div className="space-y-2">
-                <Label>Duração</Label>
-                <Select value={selectedDuration} onValueChange={setSelectedDuration}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 mês</SelectItem>
-                    <SelectItem value="3">3 meses</SelectItem>
-                    <SelectItem value="6">6 meses</SelectItem>
-                    <SelectItem value="12">1 ano (12 meses)</SelectItem>
-                    <SelectItem value="24">2 anos (24 meses)</SelectItem>
-                    <SelectItem value="custom">Personalizado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label>Duração do Plano</Label>
+                  <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 mês</SelectItem>
+                      <SelectItem value="3">3 meses (trimestral)</SelectItem>
+                      <SelectItem value="6">6 meses (semestral)</SelectItem>
+                      <SelectItem value="12">1 ano (anual) - Padrão</SelectItem>
+                      <SelectItem value="24">2 anos (bienal)</SelectItem>
+                      <SelectItem value="36">3 anos</SelectItem>
+                      <SelectItem value="custom">Duração personalizada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedDuration === 'custom' && (
+                  <div className="space-y-2">
+                    <Label>Número de Meses (personalizado)</Label>
+                    <Input
+                      type="number"
+                      placeholder="Ex: 18 para 1 ano e meio"
+                      value={customDuration}
+                      onChange={(e) => setCustomDuration(e.target.value)}
+                      min="1"
+                      max="120"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Máximo: 120 meses (10 anos)
+                    </p>
+                  </div>
+                )}
+
+                <div className="rounded-md bg-muted p-3 space-y-1">
+                  <p className="text-sm font-medium">Resumo:</p>
+                  <p className="text-sm text-muted-foreground">
+                    Plano <strong>{selectedPlan === 'premium' ? 'Premium' : 'Pro'}</strong> será ativo por{' '}
+                    <strong>
+                      {selectedDuration === 'custom' 
+                        ? `${customDuration || '?'} meses` 
+                        : `${selectedDuration} ${parseInt(selectedDuration) === 1 ? 'mês' : 'meses'}`}
+                    </strong>
+                  </p>
+                </div>
+              </>
             )}
 
-            {selectedDuration === 'custom' && selectedPlan !== 'free' && (
-              <div className="space-y-2">
-                <Label>Número de Meses</Label>
-                <Input
-                  type="number"
-                  placeholder="Digite o número de meses"
-                  value={customDuration}
-                  onChange={(e) => setCustomDuration(e.target.value)}
-                  min="1"
-                />
+            {selectedPlan === 'free' && (
+              <div className="rounded-md bg-yellow-50 dark:bg-yellow-950 p-3 border border-yellow-200 dark:border-yellow-800">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  ⚠️ Ao definir como Gratuito, o usuário perderá acesso aos recursos premium e a data de expiração será removida.
+                </p>
               </div>
             )}
           </div>

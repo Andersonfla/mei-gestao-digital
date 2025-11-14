@@ -1,5 +1,5 @@
 import { FilterPeriod } from "@/components/dashboard/FilterPeriod";
-import { TransactionForm } from "@/components/transactions/TransactionForm";
+import { NewTransactionModal } from "@/components/transactions/NewTransactionModal";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,11 +7,13 @@ import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
 const Transactions = () => {
   const { filteredTransactions, deleteTransaction } = useFinance();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Apply type filter
   const displayedTransactions = typeFilter === "all"
@@ -57,76 +59,74 @@ const Transactions = () => {
             </Select>
           </div>
           <FilterPeriod />
+          <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nova Transação
+          </Button>
         </div>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-lg border shadow-sm overflow-hidden">
-            {sortedTransactions.length === 0 ? (
-              <div className="p-8 text-center">
-                <p className="text-muted-foreground">Nenhuma transação encontrada</p>
-                <p className="text-sm text-muted-foreground mt-1">Use o formulário ao lado para adicionar uma nova</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
-                    <TableHead className="w-[100px] text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedTransactions.map((transaction) => {
-                    return (
-                      <TableRow key={transaction.id}>
-                        <TableCell>{formatDate(transaction.date)}</TableCell>
-                        <TableCell>{transaction.description || '-'}</TableCell>
-                        <TableCell>{transaction.category}</TableCell>
-                        <TableCell>
-                          <span
-                            className={`inline-block px-2 py-1 rounded-full text-xs ${
-                              transaction.type === 'entrada'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {transaction.type === 'entrada' ? 'Receita' : 'Despesa'}
-                          </span>
-                        </TableCell>
-                        <TableCell className={`text-right font-medium ${
-                          transaction.type === 'entrada' ? 'text-income' : 'text-expense'
-                        }`}>
-                          {transaction.type === 'entrada' ? '+' : '-'}
-                          {formatCurrency(transaction.value)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(transaction.id)}
-                            disabled={isDeleting === transaction.id}
-                          >
-                            {isDeleting === transaction.id ? 'Excluindo...' : 'Excluir'}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            )}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border shadow-sm overflow-hidden">
+        {sortedTransactions.length === 0 ? (
+          <div className="p-8 text-center">
+            <p className="text-muted-foreground">Nenhuma transação encontrada</p>
+            <p className="text-sm text-muted-foreground mt-1">Clique em "Nova Transação" para adicionar</p>
           </div>
-        </div>
-        
-        <div>
-          <TransactionForm />
-        </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead className="text-right">Valor</TableHead>
+                <TableHead className="w-[100px] text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedTransactions.map((transaction) => {
+                return (
+                  <TableRow key={transaction.id}>
+                    <TableCell>{formatDate(transaction.date)}</TableCell>
+                    <TableCell>{transaction.description || '-'}</TableCell>
+                    <TableCell>{transaction.category}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-block px-2 py-1 rounded-full text-xs ${
+                          transaction.type === 'entrada'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        }`}
+                      >
+                        {transaction.type === 'entrada' ? 'Receita' : 'Despesa'}
+                      </span>
+                    </TableCell>
+                    <TableCell className={`text-right font-medium ${
+                      transaction.type === 'entrada' ? 'text-income' : 'text-expense'
+                    }`}>
+                      {transaction.type === 'entrada' ? '+' : '-'}
+                      {formatCurrency(transaction.value)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(transaction.id)}
+                        disabled={isDeleting === transaction.id}
+                      >
+                        {isDeleting === transaction.id ? 'Excluindo...' : 'Excluir'}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
       </div>
+
+      <NewTransactionModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </div>
   );
 };

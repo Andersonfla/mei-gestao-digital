@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -40,15 +39,14 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <TooltipProvider>
-              <AuthProvider>
-                <ThemeProvider>
-                  <SidebarProvider>
-                    <FinanceProvider>
-                      <Toaster />
-                      <Sonner />
-                      <ToastListener />
-                      <Routes>
+            <AuthProvider>
+              <ThemeProvider>
+                <SidebarProvider>
+                  <FinanceProvider>
+                    <Toaster />
+                    <Sonner />
+                    <ToastListener />
+                    <Routes>
                         {/* Public routes */}
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/auth" element={<Auth />} />
@@ -91,7 +89,6 @@ function App() {
                   </SidebarProvider>
                 </ThemeProvider>
               </AuthProvider>
-            </TooltipProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

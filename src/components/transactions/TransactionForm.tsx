@@ -1,5 +1,4 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useFinance } from "@/contexts";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +13,11 @@ import { PremiumCategoriesInfo } from "./PremiumCategoriesInfo";
 import { TransactionFormValues, transactionSchema } from "./transactionSchema";
 import { useAuth } from "@/contexts";
 
-export function TransactionForm() {
+interface TransactionFormProps {
+  onSuccess?: () => void;
+}
+
+export function TransactionForm({ onSuccess }: TransactionFormProps = {}) {
   const { categories, addTransaction, userSettings, refetchUserSettings, isPremiumCategory } = useFinance();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -64,6 +67,11 @@ export function TransactionForm() {
         category: "",
       });
       
+      // Chamar callback de sucesso se fornecido (para fechar modal)
+      if (onSuccess) {
+        onSuccess();
+      }
+      
     } catch (error: any) {
       console.error("Erro ao adicionar transação:", error);
       
@@ -91,45 +99,40 @@ export function TransactionForm() {
   }
 
   return (
-    <Card className="shadow-sm">
-      <CardHeader>
-        <CardTitle>Nova Transação</CardTitle>
-        <CardDescription>
-          Adicione uma nova entrada ou saída
-          <TransactionLimitIndicator userSettings={userSettings} />
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TransactionType)} className="w-full">
-          <TabsList className="w-full mb-6">
-            <TabsTrigger value="entrada" className="flex-1">Receita</TabsTrigger>
-            <TabsTrigger value="saida" className="flex-1">Despesa</TabsTrigger>
-          </TabsList>
-          <TabsContent value="entrada" className="mt-0">
-            <TransactionFormFields 
-              form={form} 
-              categories={filteredCategories} 
-              onSubmit={onSubmit} 
-              isSubmitting={isSubmitting} 
-              type="entrada"
-              isPremiumCategory={isPremiumCategory}
-            />
-          </TabsContent>
-          <TabsContent value="saida" className="mt-0">
-            <TransactionFormFields 
-              form={form} 
-              categories={filteredCategories} 
-              onSubmit={onSubmit} 
-              isSubmitting={isSubmitting}
-              type="saida"
-              isPremiumCategory={isPremiumCategory}
-            />
-          </TabsContent>
-        </Tabs>
-        
-        {/* Mostrar informações sobre categorias premium para usuários gratuitos */}
-        <PremiumCategoriesInfo />
-      </CardContent>
-    </Card>
+    <>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TransactionType)} className="w-full">
+        <TabsList className="w-full mb-6">
+          <TabsTrigger value="entrada" className="flex-1">Receita</TabsTrigger>
+          <TabsTrigger value="saida" className="flex-1">Despesa</TabsTrigger>
+        </TabsList>
+        <TabsContent value="entrada" className="mt-0">
+          <TransactionFormFields 
+            form={form} 
+            categories={filteredCategories} 
+            onSubmit={onSubmit} 
+            isSubmitting={isSubmitting} 
+            type="entrada"
+            isPremiumCategory={isPremiumCategory}
+          />
+        </TabsContent>
+        <TabsContent value="saida" className="mt-0">
+          <TransactionFormFields 
+            form={form} 
+            categories={filteredCategories} 
+            onSubmit={onSubmit} 
+            isSubmitting={isSubmitting}
+            type="saida"
+            isPremiumCategory={isPremiumCategory}
+          />
+        </TabsContent>
+      </Tabs>
+      
+      <div className="mt-4">
+        <TransactionLimitIndicator userSettings={userSettings} />
+      </div>
+      
+      {/* Mostrar informações sobre categorias premium para usuários gratuitos */}
+      <PremiumCategoriesInfo />
+    </>
   );
 }

@@ -6,15 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
 import { TransactionChart } from "@/components/dashboard/TransactionChart";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { exportReportToPDF } from "@/lib/exportReport";
 
 const Reports = () => {
-  const { filteredTransactions, userSettings, isPremiumActive } = useFinance();
+  const { 
+    filteredTransactions, 
+    userSettings, 
+    isPremiumActive,
+    filterDates,
+    calculateTotalByType,
+    calculateBalance
+  } = useFinance();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -24,15 +32,39 @@ const Reports = () => {
       return;
     }
     
-    // In a real app, this would generate a PDF or Excel file
-    setIsExporting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsExporting(false);
-    
-    toast({
-      title: "Relatório exportado",
-      description: "O relatório foi exportado com sucesso.",
-    });
+    try {
+      setIsExporting(true);
+      
+      // Calcular dados do resumo
+      const totalIncome = calculateTotalByType('entrada');
+      const totalExpense = calculateTotalByType('saida');
+      const profit = totalIncome - totalExpense;
+      const profitMargin = totalIncome > 0 ? (profit / totalIncome) * 100 : 0;
+      
+      // Gerar e baixar o PDF
+      exportReportToPDF({
+        totalIncome,
+        totalExpense,
+        profit,
+        profitMargin,
+        transactions: filteredTransactions,
+        period: filterDates,
+      });
+      
+      toast({
+        title: "Relatório exportado",
+        description: "O arquivo PDF foi baixado com sucesso.",
+      });
+    } catch (error) {
+      console.error('Erro ao exportar relatório:', error);
+      toast({
+        title: "Erro ao exportar",
+        description: "Não foi possível gerar o relatório. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (

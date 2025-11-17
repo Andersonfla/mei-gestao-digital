@@ -228,15 +228,24 @@ export async function getUserStats() {
       .order("created_at", { ascending: false })
       .limit(1);
 
+    const { data: adminRoles } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin");
+
     const totalUsers = profiles?.length || 0;
     const freeUsers = profiles?.filter(p => p.plan === 'free').length || 0;
     const premiumUsers = profiles?.filter(p => p.plan === 'premium').length || 0;
+    const masterUsers = profiles?.filter(p => p.plan === 'master').length || 0;
+    const adminUsers = adminRoles?.length || 0;
     const lastTransaction = transactions?.[0]?.created_at || null;
 
     return {
       totalUsers,
       freeUsers,
       premiumUsers,
+      masterUsers,
+      adminUsers,
       lastTransaction,
     };
   } catch (error) {
@@ -245,6 +254,8 @@ export async function getUserStats() {
       totalUsers: 0,
       freeUsers: 0,
       premiumUsers: 0,
+      masterUsers: 0,
+      adminUsers: 0,
       lastTransaction: null,
     };
   }

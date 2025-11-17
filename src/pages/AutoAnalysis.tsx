@@ -106,32 +106,47 @@ const AutoAnalysis = () => {
   const handleApplyRecommendation = (action: string) => {
     switch (action) {
       case 'emergency_reserve':
-        // Redirecionar para Metas Financeiras com dados pré-preenchidos
-        navigate('/metas-financeiras');
-        // Aguardar um pouco para garantir que a página carregou
-        setTimeout(() => {
-          if ((window as any).openCreateGoalModal) {
-            (window as any).openCreateGoalModal({
+        navigate('/metas-financeiras', { 
+          state: { 
+            prefillData: {
               title: 'Reserva de Emergência',
               target_amount: emergencyReserveTarget.toFixed(2),
               category: 'Segurança Financeira',
-            });
-          }
-        }, 300);
-        toast.success("Redirecionando para criar meta...");
+            }
+          } 
+        });
+        toast.success("Redirecionando para criar meta de emergência...");
+        break;
+      
+      case 'automate_savings':
+        navigate('/metas-financeiras', { 
+          state: { 
+            prefillData: {
+              title: 'Investimento Mensal',
+              target_amount: '500',
+              category: 'Investimentos',
+            }
+          } 
+        });
+        toast.success("Redirecionando para criar meta de investimento...");
+        break;
+      
+      case 'diversify_income':
+        navigate('/metas-financeiras', { 
+          state: { 
+            prefillData: {
+              title: 'Nova Fonte de Renda',
+              target_amount: '1000',
+              category: 'Renda Extra',
+            }
+          } 
+        });
+        toast.success("Redirecionando para criar meta de renda...");
         break;
       
       case 'review_subscriptions':
         navigate('/transacoes');
         toast.info("Revise suas transações recorrentes");
-        break;
-      
-      case 'automate_savings':
-        toast.info("Configure transferências automáticas no seu banco");
-        break;
-      
-      case 'diversify_income':
-        toast.info("Considere aprender novas habilidades ou iniciar um projeto paralelo");
         break;
       
       default:

@@ -8,10 +8,13 @@ import { AdminTransactions } from "@/components/admin/AdminTransactions";
 import { AdminLogs } from "@/components/admin/AdminLogs";
 import { AdminSupport } from "@/components/admin/AdminSupport";
 import { LayoutDashboard, Users, Receipt, FileText, MessageSquare } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useAdminSupportNotifications } from "@/hooks/useAdminSupportNotifications";
 
 export default function AdminPanel() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { unreadCount } = useAdminSupportNotifications();
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,9 +46,17 @@ export default function AdminPanel() {
               <Receipt className="h-4 w-4" />
               Lançamentos
             </TabsTrigger>
-            <TabsTrigger value="support" className="flex items-center gap-2">
+            <TabsTrigger value="support" className="flex items-center gap-2 relative">
               <MessageSquare className="h-4 w-4" />
               Suporte
+              {unreadCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="ml-1 h-5 px-2 text-xs animate-pulse"
+                >
+                  {unreadCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />

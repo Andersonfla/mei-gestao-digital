@@ -23,6 +23,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isUserAdmin } from "@/services/adminService";
 import { Shield } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useAdminSupportNotifications } from "@/hooks/useAdminSupportNotifications";
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const [userName, setUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const { unreadCount } = useAdminSupportNotifications();
 
   // Fetch user profile data
   useEffect(() => {
@@ -224,13 +227,21 @@ export function AppSidebar() {
 
                 {/* Admin Panel Access */}
                 {isAdmin && (
-                  <Button 
-                    className="w-full mt-2 bg-yellow-600 text-white hover:bg-yellow-700"
-                    size="sm"
-                    onClick={() => navigate('/admin')}
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2 justify-start gap-2 relative"
+                    onClick={() => navigate("/admin")}
                   >
-                    <Shield className="mr-2 h-4 w-4" />
+                    <Shield className="h-4 w-4" />
                     Painel Admin
+                    {unreadCount > 0 && (
+                      <Badge 
+                        variant="destructive" 
+                        className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs animate-pulse"
+                      >
+                        {unreadCount}
+                      </Badge>
+                    )}
                   </Button>
                 )}
               </div>

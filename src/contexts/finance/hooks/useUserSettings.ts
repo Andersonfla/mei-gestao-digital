@@ -37,7 +37,7 @@ export function useUserSettings() {
 
   // Check if premium plan has expired
   useEffect(() => {
-    if (userSettings?.plan === 'premium' && userSettings?.subscriptionEnd) {
+    if ((userSettings?.plan === 'premium' || userSettings?.plan === 'master') && userSettings?.subscriptionEnd) {
       const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
       const currentDate = new Date();
       
@@ -45,18 +45,20 @@ export function useUserSettings() {
         // Premium plan has expired, trigger verification
         refetchUserSettings();
         
+        const planName = userSettings.plan === 'master' ? 'Premium Master' : 'Premium';
         toast({
-          title: "⚠️ Plano Premium expirado",
-          description: "Seu plano Premium expirou. Renove sua assinatura para continuar aproveitando os recursos avançados.",
+          title: `⚠️ Plano ${planName} expirado`,
+          description: `Seu plano ${planName} expirou. Renove sua assinatura para continuar aproveitando os recursos avançados.`,
           variant: "destructive",
         });
       }
-    } else if (userSettings?.plan === 'premium' && userSettings?.subscriptionEnd) {
+    } else if ((userSettings?.plan === 'premium' || userSettings?.plan === 'master') && userSettings?.subscriptionEnd) {
       // Premium active - show success message once
       const hasShownWelcome = sessionStorage.getItem('premium_welcome_shown');
       if (!hasShownWelcome) {
+        const planName = userSettings.plan === 'master' ? 'Premium Master' : 'Premium';
         toast({
-          title: "🎉 Plano Premium ativo!",
+          title: `🎉 Plano ${planName} ativo!`,
           description: "Aproveite todos os recursos exclusivos do seu plano.",
         });
         sessionStorage.setItem('premium_welcome_shown', 'true');

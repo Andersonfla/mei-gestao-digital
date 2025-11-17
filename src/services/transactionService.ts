@@ -81,8 +81,8 @@ async function canAddTransaction(): Promise<boolean> {
     return false;
   }
   
-  // Usuários premium não têm limite
-  if (profile?.plan === 'premium') {
+  // Usuários premium e premium master não têm limite
+  if (profile?.plan === 'premium' || profile?.plan === 'master') {
     return true;
   }
   

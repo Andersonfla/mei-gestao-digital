@@ -58,8 +58,11 @@ export function useCategories() {
   });
 
   // Verificar se o plano premium está ativo (não expirado)
+  // Premium Master herda TODAS as permissões do Premium
   const isPremiumActive = () => {
-    if (userSettings?.plan !== 'premium') return false;
+    const isPremiumOrMaster = userSettings?.plan === 'premium' || userSettings?.plan === 'master';
+    
+    if (!isPremiumOrMaster) return false;
     
     if (userSettings?.subscriptionEnd) {
       const subscriptionEndDate = new Date(userSettings.subscriptionEnd);

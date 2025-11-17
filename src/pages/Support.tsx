@@ -16,7 +16,9 @@ export default function Support() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [adminTyping, setAdminTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     initConversation();
@@ -26,6 +28,7 @@ export default function Support() {
     if (conversationId) {
       loadMessages();
       subscribeToMessages();
+      subscribeToTyping();
     }
   }, [conversationId]);
 
@@ -109,6 +112,51 @@ export default function Support() {
       console.log('🔕 Removendo subscription');
       supabase.removeChannel(channel);
     };
+  };
+
+  const subscribeToTyping = () => {
+    if (!conversationId) return;
+
+    const typingChannel = supabase.channel(`typing-${conversationId}`, {
+      config: { presence: { key: conversationId } }
+    });
+
+    typingChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = typingChannel.presenceState();
+        const adminIsTyping = Object.values(state).some((presences: any) => 
+          presences.some((p: any) => p.isAdmin && p.typing)
+        );
+        setAdminTyping(adminIsTyping);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(typingChannel);
+    };
+  };
+
+  const handleTyping = () => {
+    if (!conversationId) return;
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Send typing signal
+    const typingChannel = supabase.channel(`typing-${conversationId}`);
+    typingChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await typingChannel.track({ typing: true, isAdmin: false });
+      }
+    });
+
+    // Stop typing after 2 seconds of inactivity
+    typingTimeoutRef.current = setTimeout(async () => {
+      await typingChannel.track({ typing: false, isAdmin: false });
+      supabase.removeChannel(typingChannel);
+    }, 2000);
   };
 
   const handleSendMessage = async () => {
@@ -239,16 +287,26 @@ export default function Support() {
                   </div>
                 </div>
               ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
 
-          {/* Input Area */}
+              {/* Typing Indicator */}
+              {adminTyping && (
+                <div className="px-6 py-2 text-sm text-muted-foreground italic">
+                  Admin está digitando...
+                </div>
+              )}
+
+              {/* Input Area */}
           <div className="border-t p-4">
             <div className="flex gap-2">
               <Textarea
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  handleTyping();
+                }}
                 onKeyPress={handleKeyPress}
                 placeholder="Digite sua mensagem..."
                 className="resize-none"

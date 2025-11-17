@@ -40,13 +40,13 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
           <BrowserRouter>
+            <Toaster />
+            <Sonner />
+            <ToastListener />
             <AuthProvider>
               <ThemeProvider>
                 <SidebarProvider>
                   <FinanceProvider>
-                    <Toaster />
-                    <Sonner />
-                    <ToastListener />
                     <Routes>
                         {/* Public routes */}
                         <Route path="/" element={<LandingPage />} />

@@ -128,9 +128,9 @@ export function AppSidebar() {
   return (
     <>
       {isMobile && (
-        <div className="fixed top-4 left-4 z-50">
+        <div className="fixed top-2 left-2 z-50 bg-background/80 backdrop-blur-sm rounded-md">
           <SidebarTrigger>
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+            <Button variant="outline" size="sm" className="h-10 w-10 p-0 shadow-md">
               <span className="flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +140,7 @@ export function AppSidebar() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-4 w-4"
+                  className="h-5 w-5"
                 >
                   <path d="M3 7h18M3 12h18M3 17h18" />
                 </svg>

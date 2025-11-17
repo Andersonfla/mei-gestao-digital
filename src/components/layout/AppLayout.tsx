@@ -20,7 +20,7 @@ export function AppLayout() {
     <div className="flex min-h-screen w-full">
       <AppSidebar />
       <div className="flex-1 overflow-auto">
-        <main className="container py-6">
+        <main className="container py-6 px-4 sm:px-6">
           <OfflineIndicator />
           <InstallPrompt />
           <Outlet />

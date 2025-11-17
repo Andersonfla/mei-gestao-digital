@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, MessageSquare } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { getOrCreateConversation, getMessages, sendMessage, SupportMessage } from "@/services/supportService";
 import { supabase } from "@/integrations/supabase/client";
@@ -172,11 +173,24 @@ export default function Support() {
         <CardHeader className="border-b">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-primary" />
-            <div>
+            <div className="flex-1">
               <CardTitle>Suporte Prioritário</CardTitle>
               <CardDescription>
                 Nossa equipe está disponível para ajudá-lo
               </CardDescription>
+            </div>
+            {/* Debug info */}
+            <div className="text-xs text-muted-foreground">
+              {conversationId ? (
+                <Badge variant="outline" className="gap-1">
+                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                  Conectado
+                </Badge>
+              ) : (
+                <Badge variant="destructive">
+                  Desconectado
+                </Badge>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -184,6 +198,15 @@ export default function Support() {
         <CardContent className="flex flex-col h-[calc(100%-5rem)] p-0">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* Debug info */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-muted p-2 rounded text-xs mb-4">
+                <div>Conversation ID: {conversationId || 'Nenhum'}</div>
+                <div>Total de mensagens: {messages.length}</div>
+                <div>Status: {sending ? 'Enviando...' : 'Pronto'}</div>
+              </div>
+            )}
+            
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                 <MessageSquare className="h-12 w-12 mb-4 opacity-50" />

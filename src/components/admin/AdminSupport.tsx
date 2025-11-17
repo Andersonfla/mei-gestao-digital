@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Send, Loader2, MessageSquare, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
+import { Send, Loader2, MessageSquare, CheckCircle2, XCircle, RefreshCw, Bell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminSupportNotifications } from "@/hooks/useAdminSupportNotifications";
 import { 
   getAllConversations, 
   getMessages, 
@@ -19,6 +20,7 @@ import { format } from "date-fns";
 
 export const AdminSupport = () => {
   const { toast } = useToast();
+  const { unreadCount, clearUnreadCount } = useAdminSupportNotifications();
   const [conversations, setConversations] = useState<SupportConversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<SupportConversation | null>(null);
   const [messages, setMessages] = useState<SupportMessage[]>([]);
@@ -51,6 +53,9 @@ export const AdminSupport = () => {
     const convs = await getAllConversations();
     setConversations(convs);
     setLoading(false);
+    
+    // Clear unread count when viewing conversations
+    clearUnreadCount();
   };
 
   const loadMessages = async () => {
@@ -169,9 +174,17 @@ export const AdminSupport = () => {
       <Card className="md:col-span-1">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg">Conversas</CardTitle>
-              <CardDescription>{conversations.length} conversas</CardDescription>
+            <div className="flex items-center gap-2">
+              <div>
+                <CardTitle className="text-lg">Conversas</CardTitle>
+                <CardDescription>{conversations.length} conversas</CardDescription>
+              </div>
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="animate-pulse">
+                  <Bell className="h-3 w-3 mr-1" />
+                  {unreadCount} nova{unreadCount > 1 ? 's' : ''}
+                </Badge>
+              )}
             </div>
             <Button size="sm" variant="ghost" onClick={loadConversations}>
               <RefreshCw className="h-4 w-4" />

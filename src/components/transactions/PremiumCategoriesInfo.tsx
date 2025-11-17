@@ -20,7 +20,7 @@ export function PremiumCategoriesInfo() {
   const { userSettings } = useFinance();
 
   // Só mostrar para usuários gratuitos
-  if (userSettings.plan === 'premium' || userSettings.plan === 'pro') {
+  if (userSettings.plan === 'premium' || userSettings.plan === 'master') {
     return null;
   }
 

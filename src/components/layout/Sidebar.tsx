@@ -10,7 +10,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger
+  SidebarTrigger,
+  useSidebar
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useFinance } from "@/contexts";
@@ -32,6 +33,7 @@ export function AppSidebar() {
   const { userSettings } = useFinance();
   const { signOut, user } = useAuth();
   const isMobile = useIsMobile();
+  const { setOpenMobile } = useSidebar();
   const [userName, setUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const { unreadCount } = useAdminSupportNotifications();
@@ -183,14 +185,19 @@ export function AppSidebar() {
                 </div>
               </div>
 
-              <SidebarMenu>
+                <SidebarMenu>
                 {displayMenuItems.map((item) => (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       className={cn(
                         isActive(item.path) && "bg-sidebar-accent text-sidebar-accent-foreground"
                       )}
-                      onClick={() => navigate(item.path)}
+                      onClick={() => {
+                        navigate(item.path);
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
+                      }}
                     >
                       <span>{item.label}</span>
                     </SidebarMenuButton>
@@ -219,7 +226,12 @@ export function AppSidebar() {
                   <Button 
                     className="w-full mt-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
                     size="sm"
-                    onClick={() => navigate('/upgrade')}
+                    onClick={() => {
+                      navigate('/upgrade');
+                      if (isMobile) {
+                        setOpenMobile(false);
+                      }
+                    }}
                   >
                     Fazer upgrade
                   </Button>
@@ -230,7 +242,12 @@ export function AppSidebar() {
                   <Button
                     variant="outline"
                     className="w-full mt-2 justify-start gap-2 relative"
-                    onClick={() => navigate("/admin")}
+                    onClick={() => {
+                      navigate("/admin");
+                      if (isMobile) {
+                        setOpenMobile(false);
+                      }
+                    }}
                   >
                     <Shield className="h-4 w-4" />
                     Painel Admin

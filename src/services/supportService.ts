@@ -143,16 +143,10 @@ export async function sendMessage(conversationId: string, content: string): Prom
  */
 export async function getAllConversations(): Promise<SupportConversation[]> {
   try {
+    // 1) Buscar conversas (sem embed para evitar dependência de FK)
     const { data: conversations, error } = await supabase
       .from('support_conversations')
-      .select(`
-        *,
-        profiles:user_id (
-          email,
-          name,
-          plan
-        )
-      `)
+      .select('*')
       .order('last_message_at', { ascending: false });
 
     if (error) {
@@ -160,13 +154,31 @@ export async function getAllConversations(): Promise<SupportConversation[]> {
       return [];
     }
 
-    // Format the data
-    return conversations.map((conv: any) => ({
-      ...conv,
-      user_email: conv.profiles?.email,
-      user_name: conv.profiles?.name,
-      user_plan: conv.profiles?.plan,
-    }));
+    if (!conversations || conversations.length === 0) return [];
+
+    // 2) Buscar perfis dos usuários envolvidos nas conversas
+    const userIds = Array.from(new Set(conversations.map((c: any) => c.user_id)));
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, email, name, plan')
+      .in('id', userIds);
+
+    if (profilesError) {
+      console.error('Error fetching profiles for conversations:', profilesError);
+    }
+
+    const profilesById = new Map((profiles || []).map((p: any) => [p.id, p]));
+
+    // 3) Enriquecer conversas com dados do perfil
+    return conversations.map((conv: any) => {
+      const p = profilesById.get(conv.user_id);
+      return {
+        ...conv,
+        user_email: p?.email,
+        user_name: p?.name,
+        user_plan: p?.plan,
+      } as SupportConversation;
+    });
   } catch (error) {
     console.error('Failed to fetch conversations:', error);
     return [];

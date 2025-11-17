@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Target, Plus, TrendingUp, Calendar, DollarSign, Edit, Trash2 } from "lucide-react";
@@ -11,6 +12,7 @@ import { financialGoalsService, FinancialGoal } from "@/services/financialGoalsS
 import { Loader2 } from "lucide-react";
 
 const FinancialGoals = () => {
+  const location = useLocation();
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -28,6 +30,22 @@ const FinancialGoals = () => {
   useEffect(() => {
     loadGoals();
   }, []);
+
+  // Handle prefilled data from navigation state
+  useEffect(() => {
+    const state = location.state as { prefillData?: { title: string; target_amount: string; category?: string } } | null;
+    if (state?.prefillData) {
+      setFormData({
+        title: state.prefillData.title,
+        target_amount: state.prefillData.target_amount,
+        category: state.prefillData.category || "",
+        end_date: "",
+      });
+      setIsCreateModalOpen(true);
+      // Clear the state to prevent reopening on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const loadGoals = async () => {
     try {

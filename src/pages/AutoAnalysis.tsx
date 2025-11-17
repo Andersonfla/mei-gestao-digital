@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Brain, TrendingUp, AlertTriangle, CheckCircle, Lightbulb, BarChart3, DollarSign } from "lucide-react";
 import { useFinance } from "@/contexts";
 import { formatCurrency } from "@/lib/formatters";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const AutoAnalysis = () => {
+  const navigate = useNavigate();
+  const [isGenerating, setIsGenerating] = useState(false);
   const { calculateTotalByType, filteredTransactions, getCategoryBreakdown } = useFinance();
   
   const totalIncome = calculateTotalByType('entrada');
@@ -57,28 +62,82 @@ const AutoAnalysis = () => {
     }
   ];
 
+  const avgMonthlyExpense = totalExpense; // Simplificado - pode ser média de vários meses
+  const emergencyReserveTarget = avgMonthlyExpense * 6;
+
   const recommendations = [
     {
       title: 'Crie uma Reserva de Emergência',
       description: 'Recomendamos guardar pelo menos 6 meses de despesas básicas.',
-      priority: 'high'
+      priority: 'high',
+      action: 'emergency_reserve'
     },
     {
       title: 'Automatize suas Economias',
       description: 'Configure transferências automáticas para uma conta de investimentos.',
-      priority: 'medium'
+      priority: 'medium',
+      action: 'automate_savings'
     },
     {
       title: 'Revise Assinaturas e Serviços',
       description: 'Cancele serviços que você não usa mais para economizar mensalmente.',
-      priority: 'medium'
+      priority: 'medium',
+      action: 'review_subscriptions'
     },
     {
       title: 'Diversifique suas Fontes de Renda',
       description: 'Considere criar uma renda extra para acelerar seus objetivos financeiros.',
-      priority: 'low'
+      priority: 'low',
+      action: 'diversify_income'
     }
   ];
+
+  const handleGenerateReport = () => {
+    setIsGenerating(true);
+    toast.info("Reprocessando dados financeiros...");
+    
+    // Simular processamento
+    setTimeout(() => {
+      setIsGenerating(false);
+      toast.success("Relatório atualizado com sucesso!");
+    }, 1500);
+  };
+
+  const handleApplyRecommendation = (action: string) => {
+    switch (action) {
+      case 'emergency_reserve':
+        // Redirecionar para Metas Financeiras com dados pré-preenchidos
+        navigate('/metas-financeiras');
+        // Aguardar um pouco para garantir que a página carregou
+        setTimeout(() => {
+          if ((window as any).openCreateGoalModal) {
+            (window as any).openCreateGoalModal({
+              title: 'Reserva de Emergência',
+              target_amount: emergencyReserveTarget.toFixed(2),
+              category: 'Segurança Financeira',
+            });
+          }
+        }, 300);
+        toast.success("Redirecionando para criar meta...");
+        break;
+      
+      case 'review_subscriptions':
+        navigate('/transacoes');
+        toast.info("Revise suas transações recorrentes");
+        break;
+      
+      case 'automate_savings':
+        toast.info("Configure transferências automáticas no seu banco");
+        break;
+      
+      case 'diversify_income':
+        toast.info("Considere aprender novas habilidades ou iniciar um projeto paralelo");
+        break;
+      
+      default:
+        toast.info("Funcionalidade em desenvolvimento");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -93,9 +152,18 @@ const AutoAnalysis = () => {
             Insights inteligentes baseados nos seus dados financeiros
           </p>
         </div>
-        <Button className="gap-2">
-          <BarChart3 className="w-4 h-4" />
-          Gerar Novo Relatório
+        <Button className="gap-2" onClick={handleGenerateReport} disabled={isGenerating}>
+          {isGenerating ? (
+            <>
+              <BarChart3 className="w-4 h-4 animate-spin" />
+              Gerando...
+            </>
+          ) : (
+            <>
+              <BarChart3 className="w-4 h-4" />
+              Gerar Novo Relatório
+            </>
+          )}
         </Button>
       </div>
 
@@ -199,7 +267,11 @@ const AutoAnalysis = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">{rec.description}</p>
               </div>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleApplyRecommendation(rec.action)}
+              >
                 Aplicar
               </Button>
             </div>

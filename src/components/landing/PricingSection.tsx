@@ -34,7 +34,7 @@ export const PricingSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Plano Gratuito */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -81,23 +81,9 @@ export const PricingSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-card border-2 border-primary rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+            className="bg-card border border-border rounded-2xl p-8 shadow-sm hover:shadow-md transition-all duration-300"
           >
-            <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
-              Recomendado
-            </div>
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"
-              animate={{
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <div className="relative z-10">
+            <div>
               <h3 className="text-2xl font-bold mb-2 text-foreground">Premium</h3>
               <div className="mb-6">
                 <span className="text-4xl font-bold text-foreground">R$ 19,90</span>
@@ -126,10 +112,87 @@ export const PricingSection = () => {
                 </li>
               </ul>
               <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleCTA}
+              >
+                Assinar Premium
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Plano Premium Master */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-card border-2 border-primary rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+          >
+            <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
+              Recomendado
+            </div>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"
+              animate={{
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <div className="relative z-10">
+              <h3 className="text-2xl font-bold mb-1 text-foreground">Premium Master</h3>
+              <p className="text-sm text-muted-foreground mb-4">Recursos profissionais completos</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-foreground">R$ 29,90</span>
+                <span className="text-muted-foreground">/mês</span>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground font-semibold">Tudo do Plano Premium</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Dashboard avançado</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Relatórios profissionais</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Gráficos adicionais detalhados</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Exportações avançadas</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Categorização inteligente</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Suporte VIP prioritário</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Acesso ao módulo de metas financeiras</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Acesso ao módulo de análise automática</span>
+                </li>
+              </ul>
+              <Button
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 onClick={handleCTA}
               >
-                Assinar Premium Agora
+                Assinar Premium Master
               </Button>
             </div>
           </motion.div>

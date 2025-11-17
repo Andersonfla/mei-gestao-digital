@@ -32,7 +32,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { getAllUsers, updateUserPlan, updateUserStatus, deleteUserProfile, AdminUser } from "@/services/adminUsersService";
 import { promoteToAdmin, revokeAdmin, checkUserIsAdmin } from "@/services/adminRolesService";
-import { Edit, Trash2, RefreshCw, Search, Ban, CheckCircle, AlertCircle, Shield, Crown } from "lucide-react";
+import { Edit, Trash2, RefreshCw, Search, Ban, CheckCircle, AlertCircle, Shield, Crown, ShieldOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -190,22 +190,16 @@ export function AdminUsers() {
   const handleToggleAdmin = async (user: AdminUser) => {
     const isCurrentlyAdmin = userAdminStatus[user.id];
     
-    console.log('🔄 Toggle admin para:', user.email);
-    console.log('📊 Status atual:', isCurrentlyAdmin ? 'Admin' : 'Usuário');
-    console.log('🎯 Ação:', isCurrentlyAdmin ? 'REMOVER admin' : 'PROMOVER a admin');
-    
     const success = isCurrentlyAdmin
       ? await revokeAdmin(user.id, user.email || undefined)
       : await promoteToAdmin(user.id, user.email || undefined);
 
-    console.log('✅ Resultado da operação:', success);
-
     if (success) {
       toast({
-        title: "Sucesso",
+        title: isCurrentlyAdmin ? "Admin removido" : "Admin promovido",
         description: isCurrentlyAdmin
-          ? "Privilégios de admin removidos com sucesso."
-          : "Usuário promovido a admin com sucesso.",
+          ? `${user.email} agora é um usuário comum.`
+          : `${user.email} agora é administrador.`,
       });
       fetchUsers();
     } else {
@@ -317,9 +311,16 @@ export function AdminUsers() {
                         <TableCell className="font-medium">{user.email || "N/A"}</TableCell>
                         <TableCell>{user.name || "-"}</TableCell>
                         <TableCell>
-                          <Badge variant={userAdminStatus[user.id] ? "default" : "outline"}>
-                            {userAdminStatus[user.id] ? "Admin" : "Usuário"}
-                          </Badge>
+                          {userAdminStatus[user.id] ? (
+                            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
+                              <Shield className="h-3 w-3 mr-1" />
+                              Admin
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">
+                              Usuário
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell>{getPlanBadge(user.plan)}</TableCell>
                         <TableCell>{getStatusBadge(user.status)}</TableCell>
@@ -337,9 +338,14 @@ export function AdminUsers() {
                               size="sm"
                               variant={userAdminStatus[user.id] ? "destructive" : "default"}
                               onClick={() => handleToggleAdmin(user)}
-                              title={userAdminStatus[user.id] ? "Remover Admin" : "Promover a Admin"}
+                              title={userAdminStatus[user.id] ? "Remover privilégios de Admin" : "Promover a Admin"}
+                              className={userAdminStatus[user.id] ? "" : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"}
                             >
-                              <Shield className="h-4 w-4" />
+                              {userAdminStatus[user.id] ? (
+                                <ShieldOff className="h-4 w-4" />
+                              ) : (
+                                <Shield className="h-4 w-4" />
+                              )}
                             </Button>
                             <Button
                               onClick={() => openEditDialog(user)}

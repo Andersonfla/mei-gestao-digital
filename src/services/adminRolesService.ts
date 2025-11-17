@@ -52,18 +52,16 @@ export async function promoteToAdmin(userId: string, userEmail?: string): Promis
  */
 export async function revokeAdmin(userId: string, userEmail?: string): Promise<boolean> {
   try {
-    console.log('🔍 Tentando revogar admin para userId:', userId);
-    
-    // Verificar quem é o usuário atual
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    console.log('👤 Usuário atual (quem está fazendo a ação):', currentUser?.id);
-    
     // Verificar se o usuário atual é admin
-    const isCurrentUserAdmin = await checkUserIsAdmin(currentUser?.id || '');
-    console.log('🔐 Usuário atual é admin?', isCurrentUserAdmin);
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) {
+      console.error('No current user found');
+      return false;
+    }
     
+    const isCurrentUserAdmin = await checkUserIsAdmin(currentUser.id);
     if (!isCurrentUserAdmin) {
-      console.error('❌ ERRO: Usuário atual não tem permissão de admin!');
+      console.error('Current user is not admin');
       return false;
     }
     
@@ -75,41 +73,26 @@ export async function revokeAdmin(userId: string, userEmail?: string): Promise<b
       .eq('role', 'admin')
       .maybeSingle();
 
-    console.log('📋 Role existente:', existing);
-    console.log('❌ Erro ao verificar:', checkError);
-
     if (checkError) {
-      console.error('❌ Erro ao verificar role existente:', checkError);
+      console.error('Error checking existing role:', checkError);
       return false;
     }
 
     if (!existing) {
-      console.log('⚠️ Usuário não tem role de admin para revogar');
+      console.log('User is not admin, nothing to revoke');
       return true; // Não é erro, usuário já não é admin
     }
 
-    console.log('🗑️ Tentando deletar role de admin...');
-    const { data: deleteData, error: deleteError } = await supabase
+    const { error: deleteError } = await supabase
       .from('user_roles')
       .delete()
       .eq('user_id', userId)
-      .eq('role', 'admin')
-      .select();
-
-    console.log('📤 Dados deletados:', deleteData);
-    console.log('❌ Erro ao deletar:', deleteError);
+      .eq('role', 'admin');
 
     if (deleteError) {
-      console.error('❌ Erro detalhado ao revogar admin:', {
-        message: deleteError.message,
-        details: deleteError.details,
-        hint: deleteError.hint,
-        code: deleteError.code
-      });
+      console.error('Error revoking admin:', deleteError);
       return false;
     }
-
-    console.log('✅ Admin revogado com sucesso');
 
     // Log the action
     await logAdminAction(
@@ -121,7 +104,7 @@ export async function revokeAdmin(userId: string, userEmail?: string): Promise<b
 
     return true;
   } catch (error) {
-    console.error('❌ Erro geral ao revogar admin:', error);
+    console.error('Failed to revoke admin:', error);
     return false;
   }
 }

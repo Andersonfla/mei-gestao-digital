@@ -6,7 +6,8 @@ import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminTransactions } from "@/components/admin/AdminTransactions";
 import { AdminLogs } from "@/components/admin/AdminLogs";
-import { LayoutDashboard, Users, Receipt, FileText } from "lucide-react";
+import { AdminSupport } from "@/components/admin/AdminSupport";
+import { LayoutDashboard, Users, Receipt, FileText, MessageSquare } from "lucide-react";
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -29,7 +30,7 @@ export default function AdminPanel() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+          <TabsList className="grid w-full grid-cols-5 lg:w-[750px]">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
@@ -41,6 +42,10 @@ export default function AdminPanel() {
             <TabsTrigger value="transactions" className="flex items-center gap-2">
               <Receipt className="h-4 w-4" />
               Lançamentos
+            </TabsTrigger>
+            <TabsTrigger value="support" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Suporte
             </TabsTrigger>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -58,6 +63,10 @@ export default function AdminPanel() {
 
           <TabsContent value="transactions" className="space-y-6">
             <AdminTransactions />
+          </TabsContent>
+
+          <TabsContent value="support" className="space-y-6">
+            <AdminSupport />
           </TabsContent>
 
           <TabsContent value="logs" className="space-y-6">

@@ -80,6 +80,11 @@ function App() {
                               <Route path="/analise-automatica" element={<AutoAnalysis />} />
                               <Route path="/transacoes-recorrentes" element={<RecurringTransactions />} />
                             </Route>
+
+                            {/* Premium & Premium Master Support */}
+                            <Route element={<RequirePremium />}>
+                              <Route path="/suporte-prioritario" element={<Support />} />
+                            </Route>
                           </Route>
 
                           {/* Admin-only routes */}

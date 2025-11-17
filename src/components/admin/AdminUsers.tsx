@@ -348,10 +348,9 @@ export function AdminUsers() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="free">🆓 Gratuito (Sem acesso premium)</SelectItem>
-                  <SelectItem value="premium">👑 Premium (Acesso completo)</SelectItem>
-                  <SelectItem value="pro">💎 Pro (Máximo acesso)</SelectItem>
-                  <SelectItem value="premium_master">🔥 Premium Master (Acesso Completo VIP)</SelectItem>
+                  <SelectItem value="free">🆓 Plano Gratuito</SelectItem>
+                  <SelectItem value="premium">👑 Plano Premium</SelectItem>
+                  <SelectItem value="master">🔥 Plano Premium Master</SelectItem>
                 </SelectContent>
               </Select>
             </div>

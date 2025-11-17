@@ -1,5 +1,6 @@
 
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthState } from "./useAuthState";
 import { signIn, signOut, signUp } from "./authActions"; 
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +11,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, session, loading } = useAuthState();
   const toast = useToast();
+  const navigate = useNavigate();
+
+  // Handle navigation based on auth state changes
+  useEffect(() => {
+    if (!loading) {
+      const currentPath = window.location.pathname;
+      
+      if (user) {
+        // User is logged in - redirect from auth page to dashboard
+        if (currentPath === '/auth') {
+          navigate('/dashboard');
+        }
+      } else {
+        // User is logged out - redirect protected routes to auth
+        const protectedRoutes = ["/dashboard", "/transacoes", "/relatorios", "/configuracoes", "/upgrade", "/thanks", "/admin", "/premium"];
+        const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route));
+        
+        if (isProtectedRoute) {
+          navigate('/auth');
+        }
+      }
+    }
+  }, [user, loading, navigate]);
 
   const authContextValue: AuthContextType = {
     user, 

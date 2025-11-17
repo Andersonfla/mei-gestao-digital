@@ -28,6 +28,7 @@ import { ToastListener } from "./components/ui/toast-listener";
 import AdminPanel from "./pages/AdminPanel";
 import FinancialGoals from "./pages/FinancialGoals";
 import AutoAnalysis from "./pages/AutoAnalysis";
+import RecurringTransactions from "./pages/RecurringTransactions";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +78,7 @@ function App() {
                             <Route element={<RequirePremiumMaster />}>
                               <Route path="/metas-financeiras" element={<FinancialGoals />} />
                               <Route path="/analise-automatica" element={<AutoAnalysis />} />
+                              <Route path="/transacoes-recorrentes" element={<RecurringTransactions />} />
                             </Route>
                           </Route>
 

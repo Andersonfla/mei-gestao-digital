@@ -92,6 +92,7 @@ export function AppSidebar() {
     ? [
         { path: "/metas-financeiras", label: "Metas Financeiras" },
         { path: "/analise-automatica", label: "Análise Automática" },
+        { path: "/transacoes-recorrentes", label: "Transações Recorrentes" },
       ]
     : [];
   

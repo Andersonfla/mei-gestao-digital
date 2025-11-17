@@ -39,10 +39,10 @@ const Transactions = () => {
   };
   
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="space-y-6 w-full max-w-full">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-12 sm:pt-0">
         <h1 className="text-3xl font-bold">Transações</h1>
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Tipo:</span>
             <Select value={typeFilter} onValueChange={setTypeFilter}>

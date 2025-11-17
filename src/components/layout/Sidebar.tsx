@@ -80,19 +80,23 @@ export function AppSidebar() {
   };
 
   // Menu items with updated paths
-  const menuItems = [
+  const baseMenuItems = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/transacoes", label: "Transações" },
     { path: "/relatorios", label: "Relatórios" },
-    { path: "/admin/webhooks", label: "Webhooks Kiwify" },
     { path: "/configuracoes", label: "Configurações" },
   ];
+  
+  // Add admin-only Webhooks item
+  const adminMenuItems = isAdmin 
+    ? [{ path: "/admin/webhooks", label: "Webhooks Kiwify" }] 
+    : [];
   
   // Add Premium menu item for premium users
   const premiumMenuItem = { path: "/premium", label: "Área Premium" };
   const displayMenuItems = (userSettings?.plan === 'premium' || userSettings?.plan === 'master') 
-    ? [menuItems[0], premiumMenuItem, ...menuItems.slice(1)] 
-    : menuItems;
+    ? [baseMenuItems[0], premiumMenuItem, ...baseMenuItems.slice(1), ...adminMenuItems] 
+    : [...baseMenuItems, ...adminMenuItems];
 
   return (
     <>
@@ -175,7 +179,10 @@ export function AppSidebar() {
               <div className="px-3 py-2">
                 <div className="rounded-md bg-sidebar-accent px-3 py-2 text-sidebar-accent-foreground">
                   <p className="text-xs font-medium">Plano atual:</p>
-                  <p className="font-semibold">{userSettings.plan === 'free' ? 'Gratuito' : 'Premium'}</p>
+                  <p className="font-semibold">
+                    {userSettings.plan === 'free' ? 'Gratuito' : 
+                     userSettings.plan === 'master' ? 'Premium Master' : 'Premium'}
+                  </p>
                   
                   {/* Use the TransactionLimitIndicator component */}
                   <TransactionLimitIndicator userSettings={userSettings} />

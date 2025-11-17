@@ -37,12 +37,14 @@ export default function Support() {
   };
 
   const initConversation = async () => {
+    console.log('🚀 Inicializando conversa de suporte...');
     const { conversation, error } = await getOrCreateConversation();
     
     if (error) {
+      console.error('❌ Erro ao inicializar conversa:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível iniciar a conversa de suporte.",
+        description: "Não foi possível iniciar a conversa de suporte. Detalhes: " + (error.message || error),
         variant: "destructive",
       });
       setLoading(false);
@@ -50,20 +52,38 @@ export default function Support() {
     }
 
     if (conversation) {
+      console.log('✅ Conversa inicializada:', conversation.id);
       setConversationId(conversation.id);
+    } else {
+      console.error('❌ Nenhuma conversa retornada');
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar a conversa de suporte.",
+        variant: "destructive",
+      });
     }
     setLoading(false);
   };
 
   const loadMessages = async () => {
-    if (!conversationId) return;
+    if (!conversationId) {
+      console.log('⚠️ Nenhum conversation ID para carregar mensagens');
+      return;
+    }
     
+    console.log('📥 Carregando mensagens para conversa:', conversationId);
     const msgs = await getMessages(conversationId);
+    console.log('✅ Mensagens carregadas:', msgs.length);
     setMessages(msgs);
   };
 
   const subscribeToMessages = () => {
-    if (!conversationId) return;
+    if (!conversationId) {
+      console.log('⚠️ Nenhum conversation ID para subscrever');
+      return;
+    }
+
+    console.log('🔔 Inscrevendo-se em mensagens para conversa:', conversationId);
 
     const channel = supabase
       .channel(`support-${conversationId}`)
@@ -76,32 +96,59 @@ export default function Support() {
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
+          console.log('🔔 Nova mensagem recebida via realtime:', payload);
           setMessages((prev) => [...prev, payload.new as SupportMessage]);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('🔔 Status da subscription:', status);
+      });
 
     return () => {
+      console.log('🔕 Removendo subscription');
       supabase.removeChannel(channel);
     };
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !conversationId) return;
+    if (!newMessage.trim() || !conversationId) {
+      console.warn('⚠️ Tentativa de envio sem mensagem ou conversation ID');
+      console.log('Message:', newMessage);
+      console.log('Conversation ID:', conversationId);
+      return;
+    }
 
+    console.log('📨 Tentando enviar mensagem...');
     setSending(true);
-    const success = await sendMessage(conversationId, newMessage.trim());
+    
+    try {
+      const success = await sendMessage(conversationId, newMessage.trim());
 
-    if (success) {
-      setNewMessage("");
-    } else {
+      if (success) {
+        console.log('✅ Mensagem enviada com sucesso!');
+        setNewMessage("");
+        toast({
+          title: "Sucesso",
+          description: "Mensagem enviada!",
+        });
+      } else {
+        console.error('❌ Falha ao enviar mensagem');
+        toast({
+          title: "Erro",
+          description: "Não foi possível enviar a mensagem. Tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('❌ Erro ao processar envio:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível enviar a mensagem.",
+        description: "Ocorreu um erro ao enviar a mensagem.",
         variant: "destructive",
       });
+    } finally {
+      setSending(false);
     }
-    setSending(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

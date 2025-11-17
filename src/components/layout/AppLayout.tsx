@@ -17,10 +17,10 @@ export function AppLayout() {
   }
   
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full overflow-x-hidden">
       <AppSidebar />
       <div className="flex-1 overflow-auto">
-        <main className="container py-6 px-4 sm:px-6">
+        <main className="w-full max-w-full py-6 px-4 sm:px-6 lg:container lg:mx-auto">
           <OfflineIndicator />
           <InstallPrompt />
           <Outlet />

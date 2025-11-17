@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Plus, Edit, Trash2, Pause, Play, Calendar } from "lucide-react";
+import { RefreshCw, Plus, Edit, Trash2, Pause, Play, Calendar, Upload } from "lucide-react";
+import { CSVImportDialog } from "@/components/recurring/CSVImportDialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ const RecurringTransactions = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<RecurringTransaction | null>(null);
   const [formData, setFormData] = useState({
     description: "",
@@ -166,10 +168,16 @@ const RecurringTransactions = () => {
             Configure transações que se repetem automaticamente
           </p>
         </div>
-        <Button className="gap-2" onClick={openCreateModal}>
-          <Plus className="w-4 h-4" />
-          Nova Transação Recorrente
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => setIsImportDialogOpen(true)}>
+            <Upload className="w-4 h-4" />
+            Importar CSV
+          </Button>
+          <Button className="gap-2" onClick={openCreateModal}>
+            <Plus className="w-4 h-4" />
+            Nova Transação Recorrente
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -426,6 +434,13 @@ const RecurringTransactions = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* CSV Import Dialog */}
+      <CSVImportDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onImportComplete={loadTransactions}
+      />
     </div>
   );
 };

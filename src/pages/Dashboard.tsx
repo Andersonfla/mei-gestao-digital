@@ -45,7 +45,7 @@ const Dashboard = () => {
   
   // Standard Dashboard for free and premium users
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full">
       <InstallPrompt />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-12 sm:pt-0">
         <h1 className="text-3xl font-bold">Dashboard</h1>

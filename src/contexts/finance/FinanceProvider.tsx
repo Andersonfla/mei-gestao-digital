@@ -26,6 +26,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     deleteTransaction,
     upgradeToPremium,
     isPremiumActive,
+    isPremiumMasterActive,
     setFilterDates,
     setFilterPeriod,
     refetchUserSettings,
@@ -56,7 +57,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         filterDates,
         filterPeriod,
         isLoading,
-        isPremiumActive, // Already a boolean value
+        isPremiumActive,
+        isPremiumMasterActive,
         isPremiumCategory,
         addTransaction,
         deleteTransaction,

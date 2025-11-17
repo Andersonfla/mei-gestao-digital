@@ -68,7 +68,20 @@ export function useUserSettings() {
 
   // Check if the premium plan is active - computed as boolean
   const isPremiumActive = useMemo(() => {
-    if (userSettings?.plan !== 'premium') return false;
+    if (userSettings?.plan !== 'premium' && userSettings?.plan !== 'pro') return false;
+    
+    if (userSettings?.subscriptionEnd) {
+      const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
+      const currentDate = new Date();
+      return subscriptionEndDate > currentDate;
+    }
+    
+    return false;
+  }, [userSettings]);
+
+  // Check if Premium Master (Pro) plan is active
+  const isPremiumMasterActive = useMemo(() => {
+    if (userSettings?.plan !== 'pro') return false;
     
     if (userSettings?.subscriptionEnd) {
       const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
@@ -84,6 +97,7 @@ export function useUserSettings() {
     isLoadingSettings,
     refetchUserSettings,
     isPremiumActive,
+    isPremiumMasterActive,
     upgradeToPremium: async () => {
       throw new Error("Sistema de pagamento temporariamente indisponível");
     },

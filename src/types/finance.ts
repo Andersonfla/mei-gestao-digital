@@ -27,7 +27,7 @@ export type MonthlyReport = {
   transactions: Transaction[];
 };
 
-export type UserPlan = 'free' | 'premium';
+export type UserPlan = 'free' | 'premium' | 'pro';
 
 export type UserProfile = {
   id: string;
@@ -58,4 +58,34 @@ export type CategoryBreakdownItem = {
   name: string;
   value: number;
   percent: number;
+};
+
+export type Wallet = {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: string;
+  color: string;
+  is_default: boolean;
+  created_at: Date | string;
+  updated_at: Date | string;
+};
+
+export type CustomCategory = {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: string;
+  color: string;
+  type: TransactionType;
+  created_at: Date | string;
+  updated_at: Date | string;
+};
+
+export type Backup = {
+  id: string;
+  user_id: string;
+  file_url?: string | null;
+  file_data?: any;
+  generated_at: Date | string;
 };

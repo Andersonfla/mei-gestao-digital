@@ -68,7 +68,7 @@ export function useUserSettings() {
 
   // Check if the premium plan is active - computed as boolean
   const isPremiumActive = useMemo(() => {
-    if (userSettings?.plan !== 'premium' && userSettings?.plan !== 'pro') return false;
+    if (userSettings?.plan !== 'premium' && userSettings?.plan !== 'pro' && userSettings?.plan !== 'premium_master') return false;
     
     if (userSettings?.subscriptionEnd) {
       const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
@@ -81,7 +81,7 @@ export function useUserSettings() {
 
   // Check if Premium Master (Pro) plan is active
   const isPremiumMasterActive = useMemo(() => {
-    if (userSettings?.plan !== 'pro') return false;
+    if (userSettings?.plan !== 'pro' && userSettings?.plan !== 'premium_master') return false;
     
     if (userSettings?.subscriptionEnd) {
       const subscriptionEndDate = new Date(userSettings.subscriptionEnd);

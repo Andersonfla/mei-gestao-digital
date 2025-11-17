@@ -46,7 +46,7 @@ export function AdminUsers() {
     open: false,
     user: null,
   });
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'premium' | 'pro'>('free');
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'premium' | 'pro' | 'premium_master'>('free');
   const [selectedDuration, setSelectedDuration] = useState<string>('12');
   const [customDuration, setCustomDuration] = useState<string>('');
   
@@ -84,7 +84,7 @@ export function AdminUsers() {
 
   const openEditDialog = (user: AdminUser) => {
     setEditDialog({ open: true, user });
-    setSelectedPlan((user.plan as 'free' | 'premium' | 'pro') || 'free');
+    setSelectedPlan((user.plan as 'free' | 'premium' | 'pro' | 'premium_master') || 'free');
     setSelectedDuration('12');
     setCustomDuration('');
   };
@@ -113,7 +113,10 @@ export function AdminUsers() {
     );
 
     if (success) {
-      const planName = selectedPlan === 'premium' ? 'Premium' : selectedPlan === 'pro' ? 'Pro' : 'Gratuito';
+      const planName = selectedPlan === 'premium' ? 'Premium' 
+        : selectedPlan === 'pro' ? 'Pro' 
+        : selectedPlan === 'premium_master' ? 'Premium Master' 
+        : 'Gratuito';
       const durationText = selectedPlan === 'free' 
         ? '' 
         : ` por ${duration} ${duration === 1 ? 'mês' : 'meses'}`;
@@ -190,6 +193,13 @@ export function AdminUsers() {
             Pro
           </Badge>
         );
+      case 'premium_master':
+        return (
+          <Badge className="bg-gradient-to-r from-purple-600 to-pink-600">
+            <Crown className="h-3 w-3 mr-1" />
+            Premium Master
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Gratuito</Badge>;
     }
@@ -227,7 +237,7 @@ export function AdminUsers() {
               Poderes de Administrador
             </h3>
             <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-              <li>Atribuir ou alterar plano de qualquer usuário (Free, Premium, Pro)</li>
+              <li>Atribuir ou alterar plano de qualquer usuário (Free, Premium, Pro, Premium Master)</li>
               <li>Definir duração personalizada do plano (1 mês até 10 anos)</li>
               <li>Suspender ou reativar contas temporariamente</li>
               <li>Excluir usuários permanentemente (remove acesso completo)</li>
@@ -349,6 +359,7 @@ export function AdminUsers() {
                   <SelectItem value="free">🆓 Gratuito (Sem acesso premium)</SelectItem>
                   <SelectItem value="premium">👑 Premium (Acesso completo)</SelectItem>
                   <SelectItem value="pro">💎 Pro (Máximo acesso)</SelectItem>
+                  <SelectItem value="premium_master">🔥 Premium Master (Acesso Completo VIP)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -393,7 +404,12 @@ export function AdminUsers() {
                 <div className="rounded-md bg-muted p-3 space-y-1">
                   <p className="text-sm font-medium">Resumo:</p>
                   <p className="text-sm text-muted-foreground">
-                    Plano <strong>{selectedPlan === 'premium' ? 'Premium' : 'Pro'}</strong> será ativo por{' '}
+                    Plano <strong>
+                      {selectedPlan === 'premium' ? 'Premium' 
+                        : selectedPlan === 'pro' ? 'Pro' 
+                        : selectedPlan === 'premium_master' ? 'Premium Master'
+                        : 'Desconhecido'}
+                    </strong> será ativo por{' '}
                     <strong>
                       {selectedDuration === 'custom' 
                         ? `${customDuration || '?'} meses` 

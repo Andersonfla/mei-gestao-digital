@@ -39,7 +39,7 @@ export async function getAllUsers(): Promise<AdminUser[]> {
  */
 export async function updateUserPlan(
   userId: string,
-  plan: 'free' | 'premium' | 'pro',
+  plan: 'free' | 'premium' | 'pro' | 'premium_master',
   userEmail?: string,
   durationMonths?: number
 ): Promise<boolean> {

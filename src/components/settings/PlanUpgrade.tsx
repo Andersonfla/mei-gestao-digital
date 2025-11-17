@@ -91,7 +91,8 @@ export function PlanUpgrade() {
     window.open('https://pay.kiwify.com.br/K2pVyRU', '_blank');
   };
   
-  if (userSettings.plan === 'pro') {
+  // Se for plano Pro ou Premium Master (VIP), exibir tela com status
+  if (userSettings.plan === 'pro' || userSettings.plan === 'premium_master') {
     return (
       <div className="max-w-3xl mx-auto">
         <Card className={`border-2 ${isPremiumMasterActive ? 'border-primary' : 'border-yellow-500'} shadow-sm`}>

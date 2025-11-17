@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { logAdminAction } from "./adminLogsService";
 
+// Admin user management service
 export type AdminUser = {
   id: string;
   email: string | null;

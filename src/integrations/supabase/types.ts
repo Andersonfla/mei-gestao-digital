@@ -430,7 +430,7 @@ export type Database = {
           {
             foreignKeyName: "user_roles_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },
@@ -479,6 +479,10 @@ export type Database = {
       can_add_transaction: {
         Args: { transaction_date?: string; user_id_param: string }
         Returns: boolean
+      }
+      delete_user_completely: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
       has_role: {
         Args: {

@@ -27,23 +27,33 @@ export type SupportMessage = {
  */
 export async function getOrCreateConversation(): Promise<{ conversation: SupportConversation | null; error: any }> {
   try {
+    console.log('🔍 Buscando ou criando conversa...');
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
+      console.error('❌ Usuário não autenticado');
       return { conversation: null, error: 'User not authenticated' };
     }
+
+    console.log('✅ Usuário autenticado:', user.id);
 
     // Check if conversation already exists
     const { data: existing, error: fetchError } = await supabase
       .from('support_conversations')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error('❌ Erro ao buscar conversa existente:', fetchError);
+    }
 
     if (existing) {
+      console.log('✅ Conversa existente encontrada:', existing.id);
       return { conversation: existing as SupportConversation, error: null };
     }
 
+    console.log('📝 Criando nova conversa...');
     // Create new conversation
     const { data: newConversation, error: createError } = await supabase
       .from('support_conversations')
@@ -51,9 +61,15 @@ export async function getOrCreateConversation(): Promise<{ conversation: Support
       .select()
       .single();
 
+    if (createError) {
+      console.error('❌ Erro ao criar conversa:', createError);
+      return { conversation: null, error: createError };
+    }
+
+    console.log('✅ Nova conversa criada:', newConversation?.id);
     return { conversation: newConversation as SupportConversation, error: createError };
   } catch (error) {
-    console.error('Error in getOrCreateConversation:', error);
+    console.error('❌ Erro geral em getOrCreateConversation:', error);
     return { conversation: null, error };
   }
 }
@@ -86,30 +102,38 @@ export async function getMessages(conversationId: string): Promise<SupportMessag
  */
 export async function sendMessage(conversationId: string, content: string): Promise<boolean> {
   try {
+    console.log('📤 Enviando mensagem...');
+    console.log('Conversation ID:', conversationId);
+    console.log('Content:', content);
+
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      console.error('User not authenticated');
+      console.error('❌ Usuário não autenticado ao enviar mensagem');
       return false;
     }
 
-    const { error } = await supabase
+    console.log('✅ Usuário autenticado:', user.id);
+
+    const { data, error } = await supabase
       .from('support_messages')
       .insert({
         conversation_id: conversationId,
         user_id: user.id,
         content,
         sent_by_admin: false,
-      });
+      })
+      .select();
 
     if (error) {
-      console.error('Error sending message:', error);
+      console.error('❌ Erro ao enviar mensagem:', error);
       return false;
     }
 
+    console.log('✅ Mensagem enviada com sucesso:', data);
     return true;
   } catch (error) {
-    console.error('Failed to send message:', error);
+    console.error('❌ Erro geral ao enviar mensagem:', error);
     return false;
   }
 }

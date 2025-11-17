@@ -44,6 +44,16 @@ export async function updateUserPlan(
   durationMonths?: number
 ): Promise<boolean> {
   try {
+    // Buscar plano anterior para registro completo no log
+    const { data: currentProfile } = await supabase
+      .from("profiles")
+      .select("plan, subscription_end")
+      .eq("id", userId)
+      .single();
+
+    const oldPlan = currentProfile?.plan || 'free';
+    const oldSubscriptionEnd = currentProfile?.subscription_end;
+    
     let subscriptionEnd = null;
     
     // Para plano free, sempre null
@@ -77,14 +87,32 @@ export async function updateUserPlan(
       return false;
     }
 
+    // Determinar tipo de mudança (upgrade/downgrade/renovação)
+    const planHierarchy = { free: 0, premium: 1, master: 2 };
+    const changeType = 
+      planHierarchy[plan as keyof typeof planHierarchy] > planHierarchy[oldPlan as keyof typeof planHierarchy] 
+        ? 'upgrade' 
+        : planHierarchy[plan as keyof typeof planHierarchy] < planHierarchy[oldPlan as keyof typeof planHierarchy]
+        ? 'downgrade'
+        : 'renovação';
+
+    const planNames = {
+      free: 'Gratuito',
+      premium: 'Premium',
+      master: 'Premium Master'
+    };
+
     await logAdminAction(
-      `Alterou plano para ${plan}${durationMonths ? ` (${durationMonths} meses)` : ' (padrão: 1 ano)'}`,
+      `${changeType === 'upgrade' ? '⬆️ Upgrade' : changeType === 'downgrade' ? '⬇️ Downgrade' : '🔄 Renovação'} de plano: ${planNames[oldPlan as keyof typeof planNames] || oldPlan} → ${planNames[plan as keyof typeof planNames]}`,
       userId,
       userEmail,
       { 
-        new_plan: plan, 
-        duration_months: durationMonths || 12,
-        subscription_end: subscriptionEnd 
+        change_type: changeType,
+        old_plan: oldPlan,
+        new_plan: plan,
+        old_subscription_end: oldSubscriptionEnd,
+        new_subscription_end: subscriptionEnd,
+        duration_months: durationMonths || (plan === 'free' ? 0 : 12),
       }
     );
 
@@ -104,6 +132,15 @@ export async function updateUserStatus(
   userEmail?: string
 ): Promise<boolean> {
   try {
+    // Buscar status anterior
+    const { data: currentProfile } = await supabase
+      .from("profiles")
+      .select("status, plan")
+      .eq("id", userId)
+      .single();
+
+    const oldStatus = currentProfile?.status || 'active';
+
     const { error } = await supabase
       .from("profiles")
       .update({ status })
@@ -115,10 +152,15 @@ export async function updateUserStatus(
     }
 
     await logAdminAction(
-      status === 'suspended' ? 'Suspendeu usuário' : 'Ativou usuário',
+      status === 'suspended' ? '🚫 Suspendeu conta de usuário' : '✅ Reativou conta de usuário',
       userId,
       userEmail,
-      { status }
+      { 
+        old_status: oldStatus,
+        new_status: status,
+        user_plan: currentProfile?.plan,
+        action_type: status === 'suspended' ? 'suspension' : 'reactivation'
+      }
     );
 
     return true;
@@ -133,6 +175,13 @@ export async function updateUserStatus(
  */
 export async function deleteUserProfile(userId: string, userEmail?: string): Promise<boolean> {
   try {
+    // Buscar dados do usuário antes de excluir para log completo
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("plan, subscription_end, used_transactions, transaction_count")
+      .eq("id", userId)
+      .single();
+
     // Call RPC function to delete user completely
     const { error } = await supabase.rpc('delete_user_completely' as any, {
       target_user_id: userId
@@ -144,9 +193,16 @@ export async function deleteUserProfile(userId: string, userEmail?: string): Pro
     }
 
     await logAdminAction(
-      "Excluiu usuário completamente",
+      "🗑️ Excluiu usuário permanentemente do sistema",
       userId,
-      userEmail
+      userEmail,
+      {
+        action_type: 'permanent_deletion',
+        deleted_user_plan: userProfile?.plan,
+        deleted_user_subscription_end: userProfile?.subscription_end,
+        deleted_user_transactions: userProfile?.transaction_count,
+        deleted_user_used_transactions: userProfile?.used_transactions
+      }
     );
 
     return true;

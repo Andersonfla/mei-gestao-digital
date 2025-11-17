@@ -54,6 +54,19 @@ export async function revokeAdmin(userId: string, userEmail?: string): Promise<b
   try {
     console.log('🔍 Tentando revogar admin para userId:', userId);
     
+    // Verificar quem é o usuário atual
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    console.log('👤 Usuário atual (quem está fazendo a ação):', currentUser?.id);
+    
+    // Verificar se o usuário atual é admin
+    const isCurrentUserAdmin = await checkUserIsAdmin(currentUser?.id || '');
+    console.log('🔐 Usuário atual é admin?', isCurrentUserAdmin);
+    
+    if (!isCurrentUserAdmin) {
+      console.error('❌ ERRO: Usuário atual não tem permissão de admin!');
+      return false;
+    }
+    
     // Verificar se o usuário tem role de admin antes de tentar deletar
     const { data: existing, error: checkError } = await supabase
       .from('user_roles')

@@ -16,6 +16,7 @@ import Upgrade from "./pages/Upgrade";
 import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
+import PremiumMaster from "./pages/PremiumMaster";
 import Support from "./pages/Support";
 import AdminWebhooks from "./pages/AdminWebhooks";
 import Premium from "./pages/Premium";
@@ -66,6 +67,7 @@ function App() {
                             {/* Premium-only routes */}
                             <Route element={<RequirePremium />}>
                               <Route path="/premium" element={<Premium />} />
+                              <Route path="/premium-master" element={<PremiumMaster />} />
                             </Route>
                           </Route>
 

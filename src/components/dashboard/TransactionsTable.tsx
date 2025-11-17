@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { TransactionCard } from "./TransactionCard";
 
 export function TransactionsTable() {
   const { filteredTransactions, deleteTransaction } = useFinance();
@@ -51,45 +52,60 @@ export function TransactionsTable() {
   }
 
   return (
-    <div className="rounded-lg border bg-card w-full mx-auto overflow-x-auto">
-      <Table className="min-w-[680px]">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Data</TableHead>
-            <TableHead>Descrição</TableHead>
-            <TableHead>Categoria</TableHead>
-            <TableHead className="text-right">Valor</TableHead>
-            <TableHead className="w-[100px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {latestTransactions.map((transaction) => {
-            return (
-              <TableRow key={transaction.id}>
-                <TableCell>{formatDate(transaction.date)}</TableCell>
-                <TableCell>{transaction.description || '-'}</TableCell>
-                <TableCell>{transaction.category}</TableCell>
-                <TableCell className={`text-right font-medium ${
-                  transaction.type === 'entrada' ? 'text-income' : 'text-expense'
-                }`}>
-                  {transaction.type === 'entrada' ? '+' : '-'}
-                  {formatCurrency(transaction.value)}
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="ghost"
-                    size="sm"
-                    disabled={isDeleting === transaction.id}
-                    onClick={() => handleDelete(transaction.id)}
-                  >
-                    {isDeleting === transaction.id ? 'Excluindo...' : 'Excluir'}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      {/* Mobile: Cards */}
+      <div className="md:hidden space-y-4">
+        {latestTransactions.map((transaction) => (
+          <TransactionCard
+            key={transaction.id}
+            transaction={transaction}
+            onDelete={handleDelete}
+            isDeleting={isDeleting === transaction.id}
+          />
+        ))}
+      </div>
+
+      {/* Desktop: Table */}
+      <div className="hidden md:block rounded-lg border bg-card w-full mx-auto overflow-x-auto">
+        <Table className="min-w-[680px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Data</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead className="text-right">Valor</TableHead>
+              <TableHead className="w-[100px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {latestTransactions.map((transaction) => {
+              return (
+                <TableRow key={transaction.id}>
+                  <TableCell>{formatDate(transaction.date)}</TableCell>
+                  <TableCell>{transaction.description || '-'}</TableCell>
+                  <TableCell>{transaction.category}</TableCell>
+                  <TableCell className={`text-right font-medium ${
+                    transaction.type === 'entrada' ? 'text-income' : 'text-expense'
+                  }`}>
+                    {transaction.type === 'entrada' ? '+' : '-'}
+                    {formatCurrency(transaction.value)}
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="ghost"
+                      size="sm"
+                      disabled={isDeleting === transaction.id}
+                      onClick={() => handleDelete(transaction.id)}
+                    >
+                      {isDeleting === transaction.id ? 'Excluindo...' : 'Excluir'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }

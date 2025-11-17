@@ -51,8 +51,8 @@ export function TransactionsTable() {
   }
 
   return (
-    <div className="rounded-lg border overflow-hidden">
-      <Table>
+    <div className="rounded-lg border bg-card w-full mx-auto overflow-x-auto">
+      <Table className="min-w-[680px]">
         <TableHeader>
           <TableRow>
             <TableHead>Data</TableHead>

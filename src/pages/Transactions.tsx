@@ -62,14 +62,14 @@ const Transactions = () => {
       
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-lg border shadow-sm overflow-hidden">
+          <div className="bg-card rounded-lg border shadow-sm w-full mx-auto overflow-x-auto">
             {sortedTransactions.length === 0 ? (
               <div className="p-8 text-center">
                 <p className="text-muted-foreground">Nenhuma transação encontrada</p>
                 <p className="text-sm text-muted-foreground mt-1">Use o formulário ao lado para adicionar uma nova</p>
               </div>
             ) : (
-              <Table>
+              <Table className="min-w-[680px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Data</TableHead>

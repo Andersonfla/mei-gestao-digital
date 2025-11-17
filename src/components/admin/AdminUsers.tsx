@@ -190,9 +190,15 @@ export function AdminUsers() {
   const handleToggleAdmin = async (user: AdminUser) => {
     const isCurrentlyAdmin = userAdminStatus[user.id];
     
+    console.log('🔄 Toggle admin para:', user.email);
+    console.log('📊 Status atual:', isCurrentlyAdmin ? 'Admin' : 'Usuário');
+    console.log('🎯 Ação:', isCurrentlyAdmin ? 'REMOVER admin' : 'PROMOVER a admin');
+    
     const success = isCurrentlyAdmin
       ? await revokeAdmin(user.id, user.email || undefined)
       : await promoteToAdmin(user.id, user.email || undefined);
+
+    console.log('✅ Resultado da operação:', success);
 
     if (success) {
       toast({

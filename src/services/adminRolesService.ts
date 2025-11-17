@@ -52,16 +52,51 @@ export async function promoteToAdmin(userId: string, userEmail?: string): Promis
  */
 export async function revokeAdmin(userId: string, userEmail?: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    console.log('🔍 Tentando revogar admin para userId:', userId);
+    
+    // Verificar se o usuário tem role de admin antes de tentar deletar
+    const { data: existing, error: checkError } = await supabase
+      .from('user_roles')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    console.log('📋 Role existente:', existing);
+    console.log('❌ Erro ao verificar:', checkError);
+
+    if (checkError) {
+      console.error('❌ Erro ao verificar role existente:', checkError);
+      return false;
+    }
+
+    if (!existing) {
+      console.log('⚠️ Usuário não tem role de admin para revogar');
+      return true; // Não é erro, usuário já não é admin
+    }
+
+    console.log('🗑️ Tentando deletar role de admin...');
+    const { data: deleteData, error: deleteError } = await supabase
       .from('user_roles')
       .delete()
       .eq('user_id', userId)
-      .eq('role', 'admin');
+      .eq('role', 'admin')
+      .select();
 
-    if (error) {
-      console.error('Error revoking admin:', error);
+    console.log('📤 Dados deletados:', deleteData);
+    console.log('❌ Erro ao deletar:', deleteError);
+
+    if (deleteError) {
+      console.error('❌ Erro detalhado ao revogar admin:', {
+        message: deleteError.message,
+        details: deleteError.details,
+        hint: deleteError.hint,
+        code: deleteError.code
+      });
       return false;
     }
+
+    console.log('✅ Admin revogado com sucesso');
 
     // Log the action
     await logAdminAction(
@@ -73,7 +108,7 @@ export async function revokeAdmin(userId: string, userEmail?: string): Promise<b
 
     return true;
   } catch (error) {
-    console.error('Failed to revoke admin:', error);
+    console.error('❌ Erro geral ao revogar admin:', error);
     return false;
   }
 }

@@ -114,6 +114,7 @@ export function AppSidebar() {
       premiumMenuItem, // Premium area
       ...baseMenuItems.slice(1, 3), // Transações, Relatórios
       ...premiumMasterMenuItems, // Metas Financeiras e Análise (only for master)
+      { path: "/suporte-prioritario", label: "Suporte Prioritário" }, // Support for premium/master
       baseMenuItems[3], // Configurações
       ...adminMenuItems // Admin items if applicable
     ];

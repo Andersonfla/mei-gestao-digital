@@ -1,205 +1,205 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, MessageCircle, BookOpen, ArrowLeft, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Send, Loader2, MessageSquare } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { getOrCreateConversation, getMessages, sendMessage, SupportMessage } from "@/services/supportService";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 export default function Support() {
+  const { toast } = useToast();
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<SupportMessage[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    initConversation();
+  }, []);
+
+  useEffect(() => {
+    if (conversationId) {
+      loadMessages();
+      subscribeToMessages();
+    }
+  }, [conversationId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const initConversation = async () => {
+    const { conversation, error } = await getOrCreateConversation();
+    
+    if (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível iniciar a conversa de suporte.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (conversation) {
+      setConversationId(conversation.id);
+    }
+    setLoading(false);
+  };
+
+  const loadMessages = async () => {
+    if (!conversationId) return;
+    
+    const msgs = await getMessages(conversationId);
+    setMessages(msgs);
+  };
+
+  const subscribeToMessages = () => {
+    if (!conversationId) return;
+
+    const channel = supabase
+      .channel(`support-${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new as SupportMessage]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !conversationId) return;
+
+    setSending(true);
+    const success = await sendMessage(conversationId, newMessage.trim());
+
+    if (success) {
+      setNewMessage("");
+    } else {
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar a mensagem.",
+        variant: "destructive",
+      });
+    }
+    setSending(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10">
-      {/* Header */}
-      <header className="bg-white border-b shadow-sm">
-        <div className="container mx-auto flex items-center justify-between p-4">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Voltar
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <img 
-                src="/lovable-uploads/ce3c76bc-dc40-4d39-b9eb-f9154e5e9dbe.png" 
-                alt="MEI Finanças" 
-                className="h-8 w-auto"
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <Card className="h-[calc(100vh-12rem)]">
+        <CardHeader className="border-b">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle>Suporte Prioritário</CardTitle>
+              <CardDescription>
+                Nossa equipe está disponível para ajudá-lo
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="flex flex-col h-[calc(100%-5rem)] p-0">
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
+                <p className="text-lg font-medium">Bem-vindo ao Suporte Prioritário!</p>
+                <p className="text-sm mt-2">
+                  Envie sua primeira mensagem e nossa equipe responderá em breve.
+                </p>
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.sent_by_admin ? 'justify-start' : 'justify-end'}`}
+                >
+                  <div
+                    className={`max-w-[70%] rounded-lg p-4 ${
+                      message.sent_by_admin
+                        ? 'bg-muted'
+                        : 'bg-primary text-primary-foreground'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                    <p
+                      className={`text-xs mt-2 ${
+                        message.sent_by_admin ? 'text-muted-foreground' : 'opacity-70'
+                      }`}
+                    >
+                      {format(new Date(message.created_at), 'dd/MM/yyyy HH:mm')}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input Area */}
+          <div className="border-t p-4">
+            <div className="flex gap-2">
+              <Textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Digite sua mensagem..."
+                className="resize-none"
+                rows={3}
+                disabled={sending}
               />
-              <div>
-                <h1 className="font-bold text-lg">MEI Finanças</h1>
-                <p className="text-xs text-muted-foreground">Suporte e Atendimento</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Precisa de ajuda? <br />
-              <span className="text-primary">Estamos aqui para você!</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Nosso time de suporte está pronto para ajudar com qualquer dúvida sobre o sistema, 
-              planos ou lançamentos. Entre em contato pelo canal que preferir.
-            </p>
-          </div>
-
-          {/* Response Time Indicator */}
-          <div className="flex items-center justify-center gap-2 mb-12 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-            <Clock className="h-5 w-5 text-green-600" />
-            <span className="text-green-700 dark:text-green-300 font-medium">
-              Atendimento em até 24h úteis
-            </span>
-          </div>
-
-          {/* Contact Options */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Email Support */}
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Mail className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle className="text-xl">E-mail de Suporte</CardTitle>
-                <CardDescription>
-                  Envie sua dúvida detalhada e nossa equipe responderá rapidamente
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button 
-                  asChild 
-                  className="w-full"
-                  onClick={() => window.open('mailto:suporte@meifinancas.com', '_blank')}
-                >
-                  <a href="mailto:suporte@meifinancas.com">
-                    suporte@meifinancas.com
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* WhatsApp */}
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <div className="mx-auto w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
-                  <MessageCircle className="h-8 w-8 text-green-600" />
-                </div>
-                <CardTitle className="text-xl">WhatsApp</CardTitle>
-                <CardDescription>
-                  Converse diretamente conosco pelo WhatsApp para suporte rápido
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button 
-                  asChild 
-                  variant="secondary" 
-                  className="w-full bg-green-500 hover:bg-green-600 text-white"
-                >
-                  <a href="https://wa.me/5511987654321?text=Olá! Preciso de suporte com o MEI Finanças" target="_blank" rel="noopener noreferrer">
-                    Abrir WhatsApp
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* FAQ */}
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <div className="mx-auto w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
-                  <BookOpen className="h-8 w-8 text-blue-600" />
-                </div>
-                <CardTitle className="text-xl">FAQ</CardTitle>
-                <CardDescription>
-                  Consulte as perguntas mais frequentes e encontre respostas imediatas
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button asChild variant="outline" className="w-full">
-                  <Link to="#faq">
-                    Ver Perguntas Frequentes
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* FAQ Section */}
-          <section id="faq" className="bg-white dark:bg-card rounded-lg p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-center mb-8">Perguntas Frequentes</h2>
-            
-            <div className="space-y-6">
-              <div className="border-b pb-4">
-                <h3 className="font-semibold text-lg mb-2">Como faço para adicionar uma nova transação?</h3>
-                <p className="text-muted-foreground">
-                  Acesse a seção "Transações" no menu lateral e clique em "Nova Transação". 
-                  Preencha os campos obrigatórios e salve.
-                </p>
-              </div>
-              
-              <div className="border-b pb-4">
-                <h3 className="font-semibold text-lg mb-2">Posso cancelar minha assinatura a qualquer momento?</h3>
-                <p className="text-muted-foreground">
-                  Sim! Você pode cancelar sua assinatura a qualquer momento nas configurações da sua conta. 
-                  Não há multas ou taxas de cancelamento.
-                </p>
-              </div>
-              
-              <div className="border-b pb-4">
-                <h3 className="font-semibold text-lg mb-2">Como funciona o período de teste gratuito?</h3>
-                <p className="text-muted-foreground">
-                  Você pode usar o sistema gratuitamente com até 20 lançamentos por mês. 
-                  Para transações ilimitadas, upgrade para o plano premium.
-                </p>
-              </div>
-              
-              <div className="border-b pb-4">
-                <h3 className="font-semibold text-lg mb-2">Meus dados estão seguros?</h3>
-                <p className="text-muted-foreground">
-                  Sim! Utilizamos criptografia de ponta e hospedamos seus dados em servidores seguros. 
-                  Seus dados financeiros são protegidos com os mais altos padrões de segurança.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-lg mb-2">Posso exportar meus dados?</h3>
-                <p className="text-muted-foreground">
-                  Sim! Você pode exportar seus relatórios e dados em formato PDF ou planilha 
-                  diretamente do sistema, na seção de relatórios.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Additional Help */}
-          <div className="text-center mt-12 p-6 bg-primary/5 rounded-lg">
-            <h3 className="text-xl font-semibold mb-2">Ainda precisa de ajuda?</h3>
-            <p className="text-muted-foreground mb-4">
-              Nossa equipe está sempre disponível para garantir que você tenha a melhor experiência possível.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild>
-                <a href="mailto:suporte@meifinancas.com">
-                  Enviar E-mail
-                </a>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/">
-                  Voltar ao Início
-                </Link>
+              <Button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim() || sending}
+                className="self-end"
+              >
+                {sending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-100 dark:bg-gray-900 py-8 mt-12">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          © 2025 MEI Finanças. Todos os direitos reservados.
-        </div>
-      </footer>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -31,7 +31,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { getAllUsers, updateUserPlan, updateUserStatus, deleteUserProfile, AdminUser } from "@/services/adminUsersService";
-import { Crown, Trash2, RefreshCw, Search, Edit, Ban, CheckCircle } from "lucide-react";
+import { promoteToAdmin, revokeAdmin, checkUserIsAdmin } from "@/services/adminRolesService";
+import { Edit, Trash2, RefreshCw, Search, Ban, CheckCircle, AlertCircle, Shield, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -41,6 +42,7 @@ export function AdminUsers() {
   const [filteredUsers, setFilteredUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userAdminStatus, setUserAdminStatus] = useState<Record<string, boolean>>({});
   
   const [editDialog, setEditDialog] = useState<{ open: boolean; user: AdminUser | null }>({
     open: false,
@@ -62,6 +64,15 @@ export function AdminUsers() {
     const data = await getAllUsers();
     setUsers(data);
     setFilteredUsers(data);
+    
+    // Check admin status for each user
+    const adminStatusMap: Record<string, boolean> = {};
+    for (const user of data) {
+      const isAdmin = await checkUserIsAdmin(user.id);
+      adminStatusMap[user.id] = isAdmin;
+    }
+    setUserAdminStatus(adminStatusMap);
+    
     setLoading(false);
   };
 
@@ -176,6 +187,30 @@ export function AdminUsers() {
     setDeleteDialog({ open: false, user: null });
   };
 
+  const handleToggleAdmin = async (user: AdminUser) => {
+    const isCurrentlyAdmin = userAdminStatus[user.id];
+    
+    const success = isCurrentlyAdmin
+      ? await revokeAdmin(user.id, user.email || undefined)
+      : await promoteToAdmin(user.id, user.email || undefined);
+
+    if (success) {
+      toast({
+        title: "Sucesso",
+        description: isCurrentlyAdmin
+          ? "Privilégios de admin removidos com sucesso."
+          : "Usuário promovido a admin com sucesso.",
+      });
+      fetchUsers();
+    } else {
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status de administrador.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getPlanBadge = (plan: string | null) => {
     switch (plan) {
       case 'premium':
@@ -255,6 +290,7 @@ export function AdminUsers() {
                   <TableRow>
                     <TableHead>E-mail</TableHead>
                     <TableHead>Nome</TableHead>
+                    <TableHead>Função</TableHead>
                     <TableHead>Plano</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Lançamentos</TableHead>
@@ -274,6 +310,11 @@ export function AdminUsers() {
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.email || "N/A"}</TableCell>
                         <TableCell>{user.name || "-"}</TableCell>
+                        <TableCell>
+                          <Badge variant={userAdminStatus[user.id] ? "default" : "outline"}>
+                            {userAdminStatus[user.id] ? "Admin" : "Usuário"}
+                          </Badge>
+                        </TableCell>
                         <TableCell>{getPlanBadge(user.plan)}</TableCell>
                         <TableCell>{getStatusBadge(user.status)}</TableCell>
                         <TableCell className="text-right">
@@ -286,6 +327,14 @@ export function AdminUsers() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant={userAdminStatus[user.id] ? "destructive" : "default"}
+                              onClick={() => handleToggleAdmin(user)}
+                              title={userAdminStatus[user.id] ? "Remover Admin" : "Promover a Admin"}
+                            >
+                              <Shield className="h-4 w-4" />
+                            </Button>
                             <Button
                               onClick={() => openEditDialog(user)}
                               variant="outline"

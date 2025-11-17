@@ -44,11 +44,11 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <Toaster />
-            <Sonner />
-            <ToastListener />
             <AuthProvider>
               <ThemeProvider>
+                <Toaster />
+                <Sonner />
+                <ToastListener />
                 <SidebarProvider>
                   <FinanceProvider>
                     <Routes>

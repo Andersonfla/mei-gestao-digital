@@ -87,6 +87,14 @@ export function AppSidebar() {
     { path: "/configuracoes", label: "Configurações" },
   ];
   
+  // Add Premium Master exclusive items
+  const premiumMasterMenuItems = userSettings?.plan === 'master' 
+    ? [
+        { path: "/metas-financeiras", label: "Metas Financeiras" },
+        { path: "/analise-automatica", label: "Análise Automática" },
+      ]
+    : [];
+  
   // Add admin-only Webhooks item
   const adminMenuItems = isAdmin 
     ? [{ path: "/admin/webhooks", label: "Webhooks Kiwify" }] 
@@ -94,9 +102,23 @@ export function AppSidebar() {
   
   // Add Premium menu item for premium users
   const premiumMenuItem = { path: "/premium", label: "Área Premium" };
-  const displayMenuItems = (userSettings?.plan === 'premium' || userSettings?.plan === 'master') 
-    ? [baseMenuItems[0], premiumMenuItem, ...baseMenuItems.slice(1), ...adminMenuItems] 
-    : [...baseMenuItems, ...adminMenuItems];
+  
+  // Build menu items based on user plan
+  let displayMenuItems = [...baseMenuItems];
+  
+  // Insert Premium area after Dashboard for premium/master users
+  if (userSettings?.plan === 'premium' || userSettings?.plan === 'master') {
+    displayMenuItems = [
+      baseMenuItems[0], // Dashboard
+      premiumMenuItem, // Premium area
+      ...baseMenuItems.slice(1, 3), // Transações, Relatórios
+      ...premiumMasterMenuItems, // Metas Financeiras e Análise (only for master)
+      baseMenuItems[3], // Configurações
+      ...adminMenuItems // Admin items if applicable
+    ];
+  } else {
+    displayMenuItems = [...baseMenuItems, ...adminMenuItems];
+  }
 
   return (
     <>

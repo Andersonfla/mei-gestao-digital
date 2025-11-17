@@ -29,6 +29,8 @@ import AdminPanel from "./pages/AdminPanel";
 import FinancialGoals from "./pages/FinancialGoals";
 import AutoAnalysis from "./pages/AutoAnalysis";
 import RecurringTransactions from "./pages/RecurringTransactions";
+import Install from "./pages/Install";
+import { OfflineIndicator } from "./components/pwa/OfflineIndicator";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +51,7 @@ function App() {
                 <Toaster />
                 <Sonner />
                 <ToastListener />
+                <OfflineIndicator />
                 <SidebarProvider>
                   <FinanceProvider>
                     <Routes>
@@ -56,6 +59,7 @@ function App() {
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/auth" element={<Auth />} />
                         <Route path="/suporte" element={<Support />} />
+                        <Route path="/install" element={<Install />} />
                         
                         {/* Protected routes */}
                         <Route element={<RequireAuth />}>

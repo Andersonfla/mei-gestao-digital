@@ -8,6 +8,7 @@ import { AdvancedDashboard } from "@/components/dashboard/AdvancedDashboard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useFinance } from "@/contexts";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const Dashboard = () => {
   // Standard Dashboard for free and premium users
   return (
     <div className="space-y-6">
+      <InstallPrompt />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <FilterPeriod />

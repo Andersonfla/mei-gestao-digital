@@ -69,6 +69,9 @@ export default function LandingPage() {
             >
               Planos
             </button>
+            <Link to="/install" className="text-muted-foreground hover:text-primary transition">
+              Instalar App
+            </Link>
             <Link to="/suporte" className="text-muted-foreground hover:text-primary transition">
               Suporte
             </Link>

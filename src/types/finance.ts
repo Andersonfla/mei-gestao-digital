@@ -27,7 +27,7 @@ export type MonthlyReport = {
   transactions: Transaction[];
 };
 
-export type UserPlan = 'free' | 'premium' | 'pro' | 'premium_master';
+export type UserPlan = 'free' | 'premium' | 'master';
 
 export type UserProfile = {
   id: string;

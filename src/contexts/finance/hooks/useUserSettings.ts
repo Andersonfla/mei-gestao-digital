@@ -66,30 +66,40 @@ export function useUserSettings() {
 
   // upgradeToPremium functionality temporarily disabled
 
-  // Check if the premium plan is active - computed as boolean
   const isPremiumActive = useMemo(() => {
-    if (userSettings?.plan !== 'premium' && userSettings?.plan !== 'pro' && userSettings?.plan !== 'premium_master') return false;
+    if (!userSettings) return false;
     
-    if (userSettings?.subscriptionEnd) {
-      const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
-      const currentDate = new Date();
-      return subscriptionEndDate > currentDate;
-    }
+    // Verifica se o plano é premium ou master
+    const isPremiumPlan = userSettings.plan === 'premium' || userSettings.plan === 'master';
     
-    return false;
+    // Se não for premium, retorna false
+    if (!isPremiumPlan) return false;
+    
+    // Se for premium mas não tem data de expiração, considera ativo
+    if (!userSettings.subscriptionEnd) return true;
+    
+    // Se tem data de expiração, verifica se ainda não expirou
+    const now = new Date();
+    const expirationDate = new Date(userSettings.subscriptionEnd);
+    return expirationDate > now;
   }, [userSettings]);
 
-  // Check if Premium Master (Pro) plan is active
   const isPremiumMasterActive = useMemo(() => {
-    if (userSettings?.plan !== 'pro' && userSettings?.plan !== 'premium_master') return false;
+    if (!userSettings) return false;
     
-    if (userSettings?.subscriptionEnd) {
-      const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
-      const currentDate = new Date();
-      return subscriptionEndDate > currentDate;
-    }
+    // Verifica se o plano é master
+    const isMasterPlan = userSettings.plan === 'master';
     
-    return false;
+    // Se não for master, retorna false
+    if (!isMasterPlan) return false;
+    
+    // Se for master mas não tem data de expiração, considera ativo
+    if (!userSettings.subscriptionEnd) return true;
+    
+    // Se tem data de expiração, verifica se ainda não expirou
+    const now = new Date();
+    const expirationDate = new Date(userSettings.subscriptionEnd);
+    return expirationDate > now;
   }, [userSettings]);
 
   return {

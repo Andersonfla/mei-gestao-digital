@@ -39,7 +39,7 @@ export async function getAllUsers(): Promise<AdminUser[]> {
  */
 export async function updateUserPlan(
   userId: string,
-  plan: 'free' | 'premium' | 'pro' | 'premium_master',
+  plan: 'free' | 'premium' | 'master',
   userEmail?: string,
   durationMonths?: number
 ): Promise<boolean> {
@@ -50,13 +50,13 @@ export async function updateUserPlan(
     if (plan === 'free') {
       subscriptionEnd = null;
     } 
-    // Para premium/pro com duração especificada
+    // Para premium/master com duração especificada
     else if (durationMonths && durationMonths > 0) {
       const now = new Date();
       now.setMonth(now.getMonth() + durationMonths);
       subscriptionEnd = now.toISOString();
     } 
-    // Para premium/pro sem duração especificada, default 1 ano
+    // Para premium/master sem duração especificada, default 1 ano
     else {
       const now = new Date();
       now.setFullYear(now.getFullYear() + 1);
@@ -68,7 +68,7 @@ export async function updateUserPlan(
       .update({ 
         plan,
         subscription_end: subscriptionEnd,
-        status: 'active' // Reativa usuário ao atribuir plano
+        status: 'active'
       })
       .eq("id", userId);
 

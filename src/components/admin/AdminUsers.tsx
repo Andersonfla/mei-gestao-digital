@@ -46,7 +46,7 @@ export function AdminUsers() {
     open: false,
     user: null,
   });
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'premium' | 'pro' | 'premium_master'>('free');
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'premium' | 'master'>('free');
   const [selectedDuration, setSelectedDuration] = useState<string>('12');
   const [customDuration, setCustomDuration] = useState<string>('');
   
@@ -84,7 +84,7 @@ export function AdminUsers() {
 
   const openEditDialog = (user: AdminUser) => {
     setEditDialog({ open: true, user });
-    setSelectedPlan((user.plan as 'free' | 'premium' | 'pro' | 'premium_master') || 'free');
+    setSelectedPlan((user.plan as 'free' | 'premium' | 'master') || 'free');
     setSelectedDuration('12');
     setCustomDuration('');
   };
@@ -113,9 +113,8 @@ export function AdminUsers() {
     );
 
     if (success) {
-      const planName = selectedPlan === 'premium' ? 'Premium' 
-        : selectedPlan === 'pro' ? 'Pro' 
-        : selectedPlan === 'premium_master' ? 'Premium Master' 
+      const planName = selectedPlan === 'premium' ? 'Premium Pro' 
+        : selectedPlan === 'master' ? 'Premium Master' 
         : 'Gratuito';
       const durationText = selectedPlan === 'free' 
         ? '' 
@@ -183,17 +182,10 @@ export function AdminUsers() {
         return (
           <Badge variant="default">
             <Crown className="h-3 w-3 mr-1" />
-            Premium
+            Premium Pro
           </Badge>
         );
-      case 'pro':
-        return (
-          <Badge className="bg-gradient-to-r from-purple-600 to-pink-600">
-            <Crown className="h-3 w-3 mr-1" />
-            Pro
-          </Badge>
-        );
-      case 'premium_master':
+      case 'master':
         return (
           <Badge className="bg-gradient-to-r from-purple-600 to-pink-600">
             <Crown className="h-3 w-3 mr-1" />
@@ -405,10 +397,9 @@ export function AdminUsers() {
                   <p className="text-sm font-medium">Resumo:</p>
                   <p className="text-sm text-muted-foreground">
                     Plano <strong>
-                      {selectedPlan === 'premium' ? 'Premium' 
-                        : selectedPlan === 'pro' ? 'Pro' 
-                        : selectedPlan === 'premium_master' ? 'Premium Master'
-                        : 'Desconhecido'}
+                      {selectedPlan === 'premium' ? 'Premium Pro' 
+                        : selectedPlan === 'master' ? 'Premium Master'
+                        : 'Gratuito'}
                     </strong> será ativo por{' '}
                     <strong>
                       {selectedDuration === 'custom' 

@@ -90,7 +90,7 @@ export function AppSidebar() {
   
   // Add Premium menu item for premium users
   const premiumMenuItem = { path: "/premium", label: "Área Premium" };
-  const displayMenuItems = userSettings?.plan === 'premium' 
+  const displayMenuItems = (userSettings?.plan === 'premium' || userSettings?.plan === 'pro') 
     ? [menuItems[0], premiumMenuItem, ...menuItems.slice(1)] 
     : menuItems;
 
@@ -146,7 +146,7 @@ export function AppSidebar() {
                       {userName}
                     </p>
                     <p className="text-xs opacity-70">
-                      {userSettings?.plan === 'premium' ? 'Plano Premium' : 'Plano Gratuito'}
+                      {(userSettings?.plan === 'premium' || userSettings?.plan === 'pro') ? 'Plano Premium' : 'Plano Gratuito'}
                     </p>
                   </div>
                 </div>

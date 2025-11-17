@@ -59,6 +59,38 @@ export type Database = {
           },
         ]
       }
+      backups: {
+        Row: {
+          file_data: Json | null
+          file_url: string | null
+          generated_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          file_data?: Json | null
+          file_url?: string | null
+          generated_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          file_data?: Json | null
+          file_url?: string | null
+          generated_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backups_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           id: string
@@ -81,6 +113,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "categories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_categories_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "admin_users_view"
@@ -233,6 +306,8 @@ export type Database = {
           email: string | null
           id: string
           name: string | null
+          payment_id: string | null
+          pin_code: string | null
           plan: string | null
           role: string | null
           status: string
@@ -245,6 +320,8 @@ export type Database = {
           email?: string | null
           id: string
           name?: string | null
+          payment_id?: string | null
+          pin_code?: string | null
           plan?: string | null
           role?: string | null
           status?: string
@@ -257,6 +334,8 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string | null
+          payment_id?: string | null
+          pin_code?: string | null
           plan?: string | null
           role?: string | null
           status?: string
@@ -376,6 +455,7 @@ export type Database = {
           type: string
           user_id: string
           value: number
+          wallet_id: string | null
         }
         Insert: {
           category: string
@@ -386,6 +466,7 @@ export type Database = {
           type: string
           user_id: string
           value: number
+          wallet_id?: string | null
         }
         Update: {
           category?: string
@@ -396,6 +477,7 @@ export type Database = {
           type?: string
           user_id?: string
           value?: number
+          wallet_id?: string | null
         }
         Relationships: [
           {
@@ -403,6 +485,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
             referencedColumns: ["id"]
           },
         ]
@@ -431,6 +520,47 @@ export type Database = {
             foreignKeyName: "user_roles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },

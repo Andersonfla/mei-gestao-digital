@@ -41,24 +41,10 @@ export async function getUserSettings(): Promise<UserSettings> {
     let currentPlan = profileData?.plan || 'free';
     let subscriptionEnd = profileData?.subscription_end ? new Date(profileData.subscription_end) : null;
     
-    // Se o plano é premium mas a data de expiração já passou, fazer downgrade automático
+    // Se o plano é premium mas a data de expiração já passou, apenas registrar
+    // O downgrade será feito pelo backend automaticamente
     if ((currentPlan === 'premium' || currentPlan === 'master') && subscriptionEnd && subscriptionEnd < new Date()) {
-      console.log("Plano premium expirado, fazendo downgrade automático");
-      
-      // Atualizar o plano para free no banco de dados
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ 
-          plan: 'free',
-          status: 'expired'
-        })
-        .eq("id", userId);
-      
-      if (updateError) {
-        console.error("Erro ao fazer downgrade do plano:", updateError);
-      } else {
-        currentPlan = 'free';
-      }
+      console.log("⚠️ Plano premium expirado detectado - downgrade deve ser feito pelo backend");
     }
 
     // Buscar ou criar registro de limites para o mês atual

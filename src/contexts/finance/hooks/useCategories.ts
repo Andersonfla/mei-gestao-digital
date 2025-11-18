@@ -5,7 +5,7 @@ import { getCategories } from "@/services/categoryService";
 import { TransactionCategory } from "@/types/finance";
 import { getUserSettings } from "@/services/profileService";
 
-// Categorias premium - só disponíveis para usuários premium
+// Categorias premium - só disponíveis para usuários premium e premium master
 const PREMIUM_CATEGORIES = [
   'Anúncios Online (Facebook/Instagram Ads)',
   'Google Ads',
@@ -13,7 +13,11 @@ const PREMIUM_CATEGORIES = [
   'Tráfego Pago – Outros',
   'Fornecedores / Produtos',
   'Taxas e Impostos',
-  'Ferramentas e Softwares'
+  'Ferramentas e Softwares',
+  'Salários e Pró-Labore',
+  'Despesas com Contabilidade/Jurídico',
+  'Manutenção de Equipamentos/Softwares',
+  'Custo de Aquisição de Cliente (CAC)'
 ];
 
 /**

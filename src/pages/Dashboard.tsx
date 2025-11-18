@@ -45,10 +45,13 @@ const Dashboard = () => {
   
   // Standard Dashboard for free and premium users
   return (
-    <div className="space-y-6 w-full max-w-full">
+    <div className="space-y-8 w-full max-w-full">
       <InstallPrompt />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-12 sm:pt-0">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight mb-2">Dashboard</h1>
+          <p className="text-muted-foreground">Visão geral das suas finanças</p>
+        </div>
         <FilterPeriod />
       </div>
       
@@ -58,11 +61,11 @@ const Dashboard = () => {
         </div>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <h2 className="text-xl font-semibold">Últimas Transações</h2>
-            <Button variant="outline" onClick={() => navigate('/transacoes')}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 className="text-2xl font-semibold tracking-tight">Últimas Transações</h2>
+            <Button variant="outline" onClick={() => navigate('/transacoes')} className="w-full sm:w-auto">
               Ver todas
             </Button>
           </div>

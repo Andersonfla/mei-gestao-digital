@@ -23,6 +23,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -31,11 +34,14 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					light: 'hsl(var(--primary-light))',
+					dark: 'hsl(var(--primary-dark))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					foreground: 'hsl(var(--secondary-foreground))',
+					light: 'hsl(var(--secondary-light))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -67,19 +73,27 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				income: '#10B981',
-				expense: '#EF4444',
-				mei: {
-					blue: '#1E40AF',
-					teal: '#0D9488',
-					gray: '#64748B',
-					light: '#F8FAFC'
-				}
+				income: 'hsl(142, 76%, 45%)',
+				expense: 'hsl(0, 84%, 60%)',
+				success: 'hsl(142, 76%, 45%)',
+				warning: 'hsl(38, 92%, 50%)',
+				info: 'hsl(217, 91%, 60%)'
+			},
+			boxShadow: {
+				'premium': '0 10px 40px -10px hsl(var(--primary) / 0.2)',
+				'premium-lg': '0 20px 60px -15px hsl(var(--primary) / 0.3)',
+				'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.05)',
+				'soft-lg': '0 4px 16px 0 rgba(0, 0, 0, 0.08)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				xl: 'calc(var(--radius) + 4px)',
+				'2xl': 'calc(var(--radius) + 8px)'
+			},
+			backdropBlur: {
+				xs: '2px',
 			},
 			keyframes: {
 				'accordion-down': {

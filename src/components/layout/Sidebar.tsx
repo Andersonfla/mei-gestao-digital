@@ -130,19 +130,23 @@ export function AppSidebar() {
   return (
     <>
       {isMobile && (
-        <div className="fixed top-2 left-2 z-50 bg-background/80 backdrop-blur-sm rounded-md">
+        <div className="fixed top-3 left-3 z-50">
           <SidebarTrigger>
-            <Button variant="outline" size="sm" className="h-10 w-10 p-0 shadow-md">
+            <Button 
+              variant="default" 
+              size="icon" 
+              className="h-12 w-12 rounded-xl shadow-lg hover:shadow-xl backdrop-blur-sm bg-primary border-2 border-primary-light"
+            >
               <span className="flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-5 w-5"
+                  className="h-6 w-6"
                 >
                   <path d="M3 7h18M3 12h18M3 17h18" />
                 </svg>
@@ -153,44 +157,49 @@ export function AppSidebar() {
         </div>
       )}
       
-      <Sidebar className="border-r">
-        <SidebarHeader className="px-6 py-5">
-          <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/ce3c76bc-dc40-4d39-b9eb-f9154e5e9dbe.png" 
-              alt="MEI Finanças" 
-              className="h-8 w-auto"
-            />
-            <span className="font-semibold text-lg">MEI Finanças</span>
+      <Sidebar className="border-r border-sidebar-border/50 bg-sidebar backdrop-blur-xl">
+        <SidebarHeader className="px-6 py-6 border-b border-sidebar-border/30">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <img 
+                src="/lovable-uploads/ce3c76bc-dc40-4d39-b9eb-f9154e5e9dbe.png" 
+                alt="MEI Finanças" 
+                className="h-6 w-auto"
+              />
+            </div>
+            <span className="font-bold text-xl text-sidebar-foreground tracking-tight">MEI Finanças</span>
           </div>
         </SidebarHeader>
 
-        <SidebarContent>
+        <SidebarContent className="px-3">
           <SidebarGroup>
             <SidebarGroupContent>
               {/* User Profile Display */}
-              <div className="px-3 py-3 mb-4">
-                <div className="flex items-center gap-3 p-2 rounded-md bg-sidebar-accent">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                    <User size={18} />
+              <div className="px-3 py-4 mb-3">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-sidebar-accent/50 backdrop-blur-sm border border-sidebar-border/30">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-md">
+                    <User size={20} strokeWidth={2.5} />
                   </div>
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium truncate max-w-[150px]">
+                  <div className="space-y-0.5 flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate text-sidebar-foreground">
                       {userName}
                     </p>
-                    <p className="text-xs opacity-70">
-                      {userSettings?.plan === 'master' ? 'Premium Master' : userSettings?.plan === 'premium' ? 'Premium Pro' : 'Plano Gratuito'}
+                    <p className="text-xs text-sidebar-foreground/70 font-medium">
+                      {userSettings?.plan === 'master' ? '✨ Premium Master' : userSettings?.plan === 'premium' ? '⭐ Premium Pro' : '🎯 Gratuito'}
                     </p>
                   </div>
                 </div>
               </div>
 
-                <SidebarMenu>
+                <SidebarMenu className="space-y-1">
                 {displayMenuItems.map((item) => (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       className={cn(
-                        isActive(item.path) && "bg-sidebar-accent text-sidebar-accent-foreground"
+                        "rounded-lg transition-all duration-200 h-11",
+                        isActive(item.path) 
+                          ? "bg-primary text-white font-semibold shadow-md hover:bg-primary/90" 
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground font-medium"
                       )}
                       onClick={() => {
                         navigate(item.path);
@@ -207,15 +216,15 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
           
-          <SidebarGroup>
-            <SidebarGroupLabel>Plano</SidebarGroupLabel>
+          <SidebarGroup className="mt-auto">
+            <SidebarGroupLabel className="text-sidebar-foreground/60 font-semibold">Plano & Ações</SidebarGroupLabel>
             <SidebarGroupContent>
-              <div className="px-3 py-2">
-                <div className="rounded-md bg-sidebar-accent px-3 py-2 text-sidebar-accent-foreground">
-                  <p className="text-xs font-medium">Plano atual:</p>
-                  <p className="font-semibold">
-                    {userSettings.plan === 'free' ? 'Gratuito' : 
-                     userSettings.plan === 'master' ? 'Premium Master' : 'Premium'}
+              <div className="px-3 py-3 space-y-3">
+                <div className="rounded-xl bg-sidebar-accent/30 backdrop-blur-sm px-4 py-3 text-sidebar-foreground border border-sidebar-border/20">
+                  <p className="text-xs font-medium text-sidebar-foreground/70 mb-1">Plano atual:</p>
+                  <p className="font-bold text-base">
+                    {userSettings.plan === 'free' ? '🎯 Gratuito' : 
+                     userSettings.plan === 'master' ? '✨ Premium Master' : '⭐ Premium'}
                   </p>
                   
                   {/* Use the TransactionLimitIndicator component */}
@@ -224,8 +233,8 @@ export function AppSidebar() {
                 
                 {userSettings.plan === 'free' && (
                   <Button 
-                    className="w-full mt-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                    size="sm"
+                    className="w-full bg-gradient-to-r from-secondary to-primary text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
+                    size="lg"
                     onClick={() => {
                       navigate('/upgrade');
                       if (isMobile) {
@@ -233,7 +242,7 @@ export function AppSidebar() {
                       }
                     }}
                   >
-                    Fazer upgrade
+                    ⚡ Fazer Upgrade
                   </Button>
                 )}
 
@@ -241,7 +250,8 @@ export function AppSidebar() {
                 {isAdmin && (
                   <Button
                     variant="outline"
-                    className="w-full mt-2 justify-start gap-2 relative"
+                    className="w-full border-2 border-primary/30 hover:border-primary hover:bg-primary/5 font-semibold relative"
+                    size="lg"
                     onClick={() => {
                       navigate("/admin");
                       if (isMobile) {
@@ -249,12 +259,12 @@ export function AppSidebar() {
                       }
                     }}
                   >
-                    <Shield className="h-4 w-4" />
+                    <Shield className="mr-2 h-5 w-5" />
                     Painel Admin
                     {unreadCount > 0 && (
                       <Badge 
                         variant="destructive" 
-                        className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs animate-pulse"
+                        className="ml-2 px-2 font-bold"
                       >
                         {unreadCount}
                       </Badge>
@@ -270,10 +280,11 @@ export function AppSidebar() {
               <div className="px-3 py-2">
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-muted-foreground"
+                  className="w-full justify-start text-sidebar-foreground/80 hover:text-destructive hover:bg-destructive/10 font-medium"
+                  size="lg"
                   onClick={signOut}
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h-5 w-5" />
                   <span>Sair</span>
                 </Button>
               </div>

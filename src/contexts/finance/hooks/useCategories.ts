@@ -7,6 +7,7 @@ import { getUserSettings } from "@/services/profileService";
 
 // Categorias premium - só disponíveis para usuários premium e premium master
 const PREMIUM_CATEGORIES = [
+  // Categorias de Despesa (saída)
   'Anúncios Online (Facebook/Instagram Ads)',
   'Google Ads',
   'TikTok Ads',
@@ -17,7 +18,14 @@ const PREMIUM_CATEGORIES = [
   'Salários e Pró-Labore',
   'Despesas com Contabilidade/Jurídico',
   'Manutenção de Equipamentos/Softwares',
-  'Custo de Aquisição de Cliente (CAC)'
+  'Custo de Aquisição de Cliente (CAC)',
+  // Categorias de Receita (entrada)
+  'Vendas de Produtos Digitais (Cursos, E-books)',
+  'Comissões e Afiliados',
+  'Rendimentos Financeiros (Investimentos)',
+  'Reembolsos e Estornos',
+  'Receita de Publicidade/Patrocínio',
+  'Doações/Apoios (Crowdfunding)'
 ];
 
 /**

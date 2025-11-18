@@ -24,6 +24,7 @@ export type SupportMessage = {
 
 /**
  * Get or create a conversation for the current user
+ * If the user has a closed conversation, it will be returned (can be reopened by sending a message)
  */
 export async function getOrCreateConversation(): Promise<{ conversation: SupportConversation | null; error: any }> {
   try {
@@ -37,11 +38,13 @@ export async function getOrCreateConversation(): Promise<{ conversation: Support
 
     console.log('✅ Usuário autenticado:', user.id);
 
-    // Check if conversation already exists
+    // Check if conversation already exists (open or closed)
     const { data: existing, error: fetchError } = await supabase
       .from('support_conversations')
       .select('*')
       .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     if (fetchError) {
@@ -49,15 +52,15 @@ export async function getOrCreateConversation(): Promise<{ conversation: Support
     }
 
     if (existing) {
-      console.log('✅ Conversa existente encontrada:', existing.id);
+      console.log('✅ Conversa existente encontrada:', existing.id, 'Status:', existing.status);
       return { conversation: existing as SupportConversation, error: null };
     }
 
     console.log('📝 Criando nova conversa...');
-    // Create new conversation
+    // Create new conversation with status 'open'
     const { data: newConversation, error: createError } = await supabase
       .from('support_conversations')
-      .insert({ user_id: user.id })
+      .insert({ user_id: user.id, status: 'open' })
       .select()
       .single();
 
@@ -70,6 +73,38 @@ export async function getOrCreateConversation(): Promise<{ conversation: Support
     return { conversation: newConversation as SupportConversation, error: createError };
   } catch (error) {
     console.error('❌ Erro geral em getOrCreateConversation:', error);
+    return { conversation: null, error };
+  }
+}
+
+/**
+ * Create a new conversation for the current user (forces new conversation)
+ */
+export async function createNewConversation(): Promise<{ conversation: SupportConversation | null; error: any }> {
+  try {
+    console.log('📝 Criando nova conversa...');
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.error('❌ Usuário não autenticado');
+      return { conversation: null, error: 'User not authenticated' };
+    }
+
+    const { data: newConversation, error: createError } = await supabase
+      .from('support_conversations')
+      .insert({ user_id: user.id, status: 'open' })
+      .select()
+      .single();
+
+    if (createError) {
+      console.error('❌ Erro ao criar conversa:', createError);
+      return { conversation: null, error: createError };
+    }
+
+    console.log('✅ Nova conversa criada:', newConversation?.id);
+    return { conversation: newConversation as SupportConversation, error: null };
+  } catch (error) {
+    console.error('❌ Erro geral em createNewConversation:', error);
     return { conversation: null, error };
   }
 }
@@ -99,6 +134,7 @@ export async function getMessages(conversationId: string): Promise<SupportMessag
 
 /**
  * Send a message (user)
+ * If the conversation is closed, it will be reopened automatically
  */
 export async function sendMessage(conversationId: string, content: string): Promise<boolean> {
   try {
@@ -114,6 +150,23 @@ export async function sendMessage(conversationId: string, content: string): Prom
     }
 
     console.log('✅ Usuário autenticado:', user.id);
+
+    // Check if conversation is closed
+    const { data: conversation } = await supabase
+      .from('support_conversations')
+      .select('status')
+      .eq('id', conversationId)
+      .single();
+
+    // If conversation is closed, reopen it
+    if (conversation && conversation.status === 'closed') {
+      console.log('🔓 Reabrindo conversa fechada...');
+      const reopened = await reopenConversation(conversationId);
+      if (!reopened) {
+        console.error('❌ Não foi possível reabrir a conversa');
+        return false;
+      }
+    }
 
     const { data, error } = await supabase
       .from('support_messages')

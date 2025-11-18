@@ -5,13 +5,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { getOrCreateConversation, getMessages, sendMessage, SupportMessage } from "@/services/supportService";
+import { getOrCreateConversation, getMessages, sendMessage, createNewConversation, SupportMessage } from "@/services/supportService";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
 export default function Support() {
   const { toast } = useToast();
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversationStatus, setConversationStatus] = useState<string>('open');
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -56,8 +57,9 @@ export default function Support() {
     }
 
     if (conversation) {
-      console.log('✅ Conversa inicializada:', conversation.id);
+      console.log('✅ Conversa inicializada:', conversation.id, 'Status:', conversation.status);
       setConversationId(conversation.id);
+      setConversationStatus(conversation.status);
     } else {
       console.error('❌ Nenhuma conversa retornada');
       toast({
@@ -176,10 +178,19 @@ export default function Support() {
       if (success) {
         console.log('✅ Mensagem enviada com sucesso!');
         setNewMessage("");
-        toast({
-          title: "Sucesso",
-          description: "Mensagem enviada!",
-        });
+        // If conversation was closed, update status to open
+        if (conversationStatus === 'closed') {
+          setConversationStatus('open');
+          toast({
+            title: "Atendimento reaberto",
+            description: "Sua conversa foi reaberta com sucesso.",
+          });
+        } else {
+          toast({
+            title: "Sucesso",
+            description: "Mensagem enviada!",
+          });
+        }
       } else {
         console.error('❌ Falha ao enviar mensagem');
         toast({
@@ -205,6 +216,30 @@ export default function Support() {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleNewConversation = async () => {
+    setLoading(true);
+    const { conversation, error } = await createNewConversation();
+    
+    if (error || !conversation) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar uma nova conversa.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    setConversationId(conversation.id);
+    setConversationStatus('open');
+    setMessages([]);
+    toast({
+      title: "Novo atendimento iniciado",
+      description: "Uma nova conversa foi criada com sucesso.",
+    });
+    setLoading(false);
   };
 
   if (loading) {
@@ -299,29 +334,61 @@ export default function Support() {
               )}
 
               {/* Input Area */}
-          <div className="border-t p-4">
-            <div className="flex gap-2">
-              <Textarea
-                value={newMessage}
-                onChange={(e) => {
-                  setNewMessage(e.target.value);
-                  handleTyping();
-                }}
-                onKeyPress={handleKeyPress}
-                placeholder="Digite sua mensagem..."
-                className="resize-none"
-                rows={3}
-                disabled={sending}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!newMessage.trim() || sending}
-                className="self-end"
-              >
-                {sending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+              <div className="border-t p-4">
+                {conversationStatus === 'closed' ? (
+                  <div className="bg-muted/50 p-6 rounded-lg border-2 border-dashed border-muted-foreground/20 text-center space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Atendimento Encerrado
+                    </p>
+                    <div className="flex gap-2 justify-center">
+                      <Button 
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim() || sending}
+                        variant="outline"
+                      >
+                        Reabrir esta conversa
+                      </Button>
+                      <Button 
+                        onClick={handleNewConversation}
+                        disabled={sending}
+                      >
+                        Iniciar novo atendimento
+                      </Button>
+                    </div>
+                    {newMessage.trim() && (
+                      <p className="text-xs text-muted-foreground">
+                        Você pode reabrir esta conversa ou iniciar uma nova
+                      </p>
+                    )}
+                  </div>
                 ) : (
-                  <Send className="h-4 w-4" />
+                  <div className="flex gap-2">
+                    <Textarea
+                      value={newMessage}
+                      onChange={(e) => {
+                        setNewMessage(e.target.value);
+                        handleTyping();
+                      }}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Digite sua mensagem..."
+                      className="resize-none"
+                      rows={3}
+                      disabled={sending}
+                    />
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!newMessage.trim() || sending}
+                      className="self-end"
+                    >
+                      {sending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
                 )}
               </Button>
             </div>

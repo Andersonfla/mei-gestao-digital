@@ -28,6 +28,7 @@ export const AdminSupport = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [userTyping, setUserTyping] = useState(false);
+  const [showClosedConversations, setShowClosedConversations] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -60,6 +61,10 @@ export const AdminSupport = () => {
     // Clear unread count when viewing conversations
     clearUnreadCount();
   };
+
+  const filteredConversations = conversations.filter(conv => 
+    showClosedConversations ? conv.status === 'closed' : conv.status === 'open'
+  );
 
   const loadMessages = async () => {
     if (!selectedConversation) return;
@@ -158,18 +163,32 @@ export const AdminSupport = () => {
   const handleCloseConversation = async () => {
     if (!selectedConversation) return;
 
+    // Primeiro, enviar mensagem automática de encerramento
+    const autoMessage = "Olá! Seu atendimento foi encerrado pela nossa equipe. Se precisar de mais ajuda, basta enviar uma nova mensagem para reabrir a conversa ou iniciar um novo atendimento.";
+    const messageSent = await sendAdminMessage(selectedConversation.id, autoMessage);
+
+    if (!messageSent) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar a mensagem de encerramento.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Depois, fechar a conversa
     const success = await closeConversation(selectedConversation.id);
     if (success) {
       toast({
-        title: "Sucesso",
-        description: "Conversa fechada com sucesso.",
+        title: "Conversa encerrada",
+        description: "A conversa foi encerrada e o cliente foi notificado.",
       });
       loadConversations();
       setSelectedConversation(null);
     } else {
       toast({
         title: "Erro",
-        description: "Não foi possível fechar a conversa.",
+        description: "Não foi possível encerrar a conversa.",
         variant: "destructive",
       });
     }
@@ -238,16 +257,34 @@ export const AdminSupport = () => {
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
+          <div className="flex items-center gap-2 mt-4">
+            <Button
+              variant={!showClosedConversations ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowClosedConversations(false)}
+            >
+              Abertas ({conversations.filter(c => c.status === 'open').length})
+            </Button>
+            <Button
+              variant={showClosedConversations ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowClosedConversations(true)}
+            >
+              Fechadas ({conversations.filter(c => c.status === 'closed').length})
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y overflow-y-auto max-h-[calc(100vh-20rem)]">
-            {conversations.length === 0 ? (
+            {filteredConversations.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhuma conversa ainda</p>
+                {showClosedConversations 
+                  ? "Nenhuma conversa fechada"
+                  : "Nenhuma conversa aberta"
+                }
               </div>
             ) : (
-              conversations.map((conv) => (
+              filteredConversations.map((conv) => (
                 <button
                   key={conv.id}
                   onClick={() => setSelectedConversation(conv)}

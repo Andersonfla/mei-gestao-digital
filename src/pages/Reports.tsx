@@ -13,12 +13,16 @@ import { TransactionChart } from "@/components/dashboard/TransactionChart";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { exportReportToPDF } from "@/lib/exportReport";
+import { exportToCSV, exportToExcel } from "@/lib/exportAdvanced";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ChevronDown, FileText, File, Table as TableIcon } from "lucide-react";
 
 const Reports = () => {
   const { 
     filteredTransactions, 
     userSettings, 
     isPremiumActive,
+    isPremiumMasterActive,
     filterDates,
     calculateTotalByType,
     calculateBalance
@@ -26,9 +30,8 @@ const Reports = () => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleExport = async () => {
+  const handleExport = async (format: 'pdf' | 'csv' | 'xlsx' = 'pdf') => {
     if (!isPremiumActive) {
-      // Let the premium alert dialog handle this
       return;
     }
     
@@ -41,20 +44,44 @@ const Reports = () => {
       const profit = totalIncome - totalExpense;
       const profitMargin = totalIncome > 0 ? (profit / totalIncome) * 100 : 0;
       
-      // Gerar e baixar o PDF
-      exportReportToPDF({
+      const exportData = {
         totalIncome,
         totalExpense,
         profit,
         profitMargin,
         transactions: filteredTransactions,
-        period: filterDates,
-      });
+        startDate: filterDates.startDate,
+        endDate: filterDates.endDate,
+      };
       
-      toast({
-        title: "Relatório exportado",
-        description: "O arquivo PDF foi baixado com sucesso.",
-      });
+      // Exportar no formato solicitado
+      switch (format) {
+        case 'csv':
+          exportToCSV(exportData);
+          toast({
+            title: "Relatório exportado",
+            description: "O arquivo CSV foi baixado com sucesso.",
+          });
+          break;
+        case 'xlsx':
+          exportToExcel(exportData);
+          toast({
+            title: "Relatório exportado",
+            description: "O arquivo Excel foi baixado com sucesso.",
+          });
+          break;
+        case 'pdf':
+        default:
+          exportReportToPDF({
+            ...exportData,
+            period: filterDates,
+          });
+          toast({
+            title: "Relatório exportado",
+            description: "O arquivo PDF foi baixado com sucesso.",
+          });
+          break;
+      }
     } catch (error) {
       console.error('Erro ao exportar relatório:', error);
       toast({
@@ -75,9 +102,34 @@ const Reports = () => {
           <FilterPeriod />
           
           {isPremiumActive ? (
-            <Button variant="default" onClick={handleExport} disabled={isExporting}>
-              {isExporting ? "Exportando..." : "Exportar Relatório"}
-            </Button>
+            isPremiumMasterActive ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="default" disabled={isExporting}>
+                    {isExporting ? "Exportando..." : "Exportar Relatório"}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Exportar PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('csv')}>
+                    <File className="mr-2 h-4 w-4" />
+                    Exportar CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('xlsx')}>
+                    <TableIcon className="mr-2 h-4 w-4" />
+                    Exportar Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="default" onClick={() => handleExport('pdf')} disabled={isExporting}>
+                {isExporting ? "Exportando..." : "Exportar Relatório"}
+              </Button>
+            )
           ) : (
             <AlertDialog>
               <AlertDialogTrigger asChild>

@@ -26,6 +26,7 @@ import { isUserAdmin } from "@/services/adminService";
 import { Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAdminSupportNotifications } from "@/hooks/useAdminSupportNotifications";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const { setOpenMobile } = useSidebar();
   const [userName, setUserName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const { unreadCount } = useAdminSupportNotifications();
 
@@ -45,7 +47,7 @@ export function AppSidebar() {
         try {
           const { data: profile, error } = await supabase
             .from("profiles")
-            .select("name")
+            .select("name, avatar_url")
             .eq("id", user.id)
             .single();
             
@@ -53,18 +55,40 @@ export function AppSidebar() {
           if (profile?.name) {
             setUserName(profile.name);
           } else {
-            // Fallback to email if name is not available
             setUserName(user.email?.split('@')[0] || "Usuário");
           }
+          setAvatarUrl(profile?.avatar_url || null);
         } catch (error) {
           console.error("Error fetching user profile:", error);
-          // Fallback to email if there's an error
           setUserName(user.email?.split('@')[0] || "Usuário");
         }
       }
     };
     
     fetchUserProfile();
+
+    // Subscribe to profile changes
+    const channel = supabase
+      .channel('profile-changes-sidebar')
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'profiles',
+          filter: `id=eq.${user?.id}`
+        }, 
+        (payload) => {
+          if (payload.new.name) {
+            setUserName(payload.new.name);
+          }
+          setAvatarUrl(payload.new.avatar_url || null);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   // Check if user is admin
@@ -177,9 +201,12 @@ export function AppSidebar() {
               {/* User Profile Display */}
               <div className="px-3 py-4 mb-3">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-sidebar-accent/50 backdrop-blur-sm border border-sidebar-border/30">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-md">
-                    <User size={20} strokeWidth={2.5} />
-                  </div>
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={avatarUrl || undefined} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
+                      {userName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="space-y-0.5 flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate text-sidebar-foreground">
                       {userName}

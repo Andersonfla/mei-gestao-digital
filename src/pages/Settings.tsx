@@ -101,7 +101,9 @@ const Settings = () => {
         </TabsContent>
         
         <TabsContent value="profile" className="mt-6">
-          <UserProfileSection />
+          <div className="max-w-3xl">
+            <UserProfileSection />
+          </div>
         </TabsContent>
         
         <TabsContent value="plan" className="mt-6">

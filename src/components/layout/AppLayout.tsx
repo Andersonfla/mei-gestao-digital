@@ -19,8 +19,8 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
       <AppSidebar />
-      <div className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden">
-        <main className="container mx-auto w-full max-w-full py-6 px-4 sm:px-6 lg:px-8 box-border">
+      <div className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden" style={{ width: '100%', maxWidth: '100%', marginLeft: 0, paddingLeft: 0 }}>
+        <main className="w-full max-w-full py-6 px-4 sm:px-6 lg:px-8" style={{ width: '100%', maxWidth: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
           <OfflineIndicator />
           <InstallPrompt />
           <Outlet />

@@ -91,15 +91,15 @@ export function TransactionForm() {
   }
 
   return (
-    <Card className="w-full max-w-full box-border mx-auto backdrop-blur-sm border-border/50">
-      <CardHeader>
-        <CardTitle className="text-2xl">Nova Transação</CardTitle>
-        <CardDescription className="text-base">
+    <Card className="w-full max-w-full box-border mx-auto backdrop-blur-sm border-border/50" style={{ width: '100%', maxWidth: '100%' }}>
+      <CardHeader className="w-full" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+        <CardTitle className="text-2xl w-full">Nova Transação</CardTitle>
+        <CardDescription className="text-base w-full">
           Adicione uma nova entrada ou saída
         </CardDescription>
         <TransactionLimitIndicator userSettings={userSettings} />
       </CardHeader>
-      <CardContent className="w-full box-border p-4 sm:p-6">
+      <CardContent className="w-full box-border p-4 sm:p-6" style={{ width: '100%', maxWidth: '100%' }}>
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TransactionType)} className="w-full">
           <TabsList className="w-full mb-6 grid grid-cols-2 h-12">
             <TabsTrigger value="entrada" className="text-base font-medium data-[state=active]:bg-success data-[state=active]:text-white">Receita</TabsTrigger>

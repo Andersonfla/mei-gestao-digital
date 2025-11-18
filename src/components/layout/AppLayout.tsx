@@ -4,6 +4,7 @@ import { AppSidebar } from "./Sidebar";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { DebugLayoutInfo } from "@/components/debug/DebugLayoutInfo";
 
 export function AppLayout() {
   const { loading } = useRequireAuth();
@@ -23,6 +24,7 @@ export function AppLayout() {
         <main className="w-full max-w-full py-6 px-4 sm:px-6 lg:px-8" style={{ width: '100%', maxWidth: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
           <OfflineIndicator />
           <InstallPrompt />
+          <DebugLayoutInfo />
           <Outlet />
         </main>
       </div>

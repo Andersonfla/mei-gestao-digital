@@ -91,7 +91,7 @@ export function TransactionForm() {
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm w-full max-w-full box-border mx-auto">
       <CardHeader>
         <CardTitle>Nova Transação</CardTitle>
         <CardDescription>
@@ -99,7 +99,7 @@ export function TransactionForm() {
           <TransactionLimitIndicator userSettings={userSettings} />
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="w-full box-border p-4 sm:p-6">
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TransactionType)} className="w-full">
           <TabsList className="w-full mb-6">
             <TabsTrigger value="entrada" className="flex-1">Receita</TabsTrigger>

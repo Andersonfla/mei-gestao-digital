@@ -96,8 +96,8 @@ export function TransactionForm() {
         <CardTitle>Nova Transação</CardTitle>
         <CardDescription>
           Adicione uma nova entrada ou saída
-          <TransactionLimitIndicator userSettings={userSettings} />
         </CardDescription>
+        <TransactionLimitIndicator userSettings={userSettings} />
       </CardHeader>
       <CardContent className="w-full box-border p-4 sm:p-6">
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TransactionType)} className="w-full">

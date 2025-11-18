@@ -83,13 +83,25 @@ Deno.serve(async (req) => {
       subscriptionEnd = null;
       console.log('⬇️ Downgrade to free plan - Event:', payload.evento);
     } else if (eventosPositivo.some(e => eventoLower.includes(e))) {
-      // Upgrade to premium - always upgrade on positive events
-      newPlan = 'premium';
+      // Determinar plano baseado no produto comprado
+      // Premium: https://pay.kiwify.com.br/X8t3oZm
+      // Premium Master: https://pay.kiwify.com.br/K2pVyRU
+      
+      // Verificar se é Premium Master baseado no produto ou nome do produto
+      const isPremiumMaster = payload.produto && (
+        payload.produto.toLowerCase().includes('master') ||
+        payload.produto.toLowerCase().includes('premium master') ||
+        payload.produto === 'K2pVyRU' // ID específico do produto Premium Master
+      );
+      
+      newPlan = isPremiumMaster ? 'master' : 'premium';
+      
       // Set subscription end to 30 days from now
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + 30);
       subscriptionEnd = endDate.toISOString();
-      console.log('⬆️ Upgrade to premium plan - Event:', payload.evento, 'Expiration:', subscriptionEnd);
+      
+      console.log('⬆️ Upgrade plan - Event:', payload.evento, 'Plan:', newPlan, 'Product:', payload.produto, 'Expiration:', subscriptionEnd);
     } else {
       // Unknown event - log but don't change plan
       console.log('⚠️ Unknown event type:', payload.evento);

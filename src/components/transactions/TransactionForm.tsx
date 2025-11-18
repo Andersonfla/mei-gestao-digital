@@ -10,7 +10,6 @@ import { TransactionType } from "@/types/finance";
 import { useNavigate } from "react-router-dom";
 import { TransactionFormFields } from "./TransactionFormFields";
 import { TransactionLimitIndicator } from "./TransactionLimitIndicator";
-import { PremiumCategoriesInfo } from "./PremiumCategoriesInfo";
 import { TransactionFormValues, transactionSchema } from "./transactionSchema";
 import { useAuth } from "@/contexts";
 
@@ -126,9 +125,6 @@ export function TransactionForm() {
             />
           </TabsContent>
         </Tabs>
-        
-        {/* Mostrar informações sobre categorias premium para usuários gratuitos */}
-        <PremiumCategoriesInfo />
       </CardContent>
     </Card>
   );

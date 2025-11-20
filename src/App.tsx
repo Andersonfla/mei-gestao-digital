@@ -17,7 +17,8 @@ import Thanks from "./pages/Thanks";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/LandingPage";
 import PremiumMaster from "./pages/PremiumMaster";
-import Support from "./pages/Support";
+import SupportChat from "./pages/SupportChat";
+import PublicSupport from "./pages/PublicSupport";
 import AdminWebhooks from "./pages/AdminWebhooks";
 import Premium from "./pages/Premium";
 import { RequireAuth } from "./components/auth/RequireAuth";
@@ -58,7 +59,7 @@ function App() {
                         {/* Public routes */}
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/auth" element={<Auth />} />
-                        <Route path="/suporte" element={<Support />} />
+                        <Route path="/suporte" element={<PublicSupport />} />
                         <Route path="/install" element={<Install />} />
                         
                         {/* Protected routes */}
@@ -87,7 +88,7 @@ function App() {
 
                             {/* Premium & Premium Master Support */}
                             <Route element={<RequirePremium />}>
-                              <Route path="/suporte-prioritario" element={<Support />} />
+                              <Route path="/suporte-prioritario" element={<SupportChat />} />
                             </Route>
                           </Route>
 

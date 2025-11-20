@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, MessageSquare } from "lucide-react";
+import { Send, Loader2, MessageSquare, Headphones, Award, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { getOrCreateConversation, getMessages, sendMessage, createNewConversation, SupportMessage } from "@/services/supportService";
@@ -18,6 +18,7 @@ export default function SupportChat() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [adminTyping, setAdminTyping] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -57,6 +58,11 @@ export default function SupportChat() {
     if (conversation) {
       setConversationId(conversation.id);
       setConversationStatus(conversation.status);
+      // Se já tem mensagens, mostrar o chat automaticamente
+      const msgs = await getMessages(conversation.id);
+      if (msgs.length > 0) {
+        setShowChat(true);
+      }
     }
     setLoading(false);
   };
@@ -198,11 +204,22 @@ export default function SupportChat() {
     setConversationId(conversation.id);
     setConversationStatus('open');
     setMessages([]);
+    setShowChat(true);
     toast({
       title: "Novo atendimento iniciado",
       description: "Uma nova conversa foi criada com sucesso.",
     });
     setLoading(false);
+  };
+
+  const handleStartChat = () => {
+    setShowChat(true);
+    if (messages.length === 0) {
+      toast({
+        title: "Atendimento Iniciado",
+        description: "Envie sua primeira mensagem e nossa equipe responderá em breve.",
+      });
+    }
   };
 
   if (loading) {
@@ -213,6 +230,61 @@ export default function SupportChat() {
     );
   }
 
+  // Lobby Screen
+  if (!showChat) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Card className="min-h-[600px] flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background to-muted/20">
+          <div className="text-center space-y-8 max-w-2xl">
+            <div className="relative inline-block">
+              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
+              <div className="relative bg-primary/10 p-8 rounded-full">
+                <Headphones className="h-24 w-24 text-primary" strokeWidth={1.5} />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h1 className="text-4xl font-bold tracking-tight">
+                Suporte Prioritário
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Seu canal exclusivo de atendimento. Nossa equipe está pronta para te ajudar com prioridade máxima.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 bg-primary/10 px-6 py-3 rounded-full border border-primary/20">
+              <Clock className="h-5 w-5 text-primary" />
+              <span className="font-semibold text-primary">
+                Tempo de Resposta Médio: Abaixo de 1 hora
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 pt-4">
+              <Button 
+                size="lg" 
+                className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
+                onClick={handleStartChat}
+              >
+                <Award className="mr-2 h-5 w-5" />
+                INICIAR NOVO ATENDIMENTO PRIORITÁRIO
+              </Button>
+              
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                {conversationId && (
+                  <Badge variant="outline" className="gap-1">
+                    <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Sistema Conectado
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Chat Screen
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <Card className="h-[calc(100vh-12rem)]">

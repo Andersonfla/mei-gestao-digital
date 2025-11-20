@@ -7,7 +7,8 @@ import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminTransactions } from "@/components/admin/AdminTransactions";
 import { AdminLogs } from "@/components/admin/AdminLogs";
 import { AdminSupport } from "@/components/admin/AdminSupport";
-import { LayoutDashboard, Users, Receipt, FileText, MessageSquare } from "lucide-react";
+import AdminContactMessages from "@/components/admin/AdminContactMessages";
+import { LayoutDashboard, Users, Receipt, FileText, MessageSquare, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAdminSupportNotifications } from "@/hooks/useAdminSupportNotifications";
 
@@ -33,7 +34,7 @@ export default function AdminPanel() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-[750px]">
+          <TabsList className="grid w-full grid-cols-6 lg:w-[900px]">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
@@ -48,7 +49,7 @@ export default function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger value="support" className="flex items-center gap-2 relative">
               <MessageSquare className="h-4 w-4" />
-              Suporte
+              Chat
               {unreadCount > 0 && (
                 <Badge 
                   variant="destructive" 
@@ -57,6 +58,10 @@ export default function AdminPanel() {
                   {unreadCount}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="contato" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Contato
             </TabsTrigger>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -78,6 +83,10 @@ export default function AdminPanel() {
 
           <TabsContent value="support" className="space-y-6">
             <AdminSupport />
+          </TabsContent>
+
+          <TabsContent value="contato" className="space-y-6">
+            <AdminContactMessages />
           </TabsContent>
 
           <TabsContent value="logs" className="space-y-6">

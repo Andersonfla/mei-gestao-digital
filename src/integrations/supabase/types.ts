@@ -270,6 +270,42 @@ export type Database = {
           },
         ]
       }
+      mensagens_contato: {
+        Row: {
+          assunto: string
+          created_at: string
+          data_recebimento: string
+          email_contato: string
+          id: string
+          mensagem: string
+          nome_completo: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assunto: string
+          created_at?: string
+          data_recebimento?: string
+          email_contato: string
+          id?: string
+          mensagem: string
+          nome_completo: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assunto?: string
+          created_at?: string
+          data_recebimento?: string
+          email_contato?: string
+          id?: string
+          mensagem?: string
+          nome_completo?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plan_limits: {
         Row: {
           created_at: string | null

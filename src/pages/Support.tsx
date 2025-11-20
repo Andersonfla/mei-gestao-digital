@@ -389,10 +389,6 @@ export default function Support() {
                   </div>
                 )}
               </div>
-                )}
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

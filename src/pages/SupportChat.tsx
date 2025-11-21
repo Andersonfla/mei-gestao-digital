@@ -3,25 +3,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, Loader2, MessageSquare, Headphones, Crown, Clock, CheckCircle2 } from "lucide-react";
+import { Send, Loader2, MessageSquare, Headphones, Crown, Clock, CheckCircle2, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth/AuthContext";
 import { getOrCreateConversation, getMessages, sendMessage, createNewConversation, SupportMessage } from "@/services/supportService";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { RatingDialog } from "@/components/support/RatingDialog";
 
 export default function SupportChat() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversationStatus, setConversationStatus] = useState<string>('open');
+  const [conversationRating, setConversationRating] = useState<number | null>(null);
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [adminTyping, setAdminTyping] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -61,10 +64,17 @@ export default function SupportChat() {
     if (conversation) {
       setConversationId(conversation.id);
       setConversationStatus(conversation.status);
+      setConversationRating(conversation.rating || null);
+      
       // Se já tem mensagens, mostrar o chat automaticamente
       const msgs = await getMessages(conversation.id);
       if (msgs.length > 0) {
         setShowChat(true);
+      }
+      
+      // Se a conversa está fechada e não foi avaliada, mostrar o diálogo de avaliação
+      if (conversation.status === 'closed' && !conversation.rating && msgs.length > 0) {
+        setShowRatingDialog(true);
       }
     }
     setLoading(false);
@@ -238,6 +248,7 @@ export default function SupportChat() {
       if (error) throw error;
 
       setConversationStatus('open');
+      setConversationRating(null);
       toast({
         title: "Conversa reaberta",
         description: "Você pode continuar enviando mensagens.",
@@ -251,6 +262,14 @@ export default function SupportChat() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRatingSubmitted = () => {
+    setConversationRating(1); // Set to any non-null value to indicate it's been rated
+    toast({
+      title: "Avaliação enviada",
+      description: "Obrigado pelo seu feedback!",
+    });
   };
 
   if (loading) {
@@ -430,15 +449,34 @@ export default function SupportChat() {
             <Card className="bg-gradient-to-br from-muted/50 to-muted/30 border-2 border-dashed border-border shadow-lg animate-fade-in">
               <CardContent className="p-6 text-center space-y-4">
                 <div className="bg-primary/10 rounded-full p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <CheckCircle2 className="h-8 w-8 text-primary" />
+                  {conversationRating ? (
+                    <Star className="h-8 w-8 text-primary fill-primary" />
+                  ) : (
+                    <CheckCircle2 className="h-8 w-8 text-primary" />
+                  )}
                 </div>
                 <div>
-                  <p className="font-semibold text-lg mb-1">Atendimento Encerrado</p>
+                  <p className="font-semibold text-lg mb-1">
+                    {conversationRating ? "Atendimento Avaliado" : "Atendimento Encerrado"}
+                  </p>
                   <p className="text-sm text-muted-foreground">
-                    Este atendimento foi concluído. Você pode reabrir esta conversa ou iniciar um novo atendimento.
+                    {conversationRating 
+                      ? "Obrigado pela sua avaliação! Você pode reabrir esta conversa ou iniciar um novo atendimento."
+                      : "Este atendimento foi concluído. Você pode avaliar o atendimento, reabrir esta conversa ou iniciar um novo atendimento."
+                    }
                   </p>
                 </div>
-                <div className="flex gap-3 justify-center pt-2">
+                <div className="flex gap-3 justify-center pt-2 flex-wrap">
+                  {!conversationRating && (
+                    <Button
+                      onClick={() => setShowRatingDialog(true)}
+                      variant="default"
+                      className="shadow-md"
+                    >
+                      <Star className="mr-2 h-4 w-4" />
+                      Avaliar Atendimento
+                    </Button>
+                  )}
                   <Button
                     onClick={handleReopenConversation}
                     variant="outline"
@@ -487,6 +525,14 @@ export default function SupportChat() {
           )}
         </CardContent>
       </Card>
+
+      {/* Rating Dialog */}
+      <RatingDialog
+        open={showRatingDialog}
+        onOpenChange={setShowRatingDialog}
+        conversationId={conversationId || ""}
+        onRatingSubmitted={handleRatingSubmitted}
+      />
     </div>
   );
 }

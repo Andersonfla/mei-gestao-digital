@@ -7,6 +7,9 @@ export type SupportConversation = {
   created_at: string;
   updated_at: string;
   last_message_at: string;
+  rating?: number | null;
+  rating_comment?: string | null;
+  rated_at?: string | null;
   user_email?: string;
   user_name?: string;
   user_plan?: string;
@@ -311,6 +314,65 @@ export async function reopenConversation(conversationId: string): Promise<boolea
     return true;
   } catch (error) {
     console.error('Failed to reopen conversation:', error);
+    return false;
+  }
+}
+
+/**
+ * Rate a conversation (user only, after conversation is closed)
+ */
+export async function rateConversation(
+  conversationId: string, 
+  rating: number, 
+  comment?: string
+): Promise<boolean> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.error('User not authenticated');
+      return false;
+    }
+
+    // Verify the conversation is closed and belongs to the user
+    const { data: conversation, error: fetchError } = await supabase
+      .from('support_conversations')
+      .select('status, user_id')
+      .eq('id', conversationId)
+      .single();
+
+    if (fetchError || !conversation) {
+      console.error('Error fetching conversation:', fetchError);
+      return false;
+    }
+
+    if (conversation.user_id !== user.id) {
+      console.error('User does not own this conversation');
+      return false;
+    }
+
+    if (conversation.status !== 'closed') {
+      console.error('Cannot rate an open conversation');
+      return false;
+    }
+
+    const { error } = await supabase
+      .from('support_conversations')
+      .update({ 
+        rating,
+        rating_comment: comment || null,
+        rated_at: new Date().toISOString()
+      })
+      .eq('id', conversationId);
+
+    if (error) {
+      console.error('Error rating conversation:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Failed to rate conversation:', error);
     return false;
   }
 }

@@ -2,15 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, MessageSquare, Headphones, Award, Clock } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Send, Loader2, MessageSquare, Headphones, Crown, Clock, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/auth/AuthContext";
 import { getOrCreateConversation, getMessages, sendMessage, createNewConversation, SupportMessage } from "@/services/supportService";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
 export default function SupportChat() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversationStatus, setConversationStatus] = useState<string>('open');
   const [messages, setMessages] = useState<SupportMessage[]>([]);
@@ -222,195 +225,266 @@ export default function SupportChat() {
     }
   };
 
+  const handleReopenConversation = async () => {
+    if (!conversationId) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('support_conversations')
+        .update({ status: 'open' })
+        .eq('id', conversationId);
+
+      if (error) throw error;
+
+      setConversationStatus('open');
+      toast({
+        title: "Conversa reaberta",
+        description: "Você pode continuar enviando mensagens.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível reabrir a conversa.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground">Carregando seu atendimento premium...</p>
+        </div>
       </div>
     );
   }
 
-  // Lobby Screen
+  // Lobby Screen - Premium Design
   if (!showChat) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card className="min-h-[600px] flex flex-col items-center justify-center p-8 bg-gradient-to-br from-background to-muted/20">
-          <div className="text-center space-y-8 max-w-2xl">
-            <div className="relative inline-block">
-              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
-              <div className="relative bg-primary/10 p-8 rounded-full">
-                <Headphones className="h-24 w-24 text-primary" strokeWidth={1.5} />
-              </div>
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-background via-background to-primary/5">
+        <Card className="max-w-3xl w-full border-primary/20 shadow-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+          
+          <CardHeader className="text-center space-y-6 pb-8 pt-12 relative">
+            <div className="mx-auto bg-gradient-to-br from-primary/20 to-primary/10 rounded-full p-8 w-32 h-32 flex items-center justify-center shadow-lg backdrop-blur-sm border border-primary/30 animate-fade-in">
+              <Crown className="h-16 w-16 text-primary drop-shadow-lg" />
             </div>
-
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold tracking-tight">
-                Suporte Prioritário
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                Seu canal exclusivo de atendimento. Nossa equipe está pronta para te ajudar com prioridade máxima.
+            
+            <div className="space-y-3 animate-fade-in">
+              <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Suporte Prioritário Exclusivo
+              </CardTitle>
+              <p className="text-xl text-foreground/80 max-w-xl mx-auto leading-relaxed">
+                Seu canal de atendimento VIP. Nossa equipe está disponível para te ajudar com prioridade máxima.
               </p>
             </div>
-
-            <div className="flex items-center justify-center gap-2 bg-primary/10 px-6 py-3 rounded-full border border-primary/20">
-              <Clock className="h-5 w-5 text-primary" />
-              <span className="font-semibold text-primary">
-                Tempo de Resposta Médio: Abaixo de 1 hora
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center gap-4 pt-4">
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-                onClick={handleStartChat}
-              >
-                <Award className="mr-2 h-5 w-5" />
-                INICIAR NOVO ATENDIMENTO PRIORITÁRIO
-              </Button>
-              
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                {conversationId && (
-                  <Badge variant="outline" className="gap-1">
-                    <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                    Sistema Conectado
-                  </Badge>
-                )}
+          </CardHeader>
+          
+          <CardContent className="space-y-6 pb-12 relative">
+            {/* Guarantee Card */}
+            <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/30 rounded-xl p-8 text-center shadow-lg backdrop-blur-sm animate-fade-in">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="bg-primary/20 rounded-full p-3">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+                <div className="bg-primary/20 rounded-full p-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                </div>
               </div>
+              <p className="font-semibold text-foreground text-lg mb-2">Tempo de Resposta Garantido</p>
+              <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Em média, menos de 1 hora
+              </p>
             </div>
-          </div>
+            
+            {/* CTA Button */}
+            <Button 
+              onClick={handleStartChat}
+              className="w-full h-16 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary animate-fade-in"
+              size="lg"
+            >
+              <Headphones className="mr-3 h-6 w-6" />
+              INICIAR NOVO ATENDIMENTO PRIORITÁRIO
+            </Button>
+            
+            <p className="text-center text-sm text-muted-foreground animate-fade-in">
+              Atendimento exclusivo para membros Premium
+            </p>
+          </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Chat Screen
+  // Chat Screen - Improved Design with Avatars
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Card className="h-[calc(100vh-12rem)]">
-        <CardHeader className="border-b">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
+    <div className="container mx-auto max-w-5xl p-4 h-[calc(100vh-4rem)] animate-fade-in">
+      <Card className="h-full flex flex-col shadow-xl border-primary/10">
+        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/20 rounded-full p-2">
+              <Headphones className="h-5 w-5 text-primary" />
+            </div>
             <div className="flex-1">
-              <CardTitle>Suporte Prioritário</CardTitle>
-              <CardDescription>
-                Nossa equipe está disponível para ajudá-lo
+              <CardTitle className="text-lg font-bold">Chat de Suporte Prioritário</CardTitle>
+              <CardDescription className="text-xs">
+                {conversationStatus === 'open' ? 'Atendimento ativo' : 'Atendimento encerrado'}
               </CardDescription>
             </div>
-            <div className="text-xs text-muted-foreground">
-              {conversationId ? (
-                <Badge variant="outline" className="gap-1">
-                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                  Conectado
-                </Badge>
-              ) : (
-                <Badge variant="destructive">
-                  Desconectado
-                </Badge>
-              )}
-            </div>
+            <Badge variant={conversationStatus === 'open' ? 'outline' : 'secondary'} className="gap-1">
+              {conversationStatus === 'open' && <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>}
+              {conversationStatus === 'open' ? 'Online' : 'Encerrado'}
+            </Badge>
           </div>
         </CardHeader>
         
-        <CardContent className="flex flex-col h-[calc(100%-5rem)] p-0">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <CardContent className="flex-1 flex flex-col gap-4 p-6 overflow-hidden">
+          <div className="flex-1 overflow-y-auto pr-4 space-y-6">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
-                <p className="text-lg font-medium">Bem-vindo ao Suporte Prioritário!</p>
-                <p className="text-sm mt-2">
-                  Envie sua primeira mensagem e nossa equipe responderá em breve.
-                </p>
+              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-12 animate-fade-in">
+                <div className="bg-primary/10 rounded-full p-8 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                  <MessageSquare className="h-12 w-12 text-primary/50" />
+                </div>
+                <p className="text-lg font-medium">Seu atendimento começou!</p>
+                <p className="text-sm mt-2">Envie sua primeira mensagem e nossa equipe responderá em breve.</p>
               </div>
             ) : (
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.sent_by_admin ? 'justify-start' : 'justify-end'}`}
+                  className={`flex gap-3 ${
+                    message.sent_by_admin ? "justify-start" : "justify-end"
+                  } animate-fade-in`}
                 >
+                  {message.sent_by_admin && (
+                    <Avatar className="h-10 w-10 border-2 border-primary/20 flex-shrink-0">
+                      <AvatarImage src="/placeholder.svg" />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        SUP
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  
                   <div
-                    className={`max-w-[70%] rounded-lg p-4 ${
+                    className={`max-w-[70%] rounded-2xl px-5 py-3 shadow-md ${
                       message.sent_by_admin
-                        ? 'bg-muted'
-                        : 'bg-primary text-primary-foreground'
+                        ? "bg-card border border-border/50"
+                        : "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                    <p
-                      className={`text-xs mt-2 ${
-                        message.sent_by_admin ? 'text-muted-foreground' : 'opacity-70'
-                      }`}
-                    >
-                      {format(new Date(message.created_at), 'dd/MM/yyyy HH:mm')}
+                    {message.sent_by_admin && (
+                      <p className="text-xs font-semibold mb-1 text-primary">
+                        Equipe de Suporte
+                      </p>
+                    )}
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+                    <p className={`text-xs mt-2 ${
+                      message.sent_by_admin ? "text-muted-foreground" : "text-primary-foreground/70"
+                    }`}>
+                      {format(new Date(message.created_at), 'HH:mm')}
                     </p>
                   </div>
+
+                  {!message.sent_by_admin && (
+                    <Avatar className="h-10 w-10 border-2 border-primary/20 flex-shrink-0">
+                      <AvatarImage src={user?.user_metadata?.avatar_url} />
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                        {user?.email?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
               ))
+            )}
+            
+            {adminTyping && (
+              <div className="flex gap-3 justify-start animate-fade-in">
+                <Avatar className="h-10 w-10 border-2 border-primary/20 flex-shrink-0">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                    SUP
+                  </AvatarFallback>
+                </Avatar>
+                <div className="bg-card border border-border/50 rounded-2xl px-5 py-3 shadow-md">
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <span className="flex gap-1">
+                      <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </span>
+                    Atendente digitando...
+                  </p>
+                </div>
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {adminTyping && (
-            <div className="px-6 py-2 text-sm text-muted-foreground italic">
-              Admin está digitando...
-            </div>
-          )}
-
-          <div className="border-t p-4">
-            {conversationStatus === 'closed' ? (
-              <div className="bg-muted/50 p-6 rounded-lg border-2 border-dashed border-muted-foreground/20 text-center space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Atendimento Encerrado
-                </p>
-                <div className="flex gap-2 justify-center">
-                  <Button 
-                    onClick={handleSendMessage}
-                    disabled={!newMessage.trim() || sending}
+          {conversationStatus === 'closed' ? (
+            <Card className="bg-gradient-to-br from-muted/50 to-muted/30 border-2 border-dashed border-border shadow-lg animate-fade-in">
+              <CardContent className="p-6 text-center space-y-4">
+                <div className="bg-primary/10 rounded-full p-4 w-16 h-16 mx-auto flex items-center justify-center">
+                  <CheckCircle2 className="h-8 w-8 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-lg mb-1">Atendimento Encerrado</p>
+                  <p className="text-sm text-muted-foreground">
+                    Este atendimento foi concluído. Você pode reabrir esta conversa ou iniciar um novo atendimento.
+                  </p>
+                </div>
+                <div className="flex gap-3 justify-center pt-2">
+                  <Button
+                    onClick={handleReopenConversation}
                     variant="outline"
+                    className="shadow-md"
                   >
+                    <MessageSquare className="mr-2 h-4 w-4" />
                     Reabrir esta conversa
                   </Button>
                   <Button 
                     onClick={handleNewConversation}
-                    disabled={sending}
+                    className="shadow-md"
                   >
+                    <Crown className="mr-2 h-4 w-4" />
                     Iniciar novo atendimento
                   </Button>
                 </div>
-                {newMessage.trim() && (
-                  <p className="text-xs text-muted-foreground">
-                    Você pode reabrir esta conversa ou iniciar uma nova
-                  </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="flex gap-3 pt-4 border-t animate-fade-in">
+              <Textarea
+                value={newMessage}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  handleTyping();
+                }}
+                onKeyPress={handleKeyPress}
+                placeholder="Digite sua mensagem..."
+                disabled={sending}
+                className="flex-1 min-h-[80px] max-h-[160px] text-base shadow-sm resize-none"
+                rows={3}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={sending || !newMessage.trim()}
+                size="icon"
+                className="h-[80px] w-12 shadow-md self-end"
+              >
+                {sending ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Send className="h-5 w-5" />
                 )}
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <Textarea
-                  value={newMessage}
-                  onChange={(e) => {
-                    setNewMessage(e.target.value);
-                    handleTyping();
-                  }}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Digite sua mensagem..."
-                  className="resize-none"
-                  rows={3}
-                  disabled={sending}
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || sending}
-                  className="self-end"
-                >
-                  {sending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            )}
-          </div>
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

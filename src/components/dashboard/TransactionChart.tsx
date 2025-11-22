@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFinance } from "@/contexts";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { formatCurrency } from "@/lib/formatters";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 export function TransactionChart({ type }: { type: 'entrada' | 'saida' }) {
   const { getCategoryBreakdown } = useFinance();
@@ -28,47 +29,36 @@ export function TransactionChart({ type }: { type: 'entrada' | 'saida' }) {
   }
 
   return (
-    <Card className="shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-lg">
-          {type === 'entrada' ? 'Receitas por Categoria' : 'Despesas por Categoria'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                nameKey="name"
-                label={({name, percent}) => {
-                  // Convert percent to number if it's not already and then use toFixed
-                  const percentValue = typeof percent === 'number' ? percent : parseFloat(percent.toString());
-                  return `${name}: ${(percentValue * 100).toFixed(0)}%`;
-                }}
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value) => {
-                  // Convert value to number if it's not already and then use toFixed
-                  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-                  return [`R$ ${numValue.toFixed(2)}`, 'Valor'];
-                }}
+    <div className="h-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+          <XAxis 
+            dataKey="name" 
+            angle={-45} 
+            textAnchor="end" 
+            height={100}
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis tickFormatter={(value) => formatCurrency(value)} />
+          <Tooltip
+            formatter={(value: number) => formatCurrency(value)}
+            contentStyle={{
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '8px'
+            }}
+          />
+          <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+            {data.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={COLORS[index % COLORS.length]}
               />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

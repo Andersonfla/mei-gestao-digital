@@ -32,6 +32,7 @@ export function useUserSettings() {
       transactionLimit: 20,
       subscriptionEnd: null,
       usedTransactions: 0,
+      canceled_at: null,
     },
   });
 

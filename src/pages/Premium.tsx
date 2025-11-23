@@ -3,13 +3,16 @@ import { usePlan } from "@/hooks/usePlan";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, TrendingUp, FileSpreadsheet, Shield, Trophy, ExternalLink, Crown, Sparkles, Target, Wallet, BarChart3 } from "lucide-react";
+import { CheckCircle2, TrendingUp, FileSpreadsheet, Shield, Trophy, Crown, Sparkles, Target, Wallet, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { PlanManagementDialog } from "@/components/settings/PlanManagementDialog";
 
 const Premium = () => {
   const { userSettings } = useFinance();
   const { plan, isMaster, expirationDate } = usePlan();
   const navigate = useNavigate();
+  const [showManagementDialog, setShowManagementDialog] = useState(false);
 
   const formatExpirationDate = (date: Date | null | undefined) => {
     if (!date) return 'N/A';
@@ -110,10 +113,9 @@ const Premium = () => {
             <Button 
               variant="outline" 
               className="w-full md:w-auto"
-              onClick={() => window.open('https://kiwify.app/login', '_blank')}
+              onClick={() => setShowManagementDialog(true)}
             >
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Gerenciar Assinatura na Kiwify
+              Gerenciar Assinatura de Plano
             </Button>
           </CardContent>
         </Card>
@@ -254,6 +256,11 @@ const Premium = () => {
           )}
         </CardContent>
       </Card>
+
+      <PlanManagementDialog 
+        open={showManagementDialog} 
+        onOpenChange={setShowManagementDialog} 
+      />
     </div>
   );
 };

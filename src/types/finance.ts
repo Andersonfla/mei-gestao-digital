@@ -50,8 +50,9 @@ export type UserSettings = {
   darkMode: boolean;
   transactionCountThisMonth: number;
   transactionLimit: number;
-  subscriptionEnd?: Date | null; // Data de expiração do plano premium
-  usedTransactions: number; // Total de transações já criadas (não diminui com exclusões)
+  subscriptionEnd?: Date | null;
+  usedTransactions: number;
+  canceled_at?: Date | null;
 };
 
 export type CategoryBreakdownItem = {

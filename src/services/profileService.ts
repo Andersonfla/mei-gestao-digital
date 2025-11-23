@@ -20,7 +20,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     // Buscar perfil do usuário
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
-      .select("plan, subscription_end, used_transactions")
+      .select("plan, subscription_end, used_transactions, canceled_at")
       .eq("id", userId)
       .single();
 
@@ -34,6 +34,7 @@ export async function getUserSettings(): Promise<UserSettings> {
         transactionLimit: 20,
         subscriptionEnd: null,
         usedTransactions: 0,
+        canceled_at: null,
       };
     }
 
@@ -111,6 +112,7 @@ export async function getUserSettings(): Promise<UserSettings> {
       transactionLimit,
       subscriptionEnd: subscriptionEnd,
       usedTransactions,
+      canceled_at: profileData?.canceled_at ? new Date(profileData.canceled_at) : null,
     };
   } catch (error) {
     console.error("Erro ao buscar configurações do usuário:", error);
@@ -122,6 +124,7 @@ export async function getUserSettings(): Promise<UserSettings> {
       transactionLimit: 20,
       subscriptionEnd: null,
       usedTransactions: 0,
+      canceled_at: null,
     };
   }
 }

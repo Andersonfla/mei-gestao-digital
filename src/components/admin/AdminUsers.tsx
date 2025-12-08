@@ -215,87 +215,90 @@ export function AdminUsers() {
     switch (plan) {
       case 'premium':
         return (
-          <Badge variant="default">
-            <Crown className="h-3 w-3 mr-1" />
-            Premium Pro
+          <Badge variant="default" className="text-[10px] sm:text-xs whitespace-nowrap">
+            <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+            <span className="hidden sm:inline">Premium Pro</span>
+            <span className="sm:hidden">Pro</span>
           </Badge>
         );
       case 'master':
         return (
-          <Badge className="bg-gradient-to-r from-purple-600 to-pink-600">
-            <Crown className="h-3 w-3 mr-1" />
-            Premium Master
+          <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-[10px] sm:text-xs whitespace-nowrap">
+            <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+            <span className="hidden sm:inline">Premium Master</span>
+            <span className="sm:hidden">Master</span>
           </Badge>
         );
       default:
-        return <Badge variant="secondary">Gratuito</Badge>;
+        return <Badge variant="secondary" className="text-[10px] sm:text-xs">Gratuito</Badge>;
     }
   };
 
   const getStatusBadge = (status: string | null) => {
     return status === 'suspended' ? (
-      <Badge variant="destructive">Suspenso</Badge>
+      <Badge variant="destructive" className="text-[10px] sm:text-xs">Suspenso</Badge>
     ) : (
-      <Badge variant="outline" className="text-green-600 border-green-600">Ativo</Badge>
+      <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] sm:text-xs">Ativo</Badge>
     );
   };
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Gestão de Usuários</CardTitle>
-              <CardDescription>
-                Gerencie planos, status e contas de todos os usuários da plataforma
+      <Card className="w-full max-w-full overflow-hidden">
+        <CardHeader className="px-3 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="min-w-0">
+              <CardTitle className="text-lg sm:text-xl">Gestão de Usuários</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Gerencie planos, status e contas de todos os usuários
               </CardDescription>
             </div>
-            <Button onClick={fetchUsers} variant="outline" size="sm">
+            <Button onClick={fetchUsers} variant="outline" size="sm" className="w-full sm:w-auto">
               <RefreshCw className="h-4 w-4 mr-2" />
               Atualizar
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+        <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
+          {/* Info box - collapsible on mobile */}
+          <details className="rounded-lg border bg-muted/50 overflow-hidden">
+            <summary className="p-3 sm:p-4 cursor-pointer text-sm font-semibold flex items-center gap-2">
               <Crown className="h-4 w-4 text-primary" />
               Poderes de Administrador
-            </h3>
-            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-              <li>Atribuir ou alterar plano de qualquer usuário (Free, Premium, Pro, Premium Master)</li>
+            </summary>
+            <ul className="text-xs sm:text-sm text-muted-foreground space-y-1 px-3 sm:px-4 pb-3 sm:pb-4 ml-6 list-disc">
+              <li>Atribuir ou alterar plano de qualquer usuário</li>
               <li>Definir duração personalizada do plano (1 mês até 10 anos)</li>
               <li>Suspender ou reativar contas temporariamente</li>
-              <li>Excluir usuários permanentemente (remove acesso completo)</li>
+              <li>Excluir usuários permanentemente</li>
             </ul>
-          </div>
+          </details>
 
-          <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 w-full">
+            <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <Input
               placeholder="Buscar por e-mail ou nome..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
+              className="w-full sm:max-w-sm"
             />
           </div>
 
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Carregando usuários...</div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
+            <div className="rounded-md border overflow-x-auto w-full">
+              <Table className="min-w-[700px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>E-mail</TableHead>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Função</TableHead>
-                    <TableHead>Plano</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Lançamentos</TableHead>
-                    <TableHead>Vencimento</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap">E-mail</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap hidden md:table-cell">Nome</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap">Função</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap">Plano</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">Status</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap text-right hidden lg:table-cell">Lanç.</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap hidden md:table-cell">Vencimento</TableHead>
+                    <TableHead className="text-xs sm:text-sm whitespace-nowrap text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -308,43 +311,47 @@ export function AdminUsers() {
                   ) : (
                     filteredUsers.map((user) => (
                       <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.email || "N/A"}</TableCell>
-                        <TableCell>{user.name || "-"}</TableCell>
+                        <TableCell className="font-medium text-xs sm:text-sm max-w-[120px] sm:max-w-none truncate">
+                          {user.email || "N/A"}
+                        </TableCell>
+                        <TableCell className="text-xs sm:text-sm hidden md:table-cell">{user.name || "-"}</TableCell>
                         <TableCell>
                           {userAdminStatus[user.id] ? (
-                            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
-                              <Shield className="h-3 w-3 mr-1" />
-                              Admin
+                            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0 text-[10px] sm:text-xs">
+                              <Shield className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                              <span className="hidden sm:inline">Admin</span>
+                              <span className="sm:hidden">Adm</span>
                             </Badge>
                           ) : (
-                            <Badge variant="outline">
-                              Usuário
+                            <Badge variant="outline" className="text-[10px] sm:text-xs">
+                              <span className="hidden sm:inline">Usuário</span>
+                              <span className="sm:hidden">User</span>
                             </Badge>
                           )}
                         </TableCell>
                         <TableCell>{getPlanBadge(user.plan)}</TableCell>
-                        <TableCell>{getStatusBadge(user.status)}</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="hidden sm:table-cell">{getStatusBadge(user.status)}</TableCell>
+                        <TableCell className="text-right text-xs sm:text-sm hidden lg:table-cell">
                           {user.used_transactions}/{user.plan === 'premium' || user.plan === 'pro' ? '∞' : '20'}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-xs sm:text-sm hidden md:table-cell">
                           {user.subscription_end
-                            ? format(new Date(user.subscription_end), "dd/MM/yyyy", { locale: ptBR })
+                            ? format(new Date(user.subscription_end), "dd/MM/yy", { locale: ptBR })
                             : "-"}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-end gap-1 sm:gap-2">
                             <Button
                               size="sm"
                               variant={userAdminStatus[user.id] ? "destructive" : "default"}
                               onClick={() => handleToggleAdmin(user)}
-                              title={userAdminStatus[user.id] ? "Remover privilégios de Admin" : "Promover a Admin"}
-                              className={userAdminStatus[user.id] ? "" : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"}
+                              title={userAdminStatus[user.id] ? "Remover Admin" : "Promover a Admin"}
+                              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 ${userAdminStatus[user.id] ? "" : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"}`}
                             >
                               {userAdminStatus[user.id] ? (
-                                <ShieldOff className="h-4 w-4" />
+                                <ShieldOff className="h-3 w-3 sm:h-4 sm:w-4" />
                               ) : (
-                                <Shield className="h-4 w-4" />
+                                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                               )}
                             </Button>
                             <Button
@@ -352,19 +359,21 @@ export function AdminUsers() {
                               variant="outline"
                               size="sm"
                               title="Editar Plano"
+                              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
                               onClick={() => handleToggleStatus(user)}
                               variant={user.status === 'suspended' ? 'default' : 'outline'}
                               size="sm"
                               title={user.status === 'suspended' ? 'Ativar' : 'Suspender'}
+                              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                             >
                               {user.status === 'suspended' ? (
-                                <CheckCircle className="h-4 w-4" />
+                                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                               ) : (
-                                <Ban className="h-4 w-4" />
+                                <Ban className="h-3 w-3 sm:h-4 sm:w-4" />
                               )}
                             </Button>
                             <Button
@@ -372,8 +381,9 @@ export function AdminUsers() {
                               variant="destructive"
                               size="sm"
                               title="Excluir Usuário"
+                              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                           </div>
                         </TableCell>
@@ -385,7 +395,7 @@ export function AdminUsers() {
             </div>
           )}
 
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm text-muted-foreground">
             Total: {filteredUsers.length} usuário(s)
           </div>
         </CardContent>

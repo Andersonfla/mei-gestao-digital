@@ -57,13 +57,13 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 w-full max-w-full">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Dashboard Geral</h2>
-        <p className="text-muted-foreground">Visão geral da plataforma MEI Finanças</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">Dashboard Geral</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">Visão geral da plataforma MEI Finanças</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
@@ -142,7 +142,7 @@ export function AdminDashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="border-blue-200 dark:border-blue-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Administradores</CardTitle>
@@ -160,8 +160,8 @@ export function AdminDashboard() {
       </div>
 
       <div>
-        <h3 className="text-xl font-bold text-foreground mb-4">Estatísticas de Lançamentos</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4">Estatísticas de Lançamentos</h3>
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Lançamentos</CardTitle>

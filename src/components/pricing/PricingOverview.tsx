@@ -1,0 +1,91 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Package, TrendingUp, DollarSign, BarChart3 } from "lucide-react";
+import type { Product } from "@/types/pricing";
+import { PricingLoadingSkeleton } from "./PricingLoadingSkeleton";
+import { PricingEmptyState } from "./PricingEmptyState";
+
+interface PricingOverviewProps {
+  products: Product[];
+  isLoading: boolean;
+}
+
+export function PricingOverview({ products, isLoading }: PricingOverviewProps) {
+  if (isLoading) return <PricingLoadingSkeleton count={4} />;
+
+  const activeProducts = products.filter((p) => p.is_active);
+  const totalRevenue = activeProducts.reduce((sum, p) => sum + p.selling_price * p.monthly_quantity, 0);
+  const totalCost = activeProducts.reduce(
+    (sum, p) => sum + (p.cost_price + p.fixed_costs + p.variable_costs + p.labor_cost) * p.monthly_quantity,
+    0
+  );
+  const avgMargin =
+    activeProducts.length > 0
+      ? activeProducts.reduce((sum, p) => {
+          const total = p.cost_price + p.fixed_costs + p.variable_costs + p.labor_cost;
+          return sum + (total > 0 ? ((p.selling_price - total) / total) * 100 : 0);
+        }, 0) / activeProducts.length
+      : 0;
+
+  const cards = [
+    {
+      title: "Produtos Ativos",
+      value: activeProducts.length.toString(),
+      subtitle: `de ${products.length} total`,
+      icon: Package,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      title: "Receita Estimada/Mês",
+      value: totalRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      subtitle: "baseado na quantidade mensal",
+      icon: DollarSign,
+      color: "text-emerald-600",
+      bg: "bg-emerald-500/10",
+    },
+    {
+      title: "Custo Total/Mês",
+      value: totalCost.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      subtitle: "custos fixos + variáveis",
+      icon: TrendingUp,
+      color: "text-amber-600",
+      bg: "bg-amber-500/10",
+    },
+    {
+      title: "Margem Média",
+      value: `${avgMargin.toFixed(1)}%`,
+      subtitle: "sobre custo total",
+      icon: BarChart3,
+      color: "text-violet-600",
+      bg: "bg-violet-500/10",
+    },
+  ];
+
+  if (products.length === 0) {
+    return (
+      <PricingEmptyState
+        title="Nenhum produto cadastrado"
+        description="Cadastre seus produtos ou serviços para começar a precificar e acompanhar suas margens de lucro."
+      />
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {cards.map((card) => (
+        <Card key={card.title}>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
+            <div className={`w-9 h-9 rounded-xl ${card.bg} flex items-center justify-center`}>
+              <card.icon className={`h-5 w-5 ${card.color}`} />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{card.value}</div>
+            <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

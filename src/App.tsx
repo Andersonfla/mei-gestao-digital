@@ -31,6 +31,7 @@ import FinancialGoals from "./pages/FinancialGoals";
 import AutoAnalysis from "./pages/AutoAnalysis";
 import RecurringTransactions from "./pages/RecurringTransactions";
 import Install from "./pages/Install";
+import Pricing from "./pages/Pricing";
 import { OfflineIndicator } from "./components/pwa/OfflineIndicator";
 
 const queryClient = new QueryClient({
@@ -67,6 +68,7 @@ function App() {
                           <Route element={<AppLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/transacoes" element={<Transactions />} />
+                            <Route path="/precificacao" element={<Pricing />} />
                             <Route path="/relatorios" element={<Reports />} />
                             <Route path="/configuracoes" element={<Settings />} />
                             <Route path="/upgrade" element={<Upgrade />} />

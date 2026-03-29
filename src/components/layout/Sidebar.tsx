@@ -112,6 +112,7 @@ export function AppSidebar() {
   const baseMenuItems = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/transacoes", label: "Transações" },
+    { path: "/precificacao", label: "Precificação" },
     { path: "/relatorios", label: "Relatórios" },
     { path: "/configuracoes", label: "Configurações" },
   ];

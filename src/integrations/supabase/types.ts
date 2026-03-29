@@ -336,6 +336,63 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          category: string | null
+          cost_price: number
+          created_at: string
+          description: string | null
+          desired_margin: number
+          fixed_costs: number
+          id: string
+          is_active: boolean
+          labor_cost: number
+          monthly_quantity: number
+          name: string
+          selling_price: number
+          unit: string | null
+          updated_at: string
+          user_id: string
+          variable_costs: number
+        }
+        Insert: {
+          category?: string | null
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          desired_margin?: number
+          fixed_costs?: number
+          id?: string
+          is_active?: boolean
+          labor_cost?: number
+          monthly_quantity?: number
+          name: string
+          selling_price?: number
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+          variable_costs?: number
+        }
+        Update: {
+          category?: string | null
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          desired_margin?: number
+          fixed_costs?: number
+          id?: string
+          is_active?: boolean
+          labor_cost?: number
+          monthly_quantity?: number
+          name?: string
+          selling_price?: number
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+          variable_costs?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, Package, Calculator, Receipt, BarChart3 } from "lucide-react";
-import { useProducts } from "@/hooks/useProducts";
+import { usePricingProducts } from "@/hooks/usePricingProducts";
 import { PricingOverview } from "@/components/pricing/PricingOverview";
 import { ProductsList } from "@/components/pricing/ProductsList";
 import { PriceSimulator } from "@/components/pricing/PriceSimulator";
@@ -8,7 +8,7 @@ import { TicketSimulator } from "@/components/pricing/TicketSimulator";
 import { PricingReports } from "@/components/pricing/PricingReports";
 
 export default function Pricing() {
-  const { products, isLoading, createProduct, updateProduct, deleteProduct, toggleActive, isCreating } = useProducts();
+  const { products, isLoading, createProduct, updateProduct, deleteProduct, toggleActive, isCreating } = usePricingProducts();
 
   return (
     <div className="w-full max-w-full overflow-x-hidden px-3 sm:px-6 py-4 sm:py-6 space-y-6">

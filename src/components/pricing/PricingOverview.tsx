@@ -1,73 +1,42 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, TrendingUp, DollarSign, BarChart3 } from "lucide-react";
-import type { Product } from "@/types/pricing";
+import type { PricingProduct } from "@/types/pricing";
 import { PricingLoadingSkeleton } from "./PricingLoadingSkeleton";
 import { PricingEmptyState } from "./PricingEmptyState";
 
 interface PricingOverviewProps {
-  products: Product[];
+  products: PricingProduct[];
   isLoading: boolean;
+}
+
+function totalCost(p: PricingProduct) {
+  return (p.ingredient_cost || 0) + (p.packaging_cost || 0) + (p.operational_cost || 0) +
+    (p.platform_fee || 0) + (p.delivery_cost || 0) + (p.other_costs || 0);
 }
 
 export function PricingOverview({ products, isLoading }: PricingOverviewProps) {
   if (isLoading) return <PricingLoadingSkeleton count={4} />;
 
   const activeProducts = products.filter((p) => p.is_active);
-  const totalRevenue = activeProducts.reduce((sum, p) => sum + p.selling_price * p.monthly_quantity, 0);
-  const totalCost = activeProducts.reduce(
-    (sum, p) => sum + (p.cost_price + p.fixed_costs + p.variable_costs + p.labor_cost) * p.monthly_quantity,
-    0
-  );
+  const totalRevenue = activeProducts.reduce((sum, p) => sum + (p.sale_price || 0) * (p.average_units_sold || 0), 0);
+  const totalCosts = activeProducts.reduce((sum, p) => sum + totalCost(p) * (p.average_units_sold || 0), 0);
   const avgMargin =
     activeProducts.length > 0
       ? activeProducts.reduce((sum, p) => {
-          const total = p.cost_price + p.fixed_costs + p.variable_costs + p.labor_cost;
-          return sum + (total > 0 ? ((p.selling_price - total) / total) * 100 : 0);
+          const cost = totalCost(p);
+          return sum + (cost > 0 ? ((p.sale_price - cost) / cost) * 100 : 0);
         }, 0) / activeProducts.length
       : 0;
 
   const cards = [
-    {
-      title: "Produtos Ativos",
-      value: activeProducts.length.toString(),
-      subtitle: `de ${products.length} total`,
-      icon: Package,
-      color: "text-primary",
-      bg: "bg-primary/10",
-    },
-    {
-      title: "Receita Estimada/Mês",
-      value: totalRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
-      subtitle: "baseado na quantidade mensal",
-      icon: DollarSign,
-      color: "text-emerald-600",
-      bg: "bg-emerald-500/10",
-    },
-    {
-      title: "Custo Total/Mês",
-      value: totalCost.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
-      subtitle: "custos fixos + variáveis",
-      icon: TrendingUp,
-      color: "text-amber-600",
-      bg: "bg-amber-500/10",
-    },
-    {
-      title: "Margem Média",
-      value: `${avgMargin.toFixed(1)}%`,
-      subtitle: "sobre custo total",
-      icon: BarChart3,
-      color: "text-violet-600",
-      bg: "bg-violet-500/10",
-    },
+    { title: "Produtos Ativos", value: activeProducts.length.toString(), subtitle: `de ${products.length} total`, icon: Package, color: "text-primary", bg: "bg-primary/10" },
+    { title: "Receita Estimada/Mês", value: totalRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }), subtitle: "baseado na qtd. vendida", icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-500/10" },
+    { title: "Custo Total/Mês", value: totalCosts.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }), subtitle: "soma de todos os custos", icon: TrendingUp, color: "text-amber-600", bg: "bg-amber-500/10" },
+    { title: "Margem Média", value: `${avgMargin.toFixed(1)}%`, subtitle: "sobre custo total", icon: BarChart3, color: "text-violet-600", bg: "bg-violet-500/10" },
   ];
 
   if (products.length === 0) {
-    return (
-      <PricingEmptyState
-        title="Nenhum produto cadastrado"
-        description="Cadastre seus produtos ou serviços para começar a precificar e acompanhar suas margens de lucro."
-      />
-    );
+    return <PricingEmptyState title="Nenhum produto cadastrado" description="Cadastre seus produtos ou serviços para começar a precificar e acompanhar suas margens de lucro." />;
   }
 
   return (

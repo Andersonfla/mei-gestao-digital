@@ -336,6 +336,163 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_product_history: {
+        Row: {
+          change_type: string
+          created_at: string | null
+          id: string
+          new_sale_price: number | null
+          new_total_cost: number | null
+          notes: string | null
+          old_sale_price: number | null
+          old_total_cost: number | null
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          change_type: string
+          created_at?: string | null
+          id?: string
+          new_sale_price?: number | null
+          new_total_cost?: number | null
+          notes?: string | null
+          old_sale_price?: number | null
+          old_total_cost?: number | null
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          change_type?: string
+          created_at?: string | null
+          id?: string
+          new_sale_price?: number | null
+          new_total_cost?: number | null
+          notes?: string | null
+          old_sale_price?: number | null
+          old_total_cost?: number | null
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_product_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_products: {
+        Row: {
+          average_units_sold: number | null
+          category: string | null
+          created_at: string | null
+          delivery_cost: number | null
+          description: string | null
+          id: string
+          ingredient_cost: number | null
+          is_active: boolean | null
+          name: string
+          operational_cost: number | null
+          other_costs: number | null
+          packaging_cost: number | null
+          platform_fee: number | null
+          sale_price: number | null
+          sales_share_percent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          average_units_sold?: number | null
+          category?: string | null
+          created_at?: string | null
+          delivery_cost?: number | null
+          description?: string | null
+          id?: string
+          ingredient_cost?: number | null
+          is_active?: boolean | null
+          name: string
+          operational_cost?: number | null
+          other_costs?: number | null
+          packaging_cost?: number | null
+          platform_fee?: number | null
+          sale_price?: number | null
+          sales_share_percent?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          average_units_sold?: number | null
+          category?: string | null
+          created_at?: string | null
+          delivery_cost?: number | null
+          description?: string | null
+          id?: string
+          ingredient_cost?: number | null
+          is_active?: boolean | null
+          name?: string
+          operational_cost?: number | null
+          other_costs?: number | null
+          packaging_cost?: number | null
+          platform_fee?: number | null
+          sale_price?: number | null
+          sales_share_percent?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pricing_simulations: {
+        Row: {
+          created_at: string | null
+          current_margin: number | null
+          current_price: number | null
+          current_profit: number | null
+          id: string
+          notes: string | null
+          product_id: string | null
+          simulated_margin: number | null
+          simulated_price: number | null
+          simulated_profit: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_margin?: number | null
+          current_price?: number | null
+          current_profit?: number | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          simulated_margin?: number | null
+          simulated_price?: number | null
+          simulated_profit?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_margin?: number | null
+          current_price?: number | null
+          current_profit?: number | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          simulated_margin?: number | null
+          simulated_price?: number | null
+          simulated_profit?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_simulations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null

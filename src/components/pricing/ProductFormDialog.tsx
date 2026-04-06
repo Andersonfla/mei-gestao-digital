@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import type { PricingProduct, PricingProductFormData } from "@/types/pricing";
+import { calcTotalCost, calcProfit, calcMarginPercent, calcProductStatus, calcAllSuggestedPrices } from "@/lib/pricingCalculations";
+import { formatCurrency } from "@/lib/formatters";
 
 interface ProductFormDialogProps {
   open: boolean;

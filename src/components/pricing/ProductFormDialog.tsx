@@ -143,8 +143,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onCreate, onUpd
     { id: "other_costs" as const, label: "Outros (R$)" },
   ];
 
-  const formatCurrency = (v: number) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

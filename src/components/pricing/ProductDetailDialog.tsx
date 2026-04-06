@@ -2,29 +2,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { PricingProduct } from "@/types/pricing";
+import { calcProductFull } from "@/lib/pricingCalculations";
+import { formatCurrency } from "@/lib/formatters";
 
 interface ProductDetailDialogProps {
   product: PricingProduct | null;
   onClose: () => void;
 }
 
-const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
 export function ProductDetailDialog({ product, onClose }: ProductDetailDialogProps) {
   if (!product) return null;
 
-  const cost =
-    (product.ingredient_cost || 0) +
-    (product.packaging_cost || 0) +
-    (product.operational_cost || 0) +
-    (product.platform_fee || 0) +
-    (product.delivery_cost || 0) +
-    (product.other_costs || 0);
-
-  const price = product.sale_price || 0;
-  const profit = price - cost;
-  const margin = price > 0 ? ((price - cost) / price) * 100 : 0;
-  const markup = cost > 0 ? ((price - cost) / cost) * 100 : 0;
+  const calc = calcProductFull(product);
 
   const costItems = [
     { label: "Ingredientes", value: product.ingredient_cost || 0 },
@@ -56,6 +45,7 @@ export function ProductDetailDialog({ product, onClose }: ProductDetailDialogPro
 
         <Separator />
 
+        {/* Custos */}
         <div className="space-y-3">
           <p className="text-sm font-semibold">Detalhamento de Custos</p>
           {costItems.map((item) => (
@@ -67,35 +57,65 @@ export function ProductDetailDialog({ product, onClose }: ProductDetailDialogPro
           <Separator />
           <div className="flex justify-between text-sm font-semibold">
             <span>Custo Total</span>
-            <span className="tabular-nums">{formatCurrency(cost)}</span>
+            <span className="tabular-nums">{formatCurrency(calc.totalCost)}</span>
           </div>
         </div>
 
         <Separator />
 
+        {/* Indicadores */}
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-xl border p-3 text-center">
             <p className="text-xs text-muted-foreground">Preço de Venda</p>
-            <p className="text-lg font-bold">{formatCurrency(price)}</p>
+            <p className="text-lg font-bold">{formatCurrency(product.sale_price || 0)}</p>
           </div>
           <div className="rounded-xl border p-3 text-center">
             <p className="text-xs text-muted-foreground">Lucro Unitário</p>
-            <p className={`text-lg font-bold ${profit >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-              {formatCurrency(profit)}
+            <p className={`text-lg font-bold ${calc.profit >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+              {formatCurrency(calc.profit)}
             </p>
           </div>
           <div className="rounded-xl border p-3 text-center">
             <p className="text-xs text-muted-foreground">Margem</p>
-            <p className={`text-lg font-bold ${margin >= 30 ? "text-emerald-600" : margin >= 10 ? "text-amber-600" : "text-destructive"}`}>
-              {margin.toFixed(1)}%
+            <p className={`text-lg font-bold ${calc.status.color}`}>
+              {calc.marginPercent.toFixed(1)}%
             </p>
           </div>
           <div className="rounded-xl border p-3 text-center">
             <p className="text-xs text-muted-foreground">Markup</p>
-            <p className="text-lg font-bold">{markup.toFixed(1)}%</p>
+            <p className="text-lg font-bold">{calc.markupPercent.toFixed(1)}%</p>
           </div>
         </div>
 
+        {/* Status */}
+        <div className="flex items-center justify-between rounded-xl border p-3">
+          <span className="text-sm text-muted-foreground">Status</span>
+          <Badge variant={calc.status.variant}>{calc.status.label}</Badge>
+        </div>
+
+        {/* Preços sugeridos */}
+        {calc.totalCost > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">Preços Sugeridos por Margem</p>
+              <div className="grid grid-cols-2 gap-2">
+                {calc.suggestedPrices.map((sp) => (
+                  <div key={sp.label} className="rounded-lg border p-2 text-center">
+                    <p className="text-xs text-muted-foreground">Margem {sp.label}</p>
+                    <p className="text-sm font-bold">{formatCurrency(sp.price)}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-lg border p-2 text-center">
+                <p className="text-xs text-muted-foreground">Preço Mínimo (sem prejuízo)</p>
+                <p className="text-sm font-bold text-amber-600">{formatCurrency(calc.minPrice)}</p>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Vendas */}
         {(product.average_units_sold > 0 || product.sales_share_percent > 0) && (
           <>
             <Separator />
@@ -112,8 +132,8 @@ export function ProductDetailDialog({ product, onClose }: ProductDetailDialogPro
               {product.average_units_sold > 0 && (
                 <div className="flex justify-between text-sm font-semibold">
                   <span>Lucro Mensal Estimado</span>
-                  <span className={profit >= 0 ? "text-emerald-600" : "text-destructive"}>
-                    {formatCurrency(profit * product.average_units_sold)}
+                  <span className={calc.profit >= 0 ? "text-emerald-600" : "text-destructive"}>
+                    {formatCurrency(calc.monthlyProfit)}
                   </span>
                 </div>
               )}

@@ -112,15 +112,10 @@ export function ProductFormDialog({ open, onOpenChange, product, onCreate, onUpd
   }, [product, open, reset]);
 
   const watchedValues = watch();
-  const totalCost =
-    (watchedValues.ingredient_cost || 0) +
-    (watchedValues.packaging_cost || 0) +
-    (watchedValues.operational_cost || 0) +
-    (watchedValues.platform_fee || 0) +
-    (watchedValues.delivery_cost || 0) +
-    (watchedValues.other_costs || 0);
-  const profit = (watchedValues.sale_price || 0) - totalCost;
-  const margin = totalCost > 0 ? (profit / totalCost) * 100 : 0;
+  const totalCost = calcTotalCost(watchedValues as any);
+  const profit = calcProfit(watchedValues.sale_price || 0, totalCost);
+  const margin = calcMarginPercent(watchedValues.sale_price || 0, totalCost);
+  const status = calcProductStatus(margin);
 
   const onSubmit = async (data: FormValues) => {
     const payload = {

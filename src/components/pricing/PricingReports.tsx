@@ -3,15 +3,12 @@ import { BarChart3, TrendingUp, Package } from "lucide-react";
 import type { PricingProduct } from "@/types/pricing";
 import { PricingLoadingSkeleton } from "./PricingLoadingSkeleton";
 import { PricingEmptyState } from "./PricingEmptyState";
+import { calcTotalCost, calcMarginPercent } from "@/lib/pricingCalculations";
+import { formatCurrency } from "@/lib/formatters";
 
 interface PricingReportsProps {
   products: PricingProduct[];
   isLoading: boolean;
-}
-
-function totalCost(p: PricingProduct) {
-  return (p.ingredient_cost || 0) + (p.packaging_cost || 0) + (p.operational_cost || 0) +
-    (p.platform_fee || 0) + (p.delivery_cost || 0) + (p.other_costs || 0);
 }
 
 export function PricingReports({ products, isLoading }: PricingReportsProps) {
@@ -22,12 +19,11 @@ export function PricingReports({ products, isLoading }: PricingReportsProps) {
   }
 
   const activeProducts = products.filter((p) => p.is_active);
-  const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const productsByMargin = [...activeProducts]
     .map((p) => {
-      const cost = totalCost(p);
-      const margin = cost > 0 ? ((p.sale_price - cost) / cost) * 100 : 0;
+      const cost = calcTotalCost(p);
+      const margin = calcMarginPercent(p.sale_price || 0, cost);
       return { ...p, margin, totalCostVal: cost };
     })
     .sort((a, b) => b.margin - a.margin);

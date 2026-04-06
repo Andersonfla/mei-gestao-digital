@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import type { PricingProduct, PricingProductFormData } from "@/types/pricing";
+import { calcTotalCost, calcProfit, calcMarginPercent, calcProductStatus, calcAllSuggestedPrices } from "@/lib/pricingCalculations";
+import { formatCurrency } from "@/lib/formatters";
 
 interface ProductFormDialogProps {
   open: boolean;
@@ -112,15 +115,10 @@ export function ProductFormDialog({ open, onOpenChange, product, onCreate, onUpd
   }, [product, open, reset]);
 
   const watchedValues = watch();
-  const totalCost =
-    (watchedValues.ingredient_cost || 0) +
-    (watchedValues.packaging_cost || 0) +
-    (watchedValues.operational_cost || 0) +
-    (watchedValues.platform_fee || 0) +
-    (watchedValues.delivery_cost || 0) +
-    (watchedValues.other_costs || 0);
-  const profit = (watchedValues.sale_price || 0) - totalCost;
-  const margin = totalCost > 0 ? (profit / totalCost) * 100 : 0;
+  const totalCost = calcTotalCost(watchedValues as any);
+  const profit = calcProfit(watchedValues.sale_price || 0, totalCost);
+  const margin = calcMarginPercent(watchedValues.sale_price || 0, totalCost);
+  const status = calcProductStatus(margin);
 
   const onSubmit = async (data: FormValues) => {
     const payload = {
@@ -145,8 +143,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onCreate, onUpd
     { id: "other_costs" as const, label: "Outros (R$)" },
   ];
 
-  const formatCurrency = (v: number) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -226,8 +222,11 @@ export function ProductFormDialog({ open, onOpenChange, product, onCreate, onUpd
           </div>
 
           {/* Resumo em tempo real */}
-          <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-4 space-y-2">
-            <p className="text-sm font-semibold text-foreground">Resumo</p>
+          <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-foreground">Resumo</p>
+              <Badge variant={status.variant} className="text-[10px]">{status.label}</Badge>
+            </div>
             <div className="grid grid-cols-3 gap-2 text-center">
               <div>
                 <p className="text-xs text-muted-foreground">Custo Total</p>
@@ -241,11 +240,24 @@ export function ProductFormDialog({ open, onOpenChange, product, onCreate, onUpd
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Margem</p>
-                <p className={`text-sm font-bold ${margin >= 20 ? "text-emerald-600" : margin >= 0 ? "text-amber-600" : "text-destructive"}`}>
+                <p className={`text-sm font-bold ${status.color}`}>
                   {margin.toFixed(1)}%
                 </p>
               </div>
             </div>
+            {totalCost > 0 && (
+              <div className="space-y-1.5 pt-1 border-t border-primary/10">
+                <p className="text-[10px] font-medium text-muted-foreground">Preços sugeridos por margem:</p>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {calcAllSuggestedPrices(totalCost).map((sp) => (
+                    <div key={sp.label} className="rounded-lg bg-background border p-1.5 text-center">
+                      <p className="text-[9px] text-muted-foreground">{sp.label}</p>
+                      <p className="text-[11px] font-bold">{formatCurrency(sp.price)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Botões */}

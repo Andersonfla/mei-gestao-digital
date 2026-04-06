@@ -16,6 +16,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { calcProductFull } from "@/lib/pricingCalculations";
+import { formatCurrency } from "@/lib/formatters";
 
 interface ProductsListProps {
   products: PricingProduct[];
@@ -30,30 +32,7 @@ interface ProductsListProps {
 type SortField = "name" | "totalCost" | "sale_price" | "margin";
 type SortDir = "asc" | "desc";
 
-function totalCost(p: PricingProduct) {
-  return (p.ingredient_cost || 0) + (p.packaging_cost || 0) + (p.operational_cost || 0) +
-    (p.platform_fee || 0) + (p.delivery_cost || 0) + (p.other_costs || 0);
-}
-
-function calcMargin(cost: number, price: number) {
-  if (price === 0) return 0;
-  return ((price - cost) / price) * 100;
-}
-
-function calcMarkup(cost: number, price: number) {
-  if (cost === 0) return 0;
-  return ((price - cost) / cost) * 100;
-}
-
-function profitStatus(margin: number): { label: string; variant: "default" | "destructive" | "secondary" | "outline" } {
-  if (margin >= 30) return { label: "Saudável", variant: "default" };
-  if (margin >= 10) return { label: "Atenção", variant: "secondary" };
-  return { label: "Crítico", variant: "destructive" };
-}
-
 const categories = ["alimento", "bebida", "produto", "serviço", "combo", "digital", "consultoria", "outro"];
-
-const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export function ProductsList({ products, isLoading, onDelete, onToggleActive, onCreate, onUpdate, isCreating }: ProductsListProps) {
   const [formOpen, setFormOpen] = useState(false);
@@ -71,7 +50,6 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
   const filtered = useMemo(() => {
     let list = [...products];
 
-    // Search
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter((p) =>
@@ -81,38 +59,23 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
       );
     }
 
-    // Category filter
     if (categoryFilter !== "all") {
       list = list.filter((p) => p.category === categoryFilter);
     }
 
-    // Active filter
     if (activeFilter === "active") list = list.filter((p) => p.is_active);
     else if (activeFilter === "inactive") list = list.filter((p) => !p.is_active);
 
-    // Sort
     list.sort((a, b) => {
+      const calcA = calcProductFull(a);
+      const calcB = calcProductFull(b);
       let va: number | string, vb: number | string;
       switch (sortField) {
-        case "name":
-          va = a.name.toLowerCase();
-          vb = b.name.toLowerCase();
-          break;
-        case "totalCost":
-          va = totalCost(a);
-          vb = totalCost(b);
-          break;
-        case "sale_price":
-          va = a.sale_price || 0;
-          vb = b.sale_price || 0;
-          break;
-        case "margin":
-          va = calcMargin(totalCost(a), a.sale_price || 0);
-          vb = calcMargin(totalCost(b), b.sale_price || 0);
-          break;
-        default:
-          va = a.name;
-          vb = b.name;
+        case "name": va = a.name.toLowerCase(); vb = b.name.toLowerCase(); break;
+        case "totalCost": va = calcA.totalCost; vb = calcB.totalCost; break;
+        case "sale_price": va = a.sale_price || 0; vb = b.sale_price || 0; break;
+        case "margin": va = calcA.marginPercent; vb = calcB.marginPercent; break;
+        default: va = a.name; vb = b.name;
       }
       if (va < vb) return sortDir === "asc" ? -1 : 1;
       if (va > vb) return sortDir === "asc" ? 1 : -1;
@@ -123,21 +86,12 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
   }, [products, search, categoryFilter, activeFilter, sortField, sortDir]);
 
   const toggleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortField(field);
-      setSortDir("asc");
-    }
+    if (sortField === field) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortField(field); setSortDir("asc"); }
   };
 
   const hasActiveFilters = search.trim() || categoryFilter !== "all" || activeFilter !== "all";
-
-  const clearFilters = () => {
-    setSearch("");
-    setCategoryFilter("all");
-    setActiveFilter("all");
-  };
+  const clearFilters = () => { setSearch(""); setCategoryFilter("all"); setActiveFilter("all"); };
 
   if (isLoading) return <PricingLoadingSkeleton count={6} />;
 
@@ -161,19 +115,9 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome, descrição ou categoria..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
+            <Input placeholder="Buscar por nome, descrição ou categoria..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
           </div>
-          <Button
-            variant={showFilters ? "default" : "outline"}
-            size="icon"
-            className="shrink-0 h-11 w-11"
-            onClick={() => setShowFilters(!showFilters)}
-          >
+          <Button variant={showFilters ? "default" : "outline"} size="icon" className="shrink-0 h-11 w-11" onClick={() => setShowFilters(!showFilters)}>
             <SlidersHorizontal className="h-4 w-4" />
           </Button>
         </div>
@@ -186,9 +130,7 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
                 <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</SelectItem>
-                  ))}
+                  {categories.map((c) => (<SelectItem key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
@@ -242,12 +184,8 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <PackageOpen className="h-12 w-12 text-muted-foreground/50 mb-4" />
             <h4 className="font-semibold text-lg mb-1">Nenhum produto cadastrado</h4>
-            <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-              Adicione seu primeiro produto ou serviço para começar a precificar e acompanhar suas margens.
-            </p>
-            <Button onClick={() => { setEditProduct(null); setFormOpen(true); }}>
-              <Plus className="mr-2 h-4 w-4" /> Cadastrar Primeiro Produto
-            </Button>
+            <p className="text-sm text-muted-foreground mb-4 max-w-sm">Adicione seu primeiro produto ou serviço para começar a precificar e acompanhar suas margens.</p>
+            <Button onClick={() => { setEditProduct(null); setFormOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Cadastrar Primeiro Produto</Button>
           </CardContent>
         </Card>
       ) : filtered.length === 0 ? (
@@ -256,21 +194,13 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
             <AlertCircle className="h-10 w-10 text-muted-foreground/50 mb-3" />
             <h4 className="font-semibold mb-1">Nenhum resultado encontrado</h4>
             <p className="text-sm text-muted-foreground mb-4">Tente alterar os filtros ou termos de busca.</p>
-            <Button variant="outline" onClick={clearFilters}>
-              <X className="mr-1 h-4 w-4" /> Limpar Filtros
-            </Button>
+            <Button variant="outline" onClick={clearFilters}><X className="mr-1 h-4 w-4" /> Limpar Filtros</Button>
           </CardContent>
         </Card>
       ) : isMobile ? (
-        /* Mobile: Cards */
         <div className="space-y-3">
           {filtered.map((product) => {
-            const cost = totalCost(product);
-            const profit = (product.sale_price || 0) - cost;
-            const margin = calcMargin(cost, product.sale_price || 0);
-            const markup = calcMarkup(cost, product.sale_price || 0);
-            const status = profitStatus(margin);
-
+            const calc = calcProductFull(product);
             return (
               <Card key={product.id} className={`transition-opacity ${!product.is_active ? "opacity-60" : ""}`}>
                 <CardHeader className="pb-2">
@@ -282,11 +212,8 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant={status.variant} className="text-[10px] px-1.5">{status.label}</Badge>
-                      <Switch
-                        checked={product.is_active}
-                        onCheckedChange={(checked) => onToggleActive({ id: product.id, isActive: checked })}
-                      />
+                      <Badge variant={calc.status.variant} className="text-[10px] px-1.5">{calc.status.label}</Badge>
+                      <Switch checked={product.is_active} onCheckedChange={(checked) => onToggleActive({ id: product.id, isActive: checked })} />
                     </div>
                   </div>
                 </CardHeader>
@@ -294,7 +221,7 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground text-xs">Custo</span>
-                      <span className="font-medium text-xs">{formatCurrency(cost)}</span>
+                      <span className="font-medium text-xs">{formatCurrency(calc.totalCost)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground text-xs">Preço</span>
@@ -302,19 +229,15 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground text-xs">Lucro</span>
-                      <span className={`font-medium text-xs ${profit >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-                        {formatCurrency(profit)}
-                      </span>
+                      <span className={`font-medium text-xs ${calc.profit >= 0 ? "text-emerald-600" : "text-destructive"}`}>{formatCurrency(calc.profit)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground text-xs">Margem</span>
-                      <span className={`font-medium text-xs ${margin >= 30 ? "text-emerald-600" : margin >= 10 ? "text-amber-600" : "text-destructive"}`}>
-                        {margin.toFixed(1)}%
-                      </span>
+                      <span className={`font-medium text-xs ${calc.status.color}`}>{calc.marginPercent.toFixed(1)}%</span>
                     </div>
                     <div className="flex justify-between col-span-2">
                       <span className="text-muted-foreground text-xs">Markup</span>
-                      <span className="font-medium text-xs">{markup.toFixed(1)}%</span>
+                      <span className="font-medium text-xs">{calc.markupPercent.toFixed(1)}%</span>
                     </div>
                   </div>
                   <div className="flex gap-2 pt-1">
@@ -334,7 +257,6 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
           })}
         </div>
       ) : (
-        /* Desktop: Table */
         <Card>
           <div className="overflow-x-auto">
             <Table>
@@ -362,47 +284,31 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
               </TableHeader>
               <TableBody>
                 {filtered.map((product) => {
-                  const cost = totalCost(product);
-                  const profit = (product.sale_price || 0) - cost;
-                  const margin = calcMargin(cost, product.sale_price || 0);
-                  const markup = calcMarkup(cost, product.sale_price || 0);
-                  const status = profitStatus(margin);
-
+                  const calc = calcProductFull(product);
                   return (
                     <TableRow key={product.id} className={!product.is_active ? "opacity-50" : ""}>
                       <TableCell className="font-medium max-w-[180px] truncate">{product.name}</TableCell>
                       <TableCell className="text-muted-foreground text-sm capitalize">{product.category || "—"}</TableCell>
-                      <TableCell className="text-right tabular-nums">{formatCurrency(cost)}</TableCell>
-                      <TableCell className="text-right font-semibold tabular-nums">{formatCurrency(product.sale_price || 0)}</TableCell>
-                      <TableCell className={`text-right tabular-nums ${profit >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-                        {formatCurrency(profit)}
+                      <TableCell className="text-right tabular-nums">{formatCurrency(calc.totalCost)}</TableCell>
+                      <TableCell className="text-right tabular-nums font-semibold">{formatCurrency(product.sale_price || 0)}</TableCell>
+                      <TableCell className={`text-right tabular-nums font-medium ${calc.profit >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                        {formatCurrency(calc.profit)}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <span className={`tabular-nums font-medium ${margin >= 30 ? "text-emerald-600" : margin >= 10 ? "text-amber-600" : "text-destructive"}`}>
-                          {margin.toFixed(1)}%
-                        </span>
+                      <TableCell className={`text-right tabular-nums font-medium ${calc.status.color}`}>
+                        {calc.marginPercent.toFixed(1)}%
                       </TableCell>
-                      <TableCell className="text-right tabular-nums">{markup.toFixed(1)}%</TableCell>
+                      <TableCell className="text-right tabular-nums">{calc.markupPercent.toFixed(1)}%</TableCell>
                       <TableCell className="text-center">
-                        <Badge variant={status.variant} className="text-[10px]">{status.label}</Badge>
+                        <Badge variant={calc.status.variant} className="text-[10px] px-1.5">{calc.status.label}</Badge>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Switch
-                          checked={product.is_active}
-                          onCheckedChange={(checked) => onToggleActive({ id: product.id, isActive: checked })}
-                        />
+                        <Switch checked={product.is_active} onCheckedChange={(checked) => onToggleActive({ id: product.id, isActive: checked })} />
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailProduct(product)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditProduct(product); setFormOpen(true); }}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(product.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailProduct(product)}><Eye className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditProduct(product); setFormOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(product.id)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -414,9 +320,9 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
         </Card>
       )}
 
+      {/* Dialogs */}
       <ProductFormDialog open={formOpen} onOpenChange={setFormOpen} product={editProduct} onCreate={onCreate} onUpdate={onUpdate} isCreating={isCreating} />
       <ProductDetailDialog product={detailProduct} onClose={() => setDetailProduct(null)} />
-
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -425,7 +331,7 @@ export function ProductsList({ products, isLoading, onDelete, onToggleActive, on
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={async () => { if (deleteId) { await onDelete(deleteId); setDeleteId(null); } }}>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { if (deleteId) onDelete(deleteId); setDeleteId(null); }}>
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>

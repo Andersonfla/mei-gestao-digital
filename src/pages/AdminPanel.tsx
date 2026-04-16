@@ -8,7 +8,8 @@ import { AdminTransactions } from "@/components/admin/AdminTransactions";
 import { AdminLogs } from "@/components/admin/AdminLogs";
 import { AdminSupport } from "@/components/admin/AdminSupport";
 import AdminContactMessages from "@/components/admin/AdminContactMessages";
-import { LayoutDashboard, Users, Receipt, FileText, MessageSquare, Mail } from "lucide-react";
+import { AdminPricing } from "@/components/admin/AdminPricing";
+import { LayoutDashboard, Users, Receipt, FileText, MessageSquare, Mail, Calculator } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAdminSupportNotifications } from "@/hooks/useAdminSupportNotifications";
 
@@ -40,7 +41,7 @@ export default function AdminPanel() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6 w-full">
           {/* Tabs responsivas - scroll horizontal no mobile */}
           <div className="w-full overflow-x-auto pb-2">
-            <TabsList className="inline-flex min-w-max sm:grid sm:grid-cols-6 sm:w-full lg:max-w-[900px] gap-1">
+            <TabsList className="inline-flex min-w-max sm:grid sm:grid-cols-7 sm:w-full lg:max-w-[1000px] gap-1">
               <TabsTrigger value="dashboard" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 text-xs sm:text-sm whitespace-nowrap">
                 <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline sm:inline">Dashboard</span>
@@ -54,6 +55,11 @@ export default function AdminPanel() {
                 <Receipt className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Lançamentos</span>
                 <span className="sm:hidden">Lanç.</span>
+              </TabsTrigger>
+              <TabsTrigger value="pricing" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 text-xs sm:text-sm whitespace-nowrap">
+                <Calculator className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Precificação</span>
+                <span className="sm:hidden">Preço</span>
               </TabsTrigger>
               <TabsTrigger value="support" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 text-xs sm:text-sm whitespace-nowrap relative">
                 <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -88,6 +94,10 @@ export default function AdminPanel() {
 
           <TabsContent value="transactions" className="space-y-6">
             <AdminTransactions />
+          </TabsContent>
+
+          <TabsContent value="pricing" className="space-y-6">
+            <AdminPricing />
           </TabsContent>
 
           <TabsContent value="support" className="space-y-6">

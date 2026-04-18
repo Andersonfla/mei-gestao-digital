@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Loader2, Crown, Sparkles, AlertTriangle, XCircle, Clock } from "lucide-react";
+import { Check, Loader2, Crown, Sparkles, AlertTriangle, XCircle, Clock, Settings as SettingsIcon } from "lucide-react";
 import { useFinance } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
@@ -228,6 +228,7 @@ export function PlanUpgrade() {
   const { userSettings, isPremiumActive, isPremiumMasterActive } = useFinance();
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<PlanKey | null>(null);
+  const [loadingPortal, setLoadingPortal] = useState(false);
 
   const currentPlan: UserPlan = userSettings.plan ?? "free";
   const status: SubscriptionStatus = userSettings.subscriptionStatus ?? null;
@@ -260,6 +261,28 @@ export function PlanUpgrade() {
             : "Não foi possível abrir o checkout. Tente novamente.",
       });
       setLoadingPlan(null);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (loadingPortal) return;
+    setLoadingPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (!data?.url) throw new Error("URL do portal não recebida");
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Erro ao abrir portal:", err);
+      toast({
+        variant: "destructive",
+        title: "Não foi possível abrir o portal",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Tente novamente em instantes.",
+      });
+      setLoadingPortal(false);
     }
   };
 
@@ -299,24 +322,46 @@ export function PlanUpgrade() {
           </div>
         </CardHeader>
         {!isFreeCurrent && (
-          <CardContent className="grid sm:grid-cols-2 gap-4 text-sm">
-            {subscriptionEnd && (
-              <div>
-                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  {status === "canceled" || canceledAt ? "Acesso até" : "Próxima renovação"}
+          <>
+            <CardContent className="grid sm:grid-cols-2 gap-4 text-sm">
+              {subscriptionEnd && (
+                <div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                    {status === "canceled" || canceledAt ? "Acesso até" : "Próxima renovação"}
+                  </div>
+                  <div className="font-medium">{formatDate(subscriptionEnd)}</div>
                 </div>
-                <div className="font-medium">{formatDate(subscriptionEnd)}</div>
-              </div>
-            )}
-            {canceledAt && (
-              <div>
-                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  Cancelada em
+              )}
+              {canceledAt && (
+                <div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                    Cancelada em
+                  </div>
+                  <div className="font-medium">{formatDate(canceledAt)}</div>
                 </div>
-                <div className="font-medium">{formatDate(canceledAt)}</div>
-              </div>
-            )}
-          </CardContent>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Button
+                variant="outline"
+                onClick={handleManageSubscription}
+                disabled={loadingPortal}
+                className="w-full sm:w-auto"
+              >
+                {loadingPortal ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Abrindo portal...
+                  </>
+                ) : (
+                  <>
+                    <SettingsIcon className="mr-2 h-4 w-4" />
+                    Gerenciar assinatura
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </>
         )}
       </Card>
 

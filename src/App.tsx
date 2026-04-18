@@ -68,7 +68,6 @@ function App() {
                           <Route element={<AppLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/transacoes" element={<Transactions />} />
-                            <Route path="/precificacao" element={<Pricing />} />
                             <Route path="/relatorios" element={<Reports />} />
                             <Route path="/configuracoes" element={<Settings />} />
                             <Route path="/upgrade" element={<Upgrade />} />
@@ -82,6 +81,7 @@ function App() {
                             
                             {/* Premium Master exclusive routes */}
                             <Route element={<RequirePremiumMaster />}>
+                              <Route path="/precificacao" element={<Pricing />} />
                               <Route path="/metas-financeiras" element={<FinancialGoals />} />
                               <Route path="/analise-automatica" element={<AutoAnalysis />} />
                               <Route path="/transacoes-recorrentes" element={<RecurringTransactions />} />

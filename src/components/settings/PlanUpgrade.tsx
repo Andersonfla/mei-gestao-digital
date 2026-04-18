@@ -5,6 +5,7 @@ import { useFinance } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { PREMIUM_FEATURE_LIST, MASTER_FEATURE_LIST } from "@/lib/planPermissions";
 
 export function PlanUpgrade() {
   const { userSettings, isPremiumActive, isPremiumMasterActive } = useFinance();
@@ -44,26 +45,8 @@ export function PlanUpgrade() {
     return new Date(date).toLocaleDateString('pt-BR');
   };
 
-  const premiumPlanFeatures = [
-    "Lançamentos ilimitados",
-    "Acesso ao dashboard",
-    "Relatórios avançados",
-    "Categorização de transações",
-    "Exportação de relatórios",
-    "Suporte prioritário",
-  ];
-
-  const premiumMasterFeatures = [
-    "Tudo do Plano Premium",
-    "Dashboard avançado",
-    "Relatórios profissionais",
-    "Gráficos adicionais detalhados",
-    "Exportações avançadas",
-    "Categorização inteligente",
-    "Suporte VIP prioritário",
-    "Acesso ao módulo de metas financeiras",
-    "Acesso ao módulo de análise automática",
-  ];
+  const premiumPlanFeatures = PREMIUM_FEATURE_LIST;
+  const premiumMasterFeatures = MASTER_FEATURE_LIST;
 
   // Se for plano Master, exibir tela com status
   if (userSettings.plan === 'master') {

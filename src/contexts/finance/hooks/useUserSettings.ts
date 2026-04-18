@@ -33,6 +33,7 @@ export function useUserSettings() {
       subscriptionEnd: null,
       usedTransactions: 0,
       canceled_at: null,
+      subscriptionStatus: null,
     },
   });
 
@@ -69,40 +70,45 @@ export function useUserSettings() {
 
   // upgradeToPremium functionality temporarily disabled
 
+  // Status do Stripe que mantém o acesso liberado
+  const VALID_STATUSES = new Set(['active', 'trialing']);
+
   const isPremiumActive = useMemo(() => {
     if (!userSettings) return false;
-    
-    // Verifica se o plano é premium ou master
+
     const isPremiumPlan = userSettings.plan === 'premium' || userSettings.plan === 'master';
-    
-    // Se não for premium, retorna false
     if (!isPremiumPlan) return false;
-    
-    // Se for premium mas não tem data de expiração, considera ativo
-    if (!userSettings.subscriptionEnd) return true;
-    
+
+    // Se houver subscription_status, ele manda: só libera se for active/trialing
+    if (userSettings.subscriptionStatus) {
+      if (!VALID_STATUSES.has(userSettings.subscriptionStatus)) return false;
+    }
+
     // Se tem data de expiração, verifica se ainda não expirou
-    const now = new Date();
-    const expirationDate = new Date(userSettings.subscriptionEnd);
-    return expirationDate > now;
+    if (userSettings.subscriptionEnd) {
+      const now = new Date();
+      const expirationDate = new Date(userSettings.subscriptionEnd);
+      return expirationDate > now;
+    }
+
+    return true;
   }, [userSettings]);
 
   const isPremiumMasterActive = useMemo(() => {
     if (!userSettings) return false;
-    
-    // Verifica se o plano é master
-    const isMasterPlan = userSettings.plan === 'master';
-    
-    // Se não for master, retorna false
-    if (!isMasterPlan) return false;
-    
-    // Se for master mas não tem data de expiração, considera ativo
-    if (!userSettings.subscriptionEnd) return true;
-    
-    // Se tem data de expiração, verifica se ainda não expirou
-    const now = new Date();
-    const expirationDate = new Date(userSettings.subscriptionEnd);
-    return expirationDate > now;
+    if (userSettings.plan !== 'master') return false;
+
+    if (userSettings.subscriptionStatus) {
+      if (!VALID_STATUSES.has(userSettings.subscriptionStatus)) return false;
+    }
+
+    if (userSettings.subscriptionEnd) {
+      const now = new Date();
+      const expirationDate = new Date(userSettings.subscriptionEnd);
+      return expirationDate > now;
+    }
+
+    return true;
   }, [userSettings]);
 
   return {

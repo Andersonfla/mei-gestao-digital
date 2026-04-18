@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useFinance } from "@/contexts";
+import { usePlanGuard } from "@/hooks/usePlanGuard";
 import { useAuth } from "@/contexts";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -108,28 +109,23 @@ export function AppSidebar() {
     return location.pathname === path;
   };
 
-  // Build menu based on plan (free | premium | master)
-  const plan = userSettings?.plan ?? 'free';
-  const isPremiumOrMaster = plan === 'premium' || plan === 'master';
-  const isMaster = plan === 'master';
+  // Build menu using effective plan (respects subscription_status)
+  const { effectivePlan, isPremium: isPremiumOrMaster, isMaster, can } = usePlanGuard();
 
   const displayMenuItems: { path: string; label: string }[] = [
     { path: "/dashboard", label: "Dashboard" },
     ...(isPremiumOrMaster ? [{ path: "/premium", label: "Área Premium" }] : []),
     { path: "/transacoes", label: "Transações" },
     { path: "/relatorios", label: "Relatórios" },
-    // Precificação é exclusivo do Premium Master
-    ...(isMaster ? [{ path: "/precificacao", label: "Precificação" }] : []),
-    // Demais módulos exclusivos do Master
-    ...(isMaster
-      ? [
-          { path: "/metas-financeiras", label: "Metas Financeiras" },
-          { path: "/analise-automatica", label: "Análise Automática" },
-          { path: "/transacoes-recorrentes", label: "Transações Recorrentes" },
-        ]
+    // Master-exclusive modules
+    ...(can("pricing_module") ? [{ path: "/precificacao", label: "Precificação" }] : []),
+    ...(can("financial_goals") ? [{ path: "/metas-financeiras", label: "Metas Financeiras" }] : []),
+    ...(can("auto_analysis") ? [{ path: "/analise-automatica", label: "Análise Automática" }] : []),
+    ...(can("recurring_transactions")
+      ? [{ path: "/transacoes-recorrentes", label: "Transações Recorrentes" }]
       : []),
-    // Suporte prioritário para Premium e Master
-    ...(isPremiumOrMaster
+    // Priority support: Premium and Master
+    ...(can("priority_support")
       ? [{ path: "/suporte-prioritario", label: "Suporte Prioritário" }]
       : []),
     { path: "/configuracoes", label: "Configurações" },

@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
-import { useFinance } from "@/contexts";
 import { Loader2 } from "lucide-react";
+import { usePlanGuard } from "@/hooks/usePlanGuard";
 
 export const RequirePremiumMaster = () => {
-  const { isPremiumMasterActive, isLoading } = useFinance();
+  const { isMaster, isLoading } = usePlanGuard();
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     if (!isLoading) {
-      const timer = setTimeout(() => {
-        setIsChecking(false);
-      }, 500);
+      const timer = setTimeout(() => setIsChecking(false), 300);
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
@@ -25,7 +23,7 @@ export const RequirePremiumMaster = () => {
     );
   }
 
-  if (!isPremiumMasterActive) {
+  if (!isMaster) {
     return <Navigate to="/upgrade" replace />;
   }
 

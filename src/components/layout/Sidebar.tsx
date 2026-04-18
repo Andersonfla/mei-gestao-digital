@@ -192,7 +192,7 @@ export function AppSidebar() {
                       {userName}
                     </p>
                     <p className="text-xs text-sidebar-foreground/70 font-medium">
-                      {userSettings?.plan === 'master' ? '✨ Premium Master' : userSettings?.plan === 'premium' ? '⭐ Premium Pro' : '🎯 Gratuito'}
+                      {effectivePlan === 'master' ? '✨ Premium Master' : effectivePlan === 'premium' ? '⭐ Premium Pro' : '🎯 Gratuito'}
                     </p>
                   </div>
                 </div>
@@ -230,16 +230,16 @@ export function AppSidebar() {
                 <div className="rounded-xl bg-sidebar-accent/30 backdrop-blur-sm px-4 py-3 text-sidebar-foreground border border-sidebar-border/20">
                   <p className="text-xs font-medium text-sidebar-foreground/70 mb-1">Plano atual:</p>
                   <p className="font-bold text-base">
-                    {userSettings.plan === 'free' ? '🎯 Gratuito' : 
-                     userSettings.plan === 'master' ? '✨ Premium Master' : '⭐ Premium'}
+                    {effectivePlan === 'free' ? '🎯 Gratuito' :
+                     effectivePlan === 'master' ? '✨ Premium Master' : '⭐ Premium'}
                   </p>
-                  
+
                   {/* Use the TransactionLimitIndicator component */}
                   <TransactionLimitIndicator userSettings={userSettings} />
                 </div>
-                
-                {userSettings.plan === 'free' && (
-                  <Button 
+
+                {effectivePlan === 'free' && (
+                  <Button
                     className="w-full bg-gradient-to-r from-secondary to-primary text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
                     size="lg"
                     onClick={() => {

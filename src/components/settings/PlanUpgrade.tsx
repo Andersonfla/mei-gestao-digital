@@ -105,8 +105,8 @@ export function PlanUpgrade() {
           </CardContent>
           {!isPremiumMasterActive && (
             <CardFooter>
-              <Button className="w-full" onClick={handleSubscribeMaster}>
-                Renovar Plano Premium Master
+              <Button className="w-full" onClick={handleSubscribeMaster} disabled={loadingPlan !== null}>
+                {loadingPlan === "master" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Renovar Plano Premium Master"}
               </Button>
             </CardFooter>
           )}
@@ -155,8 +155,8 @@ export function PlanUpgrade() {
           </CardContent>
           {!isPremiumActive && (
             <CardFooter>
-              <Button className="w-full" onClick={handleSubscribePremium}>
-                Renovar Plano Premium
+              <Button className="w-full" onClick={handleSubscribePremium} disabled={loadingPlan !== null}>
+                {loadingPlan === "premium" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Renovar Plano Premium"}
               </Button>
             </CardFooter>
           )}
@@ -183,8 +183,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleSubscribeMaster}>
-              Assinar Master
+            <Button className="w-full" onClick={handleSubscribeMaster} disabled={loadingPlan !== null}>
+              {loadingPlan === "master" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Assinar Master"}
             </Button>
           </CardFooter>
         </Card>
@@ -212,8 +212,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleSubscribePremium}>
-              Assinar Premium
+            <Button className="w-full" onClick={handleSubscribePremium} disabled={loadingPlan !== null}>
+              {loadingPlan === "premium" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Assinar Premium"}
             </Button>
           </CardFooter>
         </Card>
@@ -238,8 +238,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleSubscribeMaster}>
-              Assinar Master
+            <Button className="w-full" onClick={handleSubscribeMaster} disabled={loadingPlan !== null}>
+              {loadingPlan === "master" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Assinar Master"}
             </Button>
           </CardFooter>
         </Card>

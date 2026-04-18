@@ -1,71 +1,33 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { useFinance } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
 
 export function PlanUpgrade() {
   const { userSettings, isPremiumActive, isPremiumMasterActive } = useFinance();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handleUpgrade = async () => {
-    setIsLoading(true);
-    
+
+  const handleSubscribePremium = () => {
     toast({
-      title: "🚀 Redirecionando para o pagamento...",
-      description: "Você será levado à página segura da Kiwify.",
+      title: "Pagamento em breve",
+      description: "A assinatura do plano Premium estará disponível em breve.",
     });
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('get-checkout-url');
-      
-      if (error) {
-        console.error('Erro ao invocar função:', error);
-        throw error;
-      }
-      
-      if (data?.checkoutUrl) {
-        console.log('✅ URL de checkout obtida:', data.checkoutUrl);
-        // Redirect to Kiwify checkout
-        window.location.href = data.checkoutUrl;
-      } else {
-        throw new Error('URL de checkout não disponível');
-      }
-    } catch (error) {
-      console.error('❌ Erro ao obter URL de checkout:', error);
-      toast({
-        title: "Erro ao processar upgrade",
-        description: "Não foi possível redirecionar para o checkout. Tente novamente em instantes.",
-        variant: "destructive"
-      });
-      setIsLoading(false);
-    }
   };
-  
+
+  const handleSubscribeMaster = () => {
+    toast({
+      title: "Pagamento em breve",
+      description: "A assinatura do plano Premium Master estará disponível em breve.",
+    });
+  };
+
   // Formatar a data de expiração
   const formatExpirationDate = (date: Date | null | undefined) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('pt-BR');
   };
-  
-  // Verificar se a assinatura expirou
-  const hasExpired = () => {
-    if (!userSettings.subscriptionEnd) return false;
-    const expirationDate = new Date(userSettings.subscriptionEnd);
-    return expirationDate < new Date();
-  };
-  
-  const freePlanFeatures = [
-    "Limite de 20 lançamentos/mês", 
-    "Acesso ao dashboard",
-    "Relatórios básicos",
-    "Categorização de transações",
-  ];
-  
+
   const premiumPlanFeatures = [
     "Lançamentos ilimitados",
     "Acesso ao dashboard",
@@ -87,10 +49,6 @@ export function PlanUpgrade() {
     "Acesso ao módulo de análise automática",
   ];
 
-  const handleUpgradeMaster = () => {
-    window.open('https://pay.kiwify.com.br/K2pVyRU', '_blank');
-  };
-  
   // Se for plano Master, exibir tela com status
   if (userSettings.plan === 'master') {
     return (
@@ -111,7 +69,7 @@ export function PlanUpgrade() {
           <CardContent>
             {userSettings.subscriptionEnd && (
               <div className={`mb-4 p-3 rounded-md ${
-                isPremiumMasterActive ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300' : 
+                isPremiumMasterActive ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
                 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
               }`}>
                 <p>
@@ -131,10 +89,7 @@ export function PlanUpgrade() {
           </CardContent>
           {!isPremiumMasterActive && (
             <CardFooter>
-              <Button 
-                className="w-full" 
-                onClick={handleUpgradeMaster}
-              >
+              <Button className="w-full" onClick={handleSubscribeMaster}>
                 Renovar Plano Premium Master
               </Button>
             </CardFooter>
@@ -164,7 +119,7 @@ export function PlanUpgrade() {
           <CardContent>
             {userSettings.subscriptionEnd && (
               <div className={`mb-4 p-3 rounded-md ${
-                isPremiumActive ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300' : 
+                isPremiumActive ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
                 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
               }`}>
                 <p>
@@ -184,12 +139,8 @@ export function PlanUpgrade() {
           </CardContent>
           {!isPremiumActive && (
             <CardFooter>
-              <Button 
-                className="w-full" 
-                onClick={handleUpgrade}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Processando...' : 'Renovar Plano Premium'}
+              <Button className="w-full" onClick={handleSubscribePremium}>
+                Renovar Plano Premium
               </Button>
             </CardFooter>
           )}
@@ -216,18 +167,15 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button 
-              className="w-full" 
-              onClick={handleUpgradeMaster}
-            >
-              Fazer Upgrade para Premium Master
+            <Button className="w-full" onClick={handleSubscribeMaster}>
+              Assinar Master
             </Button>
           </CardFooter>
         </Card>
       </div>
     );
   }
-  
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -248,12 +196,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button 
-              className="w-full" 
-              onClick={handleUpgrade}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Processando...' : 'Assinar Premium'}
+            <Button className="w-full" onClick={handleSubscribePremium}>
+              Assinar Premium
             </Button>
           </CardFooter>
         </Card>
@@ -278,11 +222,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button 
-              className="w-full" 
-              onClick={handleUpgradeMaster}
-            >
-              Assinar Premium Master
+            <Button className="w-full" onClick={handleSubscribeMaster}>
+              Assinar Master
             </Button>
           </CardFooter>
         </Card>

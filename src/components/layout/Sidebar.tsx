@@ -126,10 +126,8 @@ export function AppSidebar() {
       ]
     : [];
   
-  // Add admin-only Webhooks item
-  const adminMenuItems = isAdmin 
-    ? [{ path: "/admin/webhooks", label: "Webhooks Kiwify" }] 
-    : [];
+  // No admin-only sidebar items currently
+  const adminMenuItems: { path: string; label: string }[] = [];
   
   // Add Premium menu item for premium users
   const premiumMenuItem = { path: "/premium", label: "Área Premium" };

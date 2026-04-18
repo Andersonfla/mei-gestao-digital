@@ -19,7 +19,7 @@ import LandingPage from "./pages/LandingPage";
 import PremiumMaster from "./pages/PremiumMaster";
 import SupportChat from "./pages/SupportChat";
 import PublicSupport from "./pages/PublicSupport";
-import AdminWebhooks from "./pages/AdminWebhooks";
+
 import Premium from "./pages/Premium";
 import { RequireAuth } from "./components/auth/RequireAuth";
 import { RequirePremium } from "./components/auth/RequirePremium";
@@ -73,7 +73,6 @@ function App() {
                             <Route path="/configuracoes" element={<Settings />} />
                             <Route path="/upgrade" element={<Upgrade />} />
                             <Route path="/thanks" element={<Thanks />} />
-                            <Route path="/admin/webhooks" element={<AdminWebhooks />} />
                             
                             {/* Premium-only routes */}
                             <Route element={<RequirePremium />}>

@@ -108,47 +108,32 @@ export function AppSidebar() {
     return location.pathname === path;
   };
 
-  // Menu items with updated paths
-  const baseMenuItems = [
+  // Build menu based on plan (free | premium | master)
+  const plan = userSettings?.plan ?? 'free';
+  const isPremiumOrMaster = plan === 'premium' || plan === 'master';
+  const isMaster = plan === 'master';
+
+  const displayMenuItems: { path: string; label: string }[] = [
     { path: "/dashboard", label: "Dashboard" },
+    ...(isPremiumOrMaster ? [{ path: "/premium", label: "Área Premium" }] : []),
     { path: "/transacoes", label: "Transações" },
-    { path: "/precificacao", label: "Precificação" },
     { path: "/relatorios", label: "Relatórios" },
+    // Precificação é exclusivo do Premium Master
+    ...(isMaster ? [{ path: "/precificacao", label: "Precificação" }] : []),
+    // Demais módulos exclusivos do Master
+    ...(isMaster
+      ? [
+          { path: "/metas-financeiras", label: "Metas Financeiras" },
+          { path: "/analise-automatica", label: "Análise Automática" },
+          { path: "/transacoes-recorrentes", label: "Transações Recorrentes" },
+        ]
+      : []),
+    // Suporte prioritário para Premium e Master
+    ...(isPremiumOrMaster
+      ? [{ path: "/suporte-prioritario", label: "Suporte Prioritário" }]
+      : []),
     { path: "/configuracoes", label: "Configurações" },
   ];
-  
-  // Add Premium Master exclusive items
-  const premiumMasterMenuItems = userSettings?.plan === 'master' 
-    ? [
-        { path: "/metas-financeiras", label: "Metas Financeiras" },
-        { path: "/analise-automatica", label: "Análise Automática" },
-        { path: "/transacoes-recorrentes", label: "Transações Recorrentes" },
-      ]
-    : [];
-  
-  // No admin-only sidebar items currently
-  const adminMenuItems: { path: string; label: string }[] = [];
-  
-  // Add Premium menu item for premium users
-  const premiumMenuItem = { path: "/premium", label: "Área Premium" };
-  
-  // Build menu items based on user plan
-  let displayMenuItems = [...baseMenuItems];
-  
-  // Insert Premium area after Dashboard for premium/master users
-  if (userSettings?.plan === 'premium' || userSettings?.plan === 'master') {
-    displayMenuItems = [
-      baseMenuItems[0], // Dashboard
-      premiumMenuItem, // Premium area
-      ...baseMenuItems.slice(1, 3), // Transações, Relatórios
-      ...premiumMasterMenuItems, // Metas Financeiras e Análise (only for master)
-      { path: "/suporte-prioritario", label: "Suporte Prioritário" }, // Support for premium/master
-      baseMenuItems[3], // Configurações
-      ...adminMenuItems // Admin items if applicable
-    ];
-  } else {
-    displayMenuItems = [...baseMenuItems, ...adminMenuItems];
-  }
 
   return (
     <>

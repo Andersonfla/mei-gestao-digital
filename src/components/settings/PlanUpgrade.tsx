@@ -1,26 +1,42 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useFinance } from "@/contexts";
 import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function PlanUpgrade() {
   const { userSettings, isPremiumActive, isPremiumMasterActive } = useFinance();
   const { toast } = useToast();
+  const [loadingPlan, setLoadingPlan] = useState<"premium" | "master" | null>(null);
 
-  const handleSubscribePremium = () => {
-    toast({
-      title: "Pagamento em breve",
-      description: "A assinatura do plano Premium estará disponível em breve.",
-    });
+  const handleSubscribe = async (plan: "premium" | "master") => {
+    if (loadingPlan) return;
+    setLoadingPlan(plan);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { plan },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error("URL de checkout não recebida");
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Erro ao criar checkout:", err);
+      toast({
+        variant: "destructive",
+        title: "Erro ao iniciar pagamento",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Não foi possível abrir o checkout. Tente novamente.",
+      });
+      setLoadingPlan(null);
+    }
   };
 
-  const handleSubscribeMaster = () => {
-    toast({
-      title: "Pagamento em breve",
-      description: "A assinatura do plano Premium Master estará disponível em breve.",
-    });
-  };
+  const handleSubscribePremium = () => handleSubscribe("premium");
+  const handleSubscribeMaster = () => handleSubscribe("master");
 
   // Formatar a data de expiração
   const formatExpirationDate = (date: Date | null | undefined) => {
@@ -89,8 +105,8 @@ export function PlanUpgrade() {
           </CardContent>
           {!isPremiumMasterActive && (
             <CardFooter>
-              <Button className="w-full" onClick={handleSubscribeMaster}>
-                Renovar Plano Premium Master
+              <Button className="w-full" onClick={handleSubscribeMaster} disabled={loadingPlan !== null}>
+                {loadingPlan === "master" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Renovar Plano Premium Master"}
               </Button>
             </CardFooter>
           )}
@@ -139,8 +155,8 @@ export function PlanUpgrade() {
           </CardContent>
           {!isPremiumActive && (
             <CardFooter>
-              <Button className="w-full" onClick={handleSubscribePremium}>
-                Renovar Plano Premium
+              <Button className="w-full" onClick={handleSubscribePremium} disabled={loadingPlan !== null}>
+                {loadingPlan === "premium" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Renovar Plano Premium"}
               </Button>
             </CardFooter>
           )}
@@ -167,8 +183,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleSubscribeMaster}>
-              Assinar Master
+            <Button className="w-full" onClick={handleSubscribeMaster} disabled={loadingPlan !== null}>
+              {loadingPlan === "master" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Assinar Master"}
             </Button>
           </CardFooter>
         </Card>
@@ -196,8 +212,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleSubscribePremium}>
-              Assinar Premium
+            <Button className="w-full" onClick={handleSubscribePremium} disabled={loadingPlan !== null}>
+              {loadingPlan === "premium" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Assinar Premium"}
             </Button>
           </CardFooter>
         </Card>
@@ -222,8 +238,8 @@ export function PlanUpgrade() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleSubscribeMaster}>
-              Assinar Master
+            <Button className="w-full" onClick={handleSubscribeMaster} disabled={loadingPlan !== null}>
+              {loadingPlan === "master" ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirecionando...</>) : "Assinar Master"}
             </Button>
           </CardFooter>
         </Card>

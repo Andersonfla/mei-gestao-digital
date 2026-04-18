@@ -53,12 +53,19 @@
     --sidebar-border: 220 20% 18%;
     --sidebar-ring: 217 91% 60%;
 
-    /* Premium Shadows & Effects */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.05);
-    --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.12);
+    /* Premium Shadows & Effects (Stripe/Vercel style) */
+    --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+    --shadow: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
+    --shadow-md: 0 4px 12px -2px rgb(15 23 42 / 0.06), 0 2px 4px -2px rgb(15 23 42 / 0.04);
+    --shadow-lg: 0 12px 28px -8px rgb(15 23 42 / 0.10), 0 4px 8px -4px rgb(15 23 42 / 0.05);
+    --shadow-xl: 0 24px 48px -12px rgb(15 23 42 / 0.14);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 8px 24px -8px hsl(var(--primary) / 0.25);
+
+    /* Premium gradients */
+    --gradient-app: radial-gradient(1200px 600px at 100% -10%, hsl(217 91% 60% / 0.06), transparent 60%),
+                    radial-gradient(800px 500px at -10% 110%, hsl(142 76% 45% / 0.05), transparent 60%);
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 50%));
+    --gradient-cta: linear-gradient(135deg, hsl(142 76% 45%), hsl(160 76% 40%));
 
     /* Smooth Transitions */
     --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

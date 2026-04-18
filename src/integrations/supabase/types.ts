@@ -563,7 +563,11 @@ export type Database = {
           plan: string | null
           role: string | null
           status: string
+          stripe_customer_id: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
           subscription_end: string | null
+          subscription_status: string | null
           transaction_count: number | null
           used_transactions: number
         }
@@ -579,7 +583,11 @@ export type Database = {
           plan?: string | null
           role?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
           subscription_end?: string | null
+          subscription_status?: string | null
           transaction_count?: number | null
           used_transactions?: number
         }
@@ -595,7 +603,11 @@ export type Database = {
           plan?: string | null
           role?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
           subscription_end?: string | null
+          subscription_status?: string | null
           transaction_count?: number | null
           used_transactions?: number
         }
@@ -656,6 +668,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stripe_webhook_events: {
+        Row: {
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          processed_at: string
+          status: string
+          stripe_event_id: string
+        }
+        Insert: {
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          processed_at?: string
+          status?: string
+          stripe_event_id: string
+        }
+        Update: {
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          processed_at?: string
+          status?: string
+          stripe_event_id?: string
+        }
+        Relationships: []
       }
       support_conversations: {
         Row: {

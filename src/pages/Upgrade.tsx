@@ -32,7 +32,13 @@ const Upgrade = () => {
           <div>
             <h3 className="font-medium">Quais formas de pagamento são aceitas?</h3>
             <p className="text-muted-foreground">
-              O sistema de pagamento está temporariamente indisponível. Entre em contato pelo suporte para mais informações.
+              Aceitamos cartão de crédito via Stripe. O pagamento é processado de forma segura e você pode gerenciar, atualizar ou cancelar sua assinatura a qualquer momento pelo portal do cliente.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-medium">Como cancelo minha assinatura?</h3>
+            <p className="text-muted-foreground">
+              No card do seu plano atual, clique em "Gerenciar assinatura" para abrir o portal seguro do Stripe. Lá você pode cancelar — o acesso continua até o fim do período já pago.
             </p>
           </div>
         </div>

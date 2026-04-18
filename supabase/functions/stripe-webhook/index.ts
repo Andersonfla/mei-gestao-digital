@@ -215,11 +215,13 @@ async function handleSubscriptionUpdated(event: Stripe.Event) {
 
   // Active plan only when subscription is in a paying state
   const payingStatuses = ["active", "trialing"];
+  const terminalStatuses = ["canceled", "unpaid", "incomplete_expired"];
   if (plan && payingStatuses.includes(sub.status)) {
     patch.plan = plan;
-  } else if (["canceled", "unpaid", "incomplete_expired"].includes(sub.status)) {
+  } else if (terminalStatuses.includes(sub.status)) {
     patch.plan = "free";
   }
+  // past_due / incomplete / paused: mantém plan atual; usuário ainda pode regularizar
 
   await updateProfile(userId, patch);
   return { ok: true, userId, plan: patch.plan };

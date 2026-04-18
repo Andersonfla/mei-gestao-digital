@@ -15,15 +15,14 @@ export function usePlanGuard() {
 
   const storedPlan: UserPlan = userSettings?.plan ?? "free";
 
-  // Effective plan = plan only if subscription is actually active
+  // Effective plan = plano só vale se a assinatura realmente está ativa.
+  // Master inválido NÃO vira premium — vira free. (Fix: antes caía em premium
+  // por causa do `(storedPlan === 'master') && isPremiumActive`.)
   let effectivePlan: UserPlan = "free";
-  if (storedPlan === "master" && isPremiumMasterActive) {
-    effectivePlan = "master";
-  } else if (
-    (storedPlan === "premium" || storedPlan === "master") &&
-    isPremiumActive
-  ) {
-    effectivePlan = "premium";
+  if (storedPlan === "master") {
+    if (isPremiumMasterActive) effectivePlan = "master";
+  } else if (storedPlan === "premium") {
+    if (isPremiumActive) effectivePlan = "premium";
   }
 
   const isFree = effectivePlan === "free";

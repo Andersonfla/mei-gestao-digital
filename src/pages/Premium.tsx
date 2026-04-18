@@ -1,5 +1,5 @@
 import { useFinance } from "@/contexts";
-import { usePlan } from "@/hooks/usePlan";
+import { usePlanGuard } from "@/hooks/usePlanGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ import { PlanManagementDialog } from "@/components/settings/PlanManagementDialog
 
 const Premium = () => {
   const { userSettings } = useFinance();
-  const { plan, isMaster, expirationDate } = usePlan();
+  const { isMaster } = usePlanGuard();
   const navigate = useNavigate();
   const [showManagementDialog, setShowManagementDialog] = useState(false);
 

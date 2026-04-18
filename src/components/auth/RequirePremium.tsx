@@ -1,23 +1,19 @@
 import { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
-import { useFinance } from "@/contexts";
 import { Loader2 } from "lucide-react";
+import { usePlanGuard } from "@/hooks/usePlanGuard";
 
 export const RequirePremium = () => {
-  const { isPremiumActive, isLoading } = useFinance();
+  const { isPremium, isLoading } = usePlanGuard();
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     if (!isLoading) {
-      // Small delay for better UX
-      const timer = setTimeout(() => {
-        setIsChecking(false);
-      }, 500);
+      const timer = setTimeout(() => setIsChecking(false), 300);
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
 
-  // Show loading state while checking premium status
   if (isChecking || isLoading) {
     return (
       <div className="flex h-screen flex-col items-center justify-center space-y-4">
@@ -27,11 +23,9 @@ export const RequirePremium = () => {
     );
   }
 
-  // Redirect to upgrade page if not premium
-  if (!isPremiumActive) {
+  if (!isPremium) {
     return <Navigate to="/upgrade" replace />;
   }
 
-  // If premium is active, render the protected routes
   return <Outlet />;
 };

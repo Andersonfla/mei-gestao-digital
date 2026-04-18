@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useFinance } from "@/contexts";
+import { usePlanGuard } from "@/hooks/usePlanGuard";
 import { useAuth } from "@/contexts";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -108,28 +109,23 @@ export function AppSidebar() {
     return location.pathname === path;
   };
 
-  // Build menu based on plan (free | premium | master)
-  const plan = userSettings?.plan ?? 'free';
-  const isPremiumOrMaster = plan === 'premium' || plan === 'master';
-  const isMaster = plan === 'master';
+  // Build menu using effective plan (respects subscription_status)
+  const { effectivePlan, isPremium: isPremiumOrMaster, isMaster, can } = usePlanGuard();
 
   const displayMenuItems: { path: string; label: string }[] = [
     { path: "/dashboard", label: "Dashboard" },
     ...(isPremiumOrMaster ? [{ path: "/premium", label: "Área Premium" }] : []),
     { path: "/transacoes", label: "Transações" },
     { path: "/relatorios", label: "Relatórios" },
-    // Precificação é exclusivo do Premium Master
-    ...(isMaster ? [{ path: "/precificacao", label: "Precificação" }] : []),
-    // Demais módulos exclusivos do Master
-    ...(isMaster
-      ? [
-          { path: "/metas-financeiras", label: "Metas Financeiras" },
-          { path: "/analise-automatica", label: "Análise Automática" },
-          { path: "/transacoes-recorrentes", label: "Transações Recorrentes" },
-        ]
+    // Master-exclusive modules
+    ...(can("pricing_module") ? [{ path: "/precificacao", label: "Precificação" }] : []),
+    ...(can("financial_goals") ? [{ path: "/metas-financeiras", label: "Metas Financeiras" }] : []),
+    ...(can("auto_analysis") ? [{ path: "/analise-automatica", label: "Análise Automática" }] : []),
+    ...(can("recurring_transactions")
+      ? [{ path: "/transacoes-recorrentes", label: "Transações Recorrentes" }]
       : []),
-    // Suporte prioritário para Premium e Master
-    ...(isPremiumOrMaster
+    // Priority support: Premium and Master
+    ...(can("priority_support")
       ? [{ path: "/suporte-prioritario", label: "Suporte Prioritário" }]
       : []),
     { path: "/configuracoes", label: "Configurações" },
@@ -196,7 +192,7 @@ export function AppSidebar() {
                       {userName}
                     </p>
                     <p className="text-xs text-sidebar-foreground/70 font-medium">
-                      {userSettings?.plan === 'master' ? '✨ Premium Master' : userSettings?.plan === 'premium' ? '⭐ Premium Pro' : '🎯 Gratuito'}
+                      {effectivePlan === 'master' ? '✨ Premium Master' : effectivePlan === 'premium' ? '⭐ Premium Pro' : '🎯 Gratuito'}
                     </p>
                   </div>
                 </div>
@@ -234,16 +230,16 @@ export function AppSidebar() {
                 <div className="rounded-xl bg-sidebar-accent/30 backdrop-blur-sm px-4 py-3 text-sidebar-foreground border border-sidebar-border/20">
                   <p className="text-xs font-medium text-sidebar-foreground/70 mb-1">Plano atual:</p>
                   <p className="font-bold text-base">
-                    {userSettings.plan === 'free' ? '🎯 Gratuito' : 
-                     userSettings.plan === 'master' ? '✨ Premium Master' : '⭐ Premium'}
+                    {effectivePlan === 'free' ? '🎯 Gratuito' :
+                     effectivePlan === 'master' ? '✨ Premium Master' : '⭐ Premium'}
                   </p>
-                  
+
                   {/* Use the TransactionLimitIndicator component */}
                   <TransactionLimitIndicator userSettings={userSettings} />
                 </div>
-                
-                {userSettings.plan === 'free' && (
-                  <Button 
+
+                {effectivePlan === 'free' && (
+                  <Button
                     className="w-full bg-gradient-to-r from-secondary to-primary text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
                     size="lg"
                     onClick={() => {

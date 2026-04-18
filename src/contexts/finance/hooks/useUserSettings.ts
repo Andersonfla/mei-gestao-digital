@@ -37,34 +37,35 @@ export function useUserSettings() {
     },
   });
 
-  // Check if premium plan has expired
+  // Detect expired premium/master and welcome on first activation
   useEffect(() => {
-    if ((userSettings?.plan === 'premium' || userSettings?.plan === 'master') && userSettings?.subscriptionEnd) {
-      const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
-      const currentDate = new Date();
-      
-      if (subscriptionEndDate < currentDate) {
-        // Premium plan has expired, trigger verification
-        refetchUserSettings();
-        
-        const planName = userSettings.plan === 'master' ? 'Premium Master' : 'Premium';
-        toast({
-          title: `⚠️ Plano ${planName} expirado`,
-          description: `Seu plano ${planName} expirou. Renove sua assinatura para continuar aproveitando os recursos avançados.`,
-          variant: "destructive",
-        });
-      }
-    } else if ((userSettings?.plan === 'premium' || userSettings?.plan === 'master') && userSettings?.subscriptionEnd) {
-      // Premium active - show success message once
-      const hasShownWelcome = sessionStorage.getItem('premium_welcome_shown');
-      if (!hasShownWelcome) {
-        const planName = userSettings.plan === 'master' ? 'Premium Master' : 'Premium';
-        toast({
-          title: `🎉 Plano ${planName} ativo!`,
-          description: "Aproveite todos os recursos exclusivos do seu plano.",
-        });
-        sessionStorage.setItem('premium_welcome_shown', 'true');
-      }
+    if (!userSettings) return;
+    const isPaid = userSettings.plan === 'premium' || userSettings.plan === 'master';
+    if (!isPaid || !userSettings.subscriptionEnd) return;
+
+    const subscriptionEndDate = new Date(userSettings.subscriptionEnd);
+    const expired = subscriptionEndDate < new Date();
+    const planName = userSettings.plan === 'master' ? 'Premium Master' : 'Premium';
+
+    if (expired) {
+      // Plano expirou: webhook deve fazer downgrade; força refetch
+      refetchUserSettings();
+      toast({
+        title: `⚠️ Plano ${planName} expirado`,
+        description: `Seu plano ${planName} expirou. Renove sua assinatura para continuar aproveitando os recursos avançados.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Plano ativo: mostra welcome uma vez por sessão
+    const hasShownWelcome = sessionStorage.getItem('premium_welcome_shown');
+    if (!hasShownWelcome) {
+      toast({
+        title: `🎉 Plano ${planName} ativo!`,
+        description: "Aproveite todos os recursos exclusivos do seu plano.",
+      });
+      sessionStorage.setItem('premium_welcome_shown', 'true');
     }
   }, [userSettings, refetchUserSettings, toast]);
 

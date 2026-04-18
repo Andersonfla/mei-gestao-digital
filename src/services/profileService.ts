@@ -63,8 +63,9 @@ export async function getUserSettings(): Promise<UserSettings> {
       .eq("year", currentYear)
       .single();
 
-    // Definir limite com base no plano
-    const transactionLimit = currentPlan === "premium" ? 999999 : 20;
+    // Definir limite com base no plano (premium e master = ilimitado)
+    const transactionLimit =
+      currentPlan === "premium" || currentPlan === "master" ? 999999 : 20;
     
     let transactionCountThisMonth = 0;
 

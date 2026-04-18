@@ -3,17 +3,17 @@ import { CustomCategoryManager } from "@/components/premium-master/CustomCategor
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, Wallet, Tag, FileText, TrendingUp, Database, Lock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFinance } from "@/contexts";
+import { usePlanGuard } from "@/hooks/usePlanGuard";
 import { Navigate } from "react-router-dom";
 
 const PremiumMaster = () => {
-  const { isPremiumMasterActive, isLoading } = useFinance();
+  const { isMaster, isLoading } = usePlanGuard();
 
   if (isLoading) {
     return <div className="p-6">Carregando...</div>;
   }
 
-  if (!isPremiumMasterActive) {
+  if (!isMaster) {
     return <Navigate to="/upgrade" replace />;
   }
 

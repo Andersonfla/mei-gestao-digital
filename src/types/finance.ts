@@ -45,6 +45,16 @@ export type PlanLimit = {
   limit_reached: boolean;
 };
 
+export type SubscriptionStatus =
+  | 'active'
+  | 'trialing'
+  | 'past_due'
+  | 'unpaid'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | null;
+
 export type UserSettings = {
   plan: UserPlan;
   darkMode: boolean;
@@ -53,6 +63,7 @@ export type UserSettings = {
   subscriptionEnd?: Date | null;
   usedTransactions: number;
   canceled_at?: Date | null;
+  subscriptionStatus?: SubscriptionStatus;
 };
 
 export type CategoryBreakdownItem = {

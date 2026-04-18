@@ -54,7 +54,7 @@ function App() {
                 <Sonner />
                 <ToastListener />
                 <OfflineIndicator />
-                <SidebarProvider>
+                <SidebarProvider defaultOpen={false}>
                   <FinanceProvider>
                     <Routes>
                         {/* Public routes */}

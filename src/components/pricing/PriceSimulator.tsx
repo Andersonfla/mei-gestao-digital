@@ -217,7 +217,6 @@ export function PriceSimulator() {
               </div>
             )}
 
-            <Button onClick={handleSimulate} className="w-full" disabled={totalCost <= 0 && currentPrice <= 0 && simulatedPrice <= 0}>
             <Button onClick={handleSimulate} className="w-full" disabled={totalCost <= 0 || (currentPrice <= 0 && simulatedPrice <= 0)}>
               <Calculator className="mr-2 h-4 w-4" /> Simular
             </Button>

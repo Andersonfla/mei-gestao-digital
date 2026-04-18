@@ -19,6 +19,15 @@ export function PricingOverview({ products, isLoading }: PricingOverviewProps) {
   }
 
   const activeProducts = products.filter((p) => p.is_active);
+
+  if (activeProducts.length === 0) {
+    return (
+      <PricingEmptyState
+        title="Nenhum produto ativo"
+        description="Você tem produtos cadastrados, mas todos estão inativos. Ative algum produto na aba Produtos para ver sua visão geral."
+      />
+    );
+  }
   const enriched = activeProducts.map((p) => {
     const cost = calcTotalCost(p);
     const margin = calcMarginPercent(p.sale_price || 0, cost);

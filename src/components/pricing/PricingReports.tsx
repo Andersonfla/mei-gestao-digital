@@ -98,10 +98,11 @@ export function PricingReports({ products, isLoading }: PricingReportsProps) {
 
   const lowMargin = enriched.filter((p) => p.margin < 20).sort((a, b) => a.margin - b.margin);
   const healthyMargin = enriched.filter((p) => p.margin >= 20).sort((a, b) => b.margin - a.margin);
-  const lowProfit = [...enriched].sort((a, b) => a.profit - b.profit).slice(0, 10);
+  const lowProfit = [...enriched].filter((p) => (p.sale_price || 0) > 0).sort((a, b) => a.profit - b.profit).slice(0, 10);
   const belowSuggested = enriched.filter((p) => (p.sale_price || 0) < p.suggestedPrice20 && p.totalCostVal > 0);
-  const byMargin = [...enriched].sort((a, b) => b.margin - a.margin);
-  const byProfit = [...enriched].sort((a, b) => b.profit - a.profit);
+  const withPrice = enriched.filter((p) => (p.sale_price || 0) > 0);
+  const byMargin = [...withPrice].sort((a, b) => b.margin - a.margin);
+  const byProfit = [...withPrice].sort((a, b) => b.profit - a.profit);
 
   return (
     <div className="space-y-6">

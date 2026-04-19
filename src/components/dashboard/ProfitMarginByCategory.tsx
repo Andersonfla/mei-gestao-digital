@@ -28,29 +28,29 @@ export function ProfitMarginByCategory() {
   
   if (marginData.length === 0) {
     return (
-      <Card className="shadow-lg border-l-4 border-l-primary">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
+      <Card className="border-border/60">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+            <TrendingUp className="w-4 h-4 text-primary" />
             Margem de Lucro por Categoria
           </CardTitle>
-          <CardDescription>Análise de rentabilidade por categoria</CardDescription>
+          <CardDescription className="text-xs">Análise de rentabilidade por categoria</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Sem dados disponíveis no período</p>
+          <p className="text-sm text-muted-foreground">Sem dados disponíveis no período</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="shadow-lg border-l-4 border-l-primary bg-gradient-to-br from-primary/5 via-transparent to-transparent">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-primary" />
+    <Card className="border-border/60">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+          <TrendingUp className="w-4 h-4 text-primary" />
           Margem de Lucro por Categoria
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs">
           Identifique seus produtos/serviços mais rentáveis
         </CardDescription>
       </CardHeader>

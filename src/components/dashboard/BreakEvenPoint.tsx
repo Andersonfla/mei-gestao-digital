@@ -26,13 +26,13 @@ export function BreakEvenPoint() {
   const dailyRevenueNeeded = stillNeeded / daysRemaining;
 
   return (
-    <Card className="shadow-lg border-l-4 border-l-primary bg-gradient-to-br from-primary/5 via-transparent to-transparent">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="w-5 h-5 text-primary" />
+    <Card className="border-border/60">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+          <Target className="w-4 h-4 text-primary" />
           Ponto de Equilíbrio (Break-Even)
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs">
           Análise do quanto você precisa faturar para cobrir custos
         </CardDescription>
       </CardHeader>

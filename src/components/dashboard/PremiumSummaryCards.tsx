@@ -51,10 +51,10 @@ export function PremiumSummaryCards() {
   const profitColor = profit >= 0 ? "hsl(var(--income))" : "hsl(var(--expense))";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-5">
-      {/* Saldo Total — featured (spans 3 of 6) */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5">
+      {/* Saldo Total — featured (spans 6 of 12) */}
       <Card
-        className="md:col-span-3 relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/[0.06] via-card to-card animate-scale-in transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+        className="sm:col-span-2 lg:col-span-6 relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/[0.06] via-card to-card animate-scale-in transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
         style={{ animationDelay: "0ms" }}
       >
         <div

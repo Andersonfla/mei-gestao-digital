@@ -175,8 +175,8 @@ function SecondaryMetricCard({
 }: SecondaryMetricCardProps) {
   return (
     <Card
-      className="md:col-span-1 lg:col-span-1 border-border/60 animate-scale-in transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-      style={{ animationDelay: `${delay}ms`, gridColumn: "span 1 / span 1" }}
+      className="lg:col-span-2 border-border/60 animate-scale-in transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+      style={{ animationDelay: `${delay}ms` }}
     >
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-3">

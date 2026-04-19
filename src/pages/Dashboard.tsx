@@ -65,27 +65,21 @@ const Dashboard = () => {
         <SummaryCards />
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6 animate-slide-up" style={{ animationDelay: "120ms" }}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-foreground/80 uppercase tracking-wider">
-              Últimas Transações
-            </h2>
-            <Button variant="outline" size="sm" onClick={() => navigate('/transacoes')} className="w-full sm:w-auto">
-              Ver todas
-            </Button>
-          </div>
-
-          <TransactionsTable />
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <TransactionChart type="entrada" />
-            <TransactionChart type="saida" />
-          </div>
+      <section className="space-y-6 animate-slide-up" style={{ animationDelay: "120ms" }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold text-foreground/80 uppercase tracking-wider">
+            Últimas Transações
+          </h2>
+          <Button variant="outline" size="sm" onClick={() => navigate('/transacoes')} className="w-full sm:w-auto">
+            Ver todas
+          </Button>
         </div>
 
-        <div className="animate-slide-up" style={{ animationDelay: "180ms" }}>
-          <TransactionForm />
+        <TransactionsTable />
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <TransactionChart type="entrada" />
+          <TransactionChart type="saida" />
         </div>
       </section>
     </div>

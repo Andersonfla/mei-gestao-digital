@@ -45,43 +45,49 @@ const Dashboard = () => {
   
   // Standard Dashboard for free and premium users
   return (
-    <div className="space-y-8 w-full max-w-full">
+    <div className="space-y-10 w-full max-w-full">
       <InstallPrompt />
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-12 sm:pt-0">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral das suas finanças</p>
+
+      <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 pt-12 sm:pt-0 animate-slide-up">
+        <div className="space-y-1">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+            Visão geral
+          </p>
+          <h1 className="text-3xl md:text-[2rem] font-semibold tracking-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">Acompanhe suas finanças do período</p>
         </div>
         <FilterPeriod />
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-4">
-        <div className="md:col-span-4">
-          <SummaryCards />
-        </div>
-      </div>
-      
-      <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-6">
+      </header>
+
+      <section className="animate-slide-up" style={{ animationDelay: "60ms" }}>
+        <SummaryCards />
+      </section>
+
+      <section className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6 animate-slide-up" style={{ animationDelay: "120ms" }}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h2 className="text-2xl font-semibold tracking-tight">Últimas Transações</h2>
-            <Button variant="outline" onClick={() => navigate('/transacoes')} className="w-full sm:w-auto">
+            <h2 className="text-sm font-semibold text-foreground/80 uppercase tracking-wider">
+              Últimas Transações
+            </h2>
+            <Button variant="outline" size="sm" onClick={() => navigate('/transacoes')} className="w-full sm:w-auto">
               Ver todas
             </Button>
           </div>
-          
+
           <TransactionsTable />
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             <TransactionChart type="entrada" />
             <TransactionChart type="saida" />
           </div>
         </div>
-        
-        <div>
+
+        <div className="animate-slide-up" style={{ animationDelay: "180ms" }}>
           <TransactionForm />
         </div>
-      </div>
+      </section>
     </div>
   );
 };

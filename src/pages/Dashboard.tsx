@@ -3,7 +3,7 @@ import { FilterPeriod } from "@/components/dashboard/FilterPeriod";
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { TransactionChart } from "@/components/dashboard/TransactionChart";
 import { TransactionsTable } from "@/components/dashboard/TransactionsTable";
-import { TransactionForm } from "@/components/transactions/TransactionForm";
+
 import { AdvancedDashboard } from "@/components/dashboard/AdvancedDashboard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -27,22 +27,14 @@ const Dashboard = () => {
   if (isPremiumMasterActive) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex justify-end">
           <FilterPeriod />
         </div>
-        
-        <div className="grid gap-6 md:grid-cols-4">
-          <div className="md:col-span-3">
-            <AdvancedDashboard />
-          </div>
-          <div>
-            <TransactionForm />
-          </div>
-        </div>
+        <AdvancedDashboard />
       </div>
     );
   }
-  
+
   // Standard Dashboard for free and premium users
   return (
     <div className="space-y-10 w-full max-w-full">
@@ -65,27 +57,21 @@ const Dashboard = () => {
         <SummaryCards />
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6 animate-slide-up" style={{ animationDelay: "120ms" }}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-foreground/80 uppercase tracking-wider">
-              Últimas Transações
-            </h2>
-            <Button variant="outline" size="sm" onClick={() => navigate('/transacoes')} className="w-full sm:w-auto">
-              Ver todas
-            </Button>
-          </div>
-
-          <TransactionsTable />
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <TransactionChart type="entrada" />
-            <TransactionChart type="saida" />
-          </div>
+      <section className="space-y-6 animate-slide-up" style={{ animationDelay: "120ms" }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold text-foreground/80 uppercase tracking-wider">
+            Últimas Transações
+          </h2>
+          <Button variant="outline" size="sm" onClick={() => navigate('/transacoes')} className="w-full sm:w-auto">
+            Ver todas
+          </Button>
         </div>
 
-        <div className="animate-slide-up" style={{ animationDelay: "180ms" }}>
-          <TransactionForm />
+        <TransactionsTable />
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <TransactionChart type="entrada" />
+          <TransactionChart type="saida" />
         </div>
       </section>
     </div>

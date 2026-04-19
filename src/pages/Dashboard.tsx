@@ -3,7 +3,7 @@ import { FilterPeriod } from "@/components/dashboard/FilterPeriod";
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { TransactionChart } from "@/components/dashboard/TransactionChart";
 import { TransactionsTable } from "@/components/dashboard/TransactionsTable";
-import { TransactionForm } from "@/components/transactions/TransactionForm";
+
 import { AdvancedDashboard } from "@/components/dashboard/AdvancedDashboard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";

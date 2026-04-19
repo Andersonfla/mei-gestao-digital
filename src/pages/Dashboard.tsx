@@ -27,22 +27,14 @@ const Dashboard = () => {
   if (isPremiumMasterActive) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex justify-end">
           <FilterPeriod />
         </div>
-        
-        <div className="grid gap-6 md:grid-cols-4">
-          <div className="md:col-span-3">
-            <AdvancedDashboard />
-          </div>
-          <div>
-            <TransactionForm />
-          </div>
-        </div>
+        <AdvancedDashboard />
       </div>
     );
   }
-  
+
   // Standard Dashboard for free and premium users
   return (
     <div className="space-y-10 w-full max-w-full">

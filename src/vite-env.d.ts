@@ -10,6 +10,8 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
+declare const __PWA_VERSION__: string;
+
 declare module 'virtual:pwa-register' {
   export interface RegisterSWOptions {
     immediate?: boolean;

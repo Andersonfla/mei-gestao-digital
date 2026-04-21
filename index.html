@@ -80,8 +80,11 @@
         navigator.serviceWorker.getRegistrations().then(function (regs) {
           regs.forEach(function (reg) {
             var url = reg.active && reg.active.scriptURL;
-            // Remove o SW manual antigo (/sw.js cache-first agressivo)
+            // Remove apenas o SW manual antigo (/sw.js). Não tocar no SW real do PWA.
             if (url && url.endsWith('/sw.js')) {
+              try {
+                reg.active && reg.active.postMessage({ type: 'LEGACY_SW_CLEAR' });
+              } catch (e) {}
               reg.unregister();
             }
           });
@@ -95,12 +98,17 @@
               k.startsWith('mei-financas-') ||
               k.startsWith('mei-static-') ||
               k.startsWith('mei-dynamic-') ||
+              k.startsWith('mei-financas-v1') ||
+              k.startsWith('mei-financas-v2') ||
+              k.startsWith('mei-financas-v3') ||
               k === 'supabase-cache' ||
               k === 'supabase-cache-v1' ||
               k === 'supabase-cache-v2' ||
+              k === 'supabase-cache-v3' ||
               k === 'images-cache' ||
               k === 'images-cache-v1' ||
-              k === 'images-cache-v2'
+              k === 'images-cache-v2' ||
+              k === 'images-cache-v3'
             ) {
               caches.delete(k);
             }

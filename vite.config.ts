@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: false, // registramos manualmente em src/main.tsx (com guarda iframe/preview)
       includeAssets: ['icons/*.png', 'pwa-assets/*.png'],
       manifest: {
         name: 'MEI Finanças - Controle Financeiro',
@@ -28,53 +29,41 @@ export default defineConfig(({ mode }) => ({
         scope: '/',
         start_url: '/',
         icons: [
-          {
-            src: '/icons/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icons/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
+          { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+          { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
+        clientsClaim: true,
+        skipWaiting: true,
+        cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/ucnajqoapngtearuafkv\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'supabase-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheName: 'supabase-cache-v2',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
           {
             urlPattern: /\.(png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
+              cacheName: 'images-cache-v2',
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }
             }
           }
         ]
       },
       devOptions: {
-        enabled: true,
+        // CRÍTICO: SW desativado em dev para não poluir o preview/iframe do Lovable
+        enabled: false,
         type: 'module'
       }
     })

@@ -72,18 +72,29 @@
     src="https://www.facebook.com/tr?id=1601400293892087&ev=PageView&noscript=1"/>
   </noscript>
 
-  <!-- Service Worker Registration -->
+  <!-- Service Worker é gerenciado pelo vite-plugin-pwa em src/main.tsx.
+       Aqui apenas removemos qualquer SW antigo (/sw.js manual) e caches obsoletos
+       para garantir que toda nova publicação substitua corretamente a versão antiga. -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then((registration) => {
-            console.log('SW registered: ', registration);
-          })
-          .catch((registrationError) => {
-            console.log('SW registration failed: ', registrationError);
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => {
+          // Remove o SW manual antigo localizado em /sw.js (cache-first agressivo)
+          if (reg.active && reg.active.scriptURL && reg.active.scriptURL.endsWith('/sw.js')) {
+            reg.unregister();
+          }
+        });
+      }).catch(() => {});
+      // Limpa caches antigos com nomes legados
+      if (window.caches) {
+        caches.keys().then((keys) => {
+          keys.forEach((k) => {
+            if (k.startsWith('mei-financas-') || k.startsWith('mei-static-') || k.startsWith('mei-dynamic-')) {
+              caches.delete(k);
+            }
           });
-      });
+        }).catch(() => {});
+      }
     }
   </script>
 

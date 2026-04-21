@@ -15,7 +15,9 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      filename: 'pwa-sw.js',
+      manifestFilename: 'manifest.json',
       injectRegister: false, // registramos manualmente em src/main.tsx (com guarda iframe/preview)
       includeAssets: ['icons/*.png', 'pwa-assets/*.png'],
       manifest: {
@@ -34,8 +36,9 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        cacheId: 'mei-financas-v4',
         clientsClaim: true,
-        skipWaiting: true,
+        skipWaiting: false,
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
@@ -45,7 +48,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /^https:\/\/ucnajqoapngtearuafkv\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'supabase-cache-v3',
+              cacheName: 'supabase-cache-v4',
               networkTimeoutSeconds: 5,
               expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
               cacheableResponse: { statuses: [0, 200] }
@@ -55,7 +58,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'images-cache-v3',
+              cacheName: 'images-cache-v4',
               expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }
             }
           }

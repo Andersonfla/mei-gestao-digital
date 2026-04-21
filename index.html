@@ -72,30 +72,42 @@
     src="https://www.facebook.com/tr?id=1601400293892087&ev=PageView&noscript=1"/>
   </noscript>
 
-  <!-- Service Worker é gerenciado pelo vite-plugin-pwa em src/main.tsx.
-       Aqui apenas removemos qualquer SW antigo (/sw.js manual) e caches obsoletos
-       para garantir que toda nova publicação substitua corretamente a versão antiga. -->
+  <!-- Limpeza de SW legado e caches obsoletos.
+       O PWA "vivo" é registrado em src/main.tsx via vite-plugin-pwa. -->
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((regs) => {
-        regs.forEach((reg) => {
-          // Remove o SW manual antigo localizado em /sw.js (cache-first agressivo)
-          if (reg.active && reg.active.scriptURL && reg.active.scriptURL.endsWith('/sw.js')) {
-            reg.unregister();
-          }
-        });
-      }).catch(() => {});
-      // Limpa caches antigos com nomes legados
+    (function () {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          regs.forEach(function (reg) {
+            var url = reg.active && reg.active.scriptURL;
+            // Remove o SW manual antigo (/sw.js cache-first agressivo)
+            if (url && url.endsWith('/sw.js')) {
+              reg.unregister();
+            }
+          });
+        }).catch(function () {});
+      }
       if (window.caches) {
-        caches.keys().then((keys) => {
-          keys.forEach((k) => {
-            if (k.startsWith('mei-financas-') || k.startsWith('mei-static-') || k.startsWith('mei-dynamic-')) {
+        caches.keys().then(function (keys) {
+          keys.forEach(function (k) {
+            // Remove caches legados (nomes antigos e versões anteriores v1/v2)
+            if (
+              k.startsWith('mei-financas-') ||
+              k.startsWith('mei-static-') ||
+              k.startsWith('mei-dynamic-') ||
+              k === 'supabase-cache' ||
+              k === 'supabase-cache-v1' ||
+              k === 'supabase-cache-v2' ||
+              k === 'images-cache' ||
+              k === 'images-cache-v1' ||
+              k === 'images-cache-v2'
+            ) {
               caches.delete(k);
             }
           });
-        }).catch(() => {});
+        }).catch(function () {});
       }
-    }
+    })();
   </script>
 
   <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->

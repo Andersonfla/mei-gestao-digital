@@ -1,14 +1,13 @@
-import { ToastAction } from '@/components/ui/toast';
 import { toast } from '@/hooks/use-toast';
 import { registerSW } from 'virtual:pwa-register';
 
 const LEGACY_CACHE_PREFIXES = [
-  'mei-financas-',
-  'mei-static-',
-  'mei-dynamic-',
   'mei-financas-v1',
   'mei-financas-v2',
   'mei-financas-v3',
+  'mei-financas-v4',
+  'mei-static-',
+  'mei-dynamic-',
 ];
 
 const LEGACY_CACHE_NAMES = new Set([
@@ -16,10 +15,12 @@ const LEGACY_CACHE_NAMES = new Set([
   'supabase-cache-v1',
   'supabase-cache-v2',
   'supabase-cache-v3',
+  'supabase-cache-v4',
   'images-cache',
   'images-cache-v1',
   'images-cache-v2',
   'images-cache-v3',
+  'images-cache-v4',
 ]);
 
 const UPDATE_POLL_INTERVAL = 60_000;
@@ -113,20 +114,17 @@ function showUpdateToast(applyUpdate: () => Promise<void>) {
   if (!hasShownUpdateToast) {
     hasShownUpdateToast = true;
     toast({
-      title: 'Nova versão disponível',
-      description: 'Atualizando o app para carregar a versão mais recente.',
-      duration: 10000,
-      action: (
-        <ToastAction altText="Atualizar agora" onClick={() => void applyUpdate()}>
-          Atualizar agora
-        </ToastAction>
-      ),
+      title: 'Atualizando…',
+      description: 'Carregando a versão mais recente do app.',
+      duration: 4000,
     });
   }
 
+  // Aplica imediatamente — com skipWaiting+clientsClaim o controllerchange
+  // dispara reload automático, sem depender de clique do usuário.
   autoApplyTimeout = window.setTimeout(() => {
     void applyUpdate();
-  }, AUTO_APPLY_DELAY);
+  }, 300);
 }
 
 function attachUpdateListeners(registration: ServiceWorkerRegistration, applyUpdate: () => Promise<void>) {

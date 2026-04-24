@@ -32,7 +32,7 @@
       "name": "Nova Transação",
       "short_name": "Nova",
       "description": "Adicionar nova receita ou despesa",
-      "url": "/dashboard",
+      "url": "/transacoes",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",

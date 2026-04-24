@@ -95,20 +95,22 @@
           keys.forEach(function (k) {
             // Remove caches legados (nomes antigos e versões anteriores v1/v2)
             if (
-              k.startsWith('mei-financas-') ||
-              k.startsWith('mei-static-') ||
-              k.startsWith('mei-dynamic-') ||
               k.startsWith('mei-financas-v1') ||
               k.startsWith('mei-financas-v2') ||
               k.startsWith('mei-financas-v3') ||
+              k.startsWith('mei-financas-v4') ||
+              k.startsWith('mei-static-') ||
+              k.startsWith('mei-dynamic-') ||
               k === 'supabase-cache' ||
               k === 'supabase-cache-v1' ||
               k === 'supabase-cache-v2' ||
               k === 'supabase-cache-v3' ||
+              k === 'supabase-cache-v4' ||
               k === 'images-cache' ||
               k === 'images-cache-v1' ||
               k === 'images-cache-v2' ||
-              k === 'images-cache-v3'
+              k === 'images-cache-v3' ||
+              k === 'images-cache-v4'
             ) {
               caches.delete(k);
             }

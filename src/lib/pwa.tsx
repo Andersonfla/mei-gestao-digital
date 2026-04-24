@@ -1,4 +1,3 @@
-import { ToastAction } from '@/components/ui/toast';
 import { toast } from '@/hooks/use-toast';
 import { registerSW } from 'virtual:pwa-register';
 

@@ -115,20 +115,17 @@ function showUpdateToast(applyUpdate: () => Promise<void>) {
   if (!hasShownUpdateToast) {
     hasShownUpdateToast = true;
     toast({
-      title: 'Nova versão disponível',
-      description: 'Atualizando o app para carregar a versão mais recente.',
-      duration: 10000,
-      action: (
-        <ToastAction altText="Atualizar agora" onClick={() => void applyUpdate()}>
-          Atualizar agora
-        </ToastAction>
-      ),
+      title: 'Atualizando…',
+      description: 'Carregando a versão mais recente do app.',
+      duration: 4000,
     });
   }
 
+  // Aplica imediatamente — com skipWaiting+clientsClaim o controllerchange
+  // dispara reload automático, sem depender de clique do usuário.
   autoApplyTimeout = window.setTimeout(() => {
     void applyUpdate();
-  }, AUTO_APPLY_DELAY);
+  }, 300);
 }
 
 function attachUpdateListeners(registration: ServiceWorkerRegistration, applyUpdate: () => Promise<void>) {

@@ -3,12 +3,12 @@ import { toast } from '@/hooks/use-toast';
 import { registerSW } from 'virtual:pwa-register';
 
 const LEGACY_CACHE_PREFIXES = [
-  'mei-financas-',
-  'mei-static-',
-  'mei-dynamic-',
   'mei-financas-v1',
   'mei-financas-v2',
   'mei-financas-v3',
+  'mei-financas-v4',
+  'mei-static-',
+  'mei-dynamic-',
 ];
 
 const LEGACY_CACHE_NAMES = new Set([
@@ -16,10 +16,12 @@ const LEGACY_CACHE_NAMES = new Set([
   'supabase-cache-v1',
   'supabase-cache-v2',
   'supabase-cache-v3',
+  'supabase-cache-v4',
   'images-cache',
   'images-cache-v1',
   'images-cache-v2',
   'images-cache-v3',
+  'images-cache-v4',
 ]);
 
 const UPDATE_POLL_INTERVAL = 60_000;

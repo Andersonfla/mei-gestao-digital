@@ -1,206 +1,43 @@
-import { motion } from "framer-motion";
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts";
+import { PLAN_LABELS, PLAN_PRICES, FREE_TRANSACTION_LIMIT } from "@/lib/planPermissions";
+import { formatCurrency } from "@/lib/formatters";
+import { UserPlan } from "@/types/finance";
+
+const plans: { plan: UserPlan; description: string; features: string[] }[] = [
+  { plan: "free", description: "Para começar a organizar suas contas", features: [`Até ${FREE_TRANSACTION_LIMIT} lançamentos por mês`, "Dashboard de receitas, despesas e resultado", "Relatórios básicos", "Categorização de transações"] },
+  { plan: "premium", description: "Para registrar sem limite mensal", features: ["Lançamentos ilimitados", "Tudo do plano Gratuito", "Categorias adicionais de despesas", "Exportação de relatórios em PDF", "Acesso ao suporte prioritário"] },
+  { plan: "master", description: "Para analisar e planejar seu negócio", features: ["Tudo do plano Premium", "Dashboard avançado com margem e ponto de equilíbrio", "Categorias adicionais de receitas", "Exportações em CSV e Excel", "Metas financeiras e análise automática", "Precificação e transações recorrentes"] },
+];
 
 export const PricingSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  const handleCTA = () => {
-    if (user) {
-      navigate("/dashboard");
-    } else {
-      navigate("/auth");
-    }
-  };
-
   return (
-    <section id="planos" className="py-24 bg-background">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
-            Planos Simples e Transparentes
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Escolha o plano ideal para o seu negócio. Sem taxas ocultas, sem surpresas.
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {/* Plano Gratuito */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-card border border-border rounded-2xl p-8 shadow-sm hover:shadow-md transition-all duration-300"
-          >
-            <h3 className="text-2xl font-bold mb-2 text-foreground">Gratuito</h3>
-            <div className="mb-6">
-              <span className="text-4xl font-bold text-foreground">R$ 0</span>
-              <span className="text-muted-foreground">/mês</span>
-            </div>
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-foreground">20 lançamentos por mês</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-foreground">Acesso ao dashboard intuitivo</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-foreground">Relatórios básicos</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-foreground">Categorização de transações</span>
-              </li>
-            </ul>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleCTA}
-            >
-              Começar Gratuitamente
-            </Button>
-          </motion.div>
-
-          {/* Plano Premium */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-card border border-border rounded-2xl p-8 shadow-sm hover:shadow-md transition-all duration-300"
-          >
-            <div>
-              <h3 className="text-2xl font-bold mb-2 text-foreground">Premium</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-foreground">R$ 19,90</span>
-                <span className="text-muted-foreground">/mês</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground font-semibold">Lançamentos ilimitados</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Dashboard completo e avançado</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Relatórios avançados</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Exportação de relatórios em PDF</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Suporte prioritário</span>
-                </li>
-              </ul>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleCTA}
-              >
-                Assinar Premium
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Plano Premium Master */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-card border-2 border-primary rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
-          >
-            <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
-              Recomendado
-            </div>
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"
-              animate={{
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <div className="relative z-10">
-              <h3 className="text-2xl font-bold mb-1 text-foreground">Premium Master</h3>
-              <p className="text-sm text-muted-foreground mb-4">Recursos profissionais completos</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-foreground">R$ 29,90</span>
-                <span className="text-muted-foreground">/mês</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground font-semibold">Tudo do Plano Premium</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Dashboard avançado</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Relatórios profissionais</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Gráficos adicionais detalhados</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Exportações avançadas</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Categorização inteligente</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Suporte VIP prioritário</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Acesso ao módulo de metas financeiras</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Acesso ao módulo de análise automática</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Acesso ao módulo de precificação</span>
-                </li>
-              </ul>
-              <Button
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                onClick={handleCTA}
-              >
-                Assinar Premium Master
-              </Button>
-            </div>
-          </motion.div>
+    <section id="planos" className="py-16 sm:py-24 bg-background scroll-mt-20">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-4 tracking-normal">Um plano para cada momento do seu MEI</h2>
+          <p className="text-base text-muted-foreground">Comece gratuitamente. Escolha mais recursos quando precisar.</p>
         </div>
+        <div className="grid md:grid-cols-3 gap-5">
+          {plans.map(({ plan, description, features }) => (
+            <article key={plan} className={`bg-card border rounded-lg p-6 flex flex-col ${plan === "premium" ? "border-primary shadow-md" : "border-border shadow-sm"}`}>
+              <h3 className="text-xl font-semibold text-foreground tracking-normal">{PLAN_LABELS[plan]}</h3>
+              <p className="text-sm text-muted-foreground mt-2 min-h-10">{description}</p>
+              <p className="my-6"><span className="text-3xl font-semibold text-foreground tabular-nums">{plan === "free" ? "R$ 0" : formatCurrency(PLAN_PRICES[plan])}</span><span className="text-sm text-muted-foreground">/mês</span></p>
+              <ul className="space-y-3 flex-1 mb-7">
+                {features.map(feature => <li key={feature} className="flex items-start gap-2 text-sm text-foreground"><Check className="w-4 h-4 text-secondary shrink-0 mt-0.5" aria-hidden="true" /><span>{feature}</span></li>)}
+              </ul>
+              <Button variant={plan === "free" ? "outline" : "default"} className={plan === "free" ? "w-full" : "w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"} onClick={() => navigate(user ? plan === "free" ? "/dashboard" : "/upgrade" : "/auth?tab=signup")}>
+                {plan === "free" ? user ? "Ir para o Dashboard" : "Começar Gratuitamente" : `Assinar ${PLAN_LABELS[plan]}`}
+              </Button>
+            </article>
+          ))}
+        </div>
+        {!user && <p className="text-center text-xs text-muted-foreground mt-5">Crie sua conta gratuita para começar. As assinaturas estão disponíveis em Planos, dentro da sua conta.</p>}
       </div>
     </section>
   );

@@ -1,17 +1,19 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { getAuthEntry } from "@/lib/authEntry";
 import { useAuth } from "@/contexts";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { useToast } from "@/hooks/use-toast";
 
 export function useAuthForm() {
   const navigate = useNavigate();
+  const { search } = useLocation();
   const { toast } = useToast();
   const { user, loading, signIn, signUp } = useAuth();
   const { validateLoginForm, validateSignupForm } = useFormValidation();
   
-  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+  const [activeTab, setActiveTab] = useState<"login" | "signup">(() => getAuthEntry(search).tab);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [signupSuccess, setSignupSuccess] = useState(false);

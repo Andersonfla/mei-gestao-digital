@@ -5,8 +5,8 @@ const steps = [
   {
     number: "1",
     icon: UserPlus,
-    title: "Crie sua conta em segundos",
-    description: "Cadastro rápido e descomplicado. Em menos de um minuto você estará pronto para começar.",
+    title: "Crie sua conta gratuita",
+    description: "Cadastre seu nome, email e senha. Confirme o email quando solicitado para acessar sua conta.",
   },
   {
     number: "2",
@@ -24,7 +24,7 @@ const steps = [
     number: "4",
     icon: TrendingUp,
     title: "Tome decisões com base em dados claros",
-    description: "Tenha insights valiosos sobre seu negócio e cresça com segurança e planejamento.",
+    description: "Compare receitas, despesas e resultados do período para planejar os próximos passos.",
   },
 ];
 

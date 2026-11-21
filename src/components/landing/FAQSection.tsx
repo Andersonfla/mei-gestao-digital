@@ -8,24 +8,24 @@ import {
 
 const faqs = [
   {
-    question: "O MEI Finanças é seguro?",
-    answer: "Sim, totalmente. Seus dados são protegidos com criptografia de ponta a ponta. Utilizamos os mais altos padrões de segurança da indústria para garantir que suas informações financeiras estejam sempre protegidas. Sua privacidade é nossa prioridade máxima.",
+    question: "Como acesso minhas informações?",
+    answer: "O acesso à sua conta é feito com email e senha. Não compartilhe sua senha. Em caso de dúvida sobre sua conta, entre em contato pelo canal de suporte.",
   },
   {
     question: "Posso usar no celular?",
-    answer: "Com certeza! O MEI Finanças é 100% responsivo e funciona perfeitamente em qualquer dispositivo - celular, tablet ou computador. Você pode gerenciar suas finanças de onde estiver, a qualquer momento.",
+    answer: "Você pode acessar pelo navegador do celular ou do computador. Também há a opção de instalar o app pelo menu Instalar App.",
   },
   {
-    question: "O que acontece com meus dados se eu cancelar?",
-    answer: "Você mantém total controle sobre seus dados. Antes de cancelar, você pode exportar todos os seus relatórios e informações. Após o cancelamento, seus dados ficam armazenados de forma segura por 30 dias, caso queira retornar. Depois desse período, eles são permanentemente removidos de nossos servidores.",
+    question: "Posso exportar meus relatórios?",
+    answer: "O plano Premium permite exportar relatórios em PDF. O Premium Master também oferece exportações em CSV e Excel. A exportação fica na página Relatórios e depende de um plano ativo.",
   },
   {
     question: "Como funciona o suporte prioritário do plano Premium?",
-    answer: "Assinantes Premium têm acesso a um canal de suporte exclusivo com tempo de resposta reduzido. Nossa equipe está disponível para ajudar você com qualquer dúvida ou necessidade, garantindo que seu negócio funcione sem interrupções.",
+    answer: "Premium e Premium Master têm acesso ao canal de suporte prioritário dentro da conta. O formulário público de suporte continua disponível para todos.",
   },
   {
     question: "Posso mudar de plano a qualquer momento?",
-    answer: "Sim! Você pode fazer upgrade para o plano Premium ou voltar para o plano Gratuito quando quiser, sem burocracia. As mudanças são aplicadas imediatamente, e você tem total flexibilidade para escolher o melhor momento.",
+    answer: "Na página Planos da sua conta, você pode consultar seu plano atual e as opções de assinatura. Os recursos pagos dependem da confirmação do pagamento e de uma assinatura ativa.",
   },
 ];
 

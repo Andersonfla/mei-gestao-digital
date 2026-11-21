@@ -20,8 +20,8 @@ export const AuthLayout = ({ activeTab, children, footerText }: AuthLayoutProps)
     },
     {
       icon: Shield,
-      title: "Segurança Total",
-      description: "Seus dados protegidos com criptografia avançada e backups automáticos na nuvem."
+      title: "Acesso à sua Conta",
+      description: "Entre com seu email e senha para acompanhar as finanças do seu MEI."
     },
     {
       icon: BarChart3,
@@ -142,14 +142,7 @@ export const AuthLayout = ({ activeTab, children, footerText }: AuthLayoutProps)
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="text-center lg:text-right"
               >
-                <div className="inline-flex items-center space-x-2 text-white/60 text-sm">
-                  <Shield className="w-4 h-4" />
-                  <span>Dados protegidos com SSL</span>
-                </div>
-                <div className="inline-flex items-center space-x-2 text-white/60 text-sm mt-2">
-                  <TrendingUp className="w-4 h-4" />
-                  <span>Mais de 10.000 MEIs confiam em nós</span>
-                </div>
+                <p className="text-white/80 text-sm">Comece no plano gratuito com até 20 lançamentos por mês.</p>
               </motion.div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { BalanceCard } from "@/components/dashboard/BalanceCard";
+import { FirstTransactionPrompt } from "@/components/dashboard/FirstTransactionPrompt";
 import { FilterPeriod } from "@/components/dashboard/FilterPeriod";
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { TransactionChart } from "@/components/dashboard/TransactionChart";
@@ -12,7 +12,7 @@ import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { isPremiumMasterActive, isLoading } = useFinance();
+  const { isPremiumMasterActive, isLoading, transactions } = useFinance();
   
   // Show loading state
   if (isLoading) {
@@ -30,6 +30,7 @@ const Dashboard = () => {
         <div className="flex justify-end">
           <FilterPeriod />
         </div>
+        {transactions.length === 0 && <FirstTransactionPrompt />}
         <AdvancedDashboard />
       </div>
     );
@@ -52,6 +53,8 @@ const Dashboard = () => {
         </div>
         <FilterPeriod />
       </header>
+
+      {transactions.length === 0 && <FirstTransactionPrompt />}
 
       <section className="animate-slide-up" style={{ animationDelay: "60ms" }}>
         <SummaryCards />

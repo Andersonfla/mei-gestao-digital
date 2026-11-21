@@ -1,21 +1,26 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, PieChart, Zap } from "lucide-react";
+import { ArrowDownUp, PieChart, Receipt, FileText } from "lucide-react";
 
 const benefits = [
   {
-    icon: ShieldCheck,
-    title: "Segurança em Primeiro Lugar",
-    description: "Seus dados são protegidos com criptografia de ponta. Sua privacidade e segurança são nossa prioridade máxima.",
+    icon: ArrowDownUp,
+    title: "Quanto entrou e quanto saiu",
+    description: "Acompanhe o total de receitas e despesas do mês no dashboard.",
   },
   {
     icon: PieChart,
-    title: "Dashboard Intuitivo",
-    description: "Visualize suas finanças em tempo real com gráficos claros e relatórios que fazem sentido para o seu negócio.",
+    title: "Resultado do seu negócio",
+    description: "Veja a diferença entre receitas e despesas do período: lucro ou prejuízo.",
   },
   {
-    icon: Zap,
-    title: "Simplicidade que Economiza Tempo",
-    description: "Feito para o MEI que não tem tempo a perder. Lance suas transações e organize tudo em segundos.",
+    icon: Receipt,
+    title: "Lançamentos organizados",
+    description: "Registre data, valor e categoria para consultar suas receitas e despesas.",
+  },
+  {
+    icon: FileText,
+    title: "Relatórios para acompanhar",
+    description: "Consulte os resultados por período. Exporte em PDF com Premium e também em CSV e Excel com Master.",
   },
 ];
 
@@ -34,11 +39,11 @@ export const NewBenefitsSection = () => {
             Por que escolher o MEI Finanças?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Desenvolvido especialmente para MEIs que buscam simplicidade, segurança e resultados
+            Seus lançamentos reunidos para entender as finanças do seu MEI
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
             return (
@@ -49,7 +54,7 @@ export const NewBenefitsSection = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ scale: 1.03 }}
-                className="bg-card border border-border rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 group"
+                className="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 group"
               >
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                   <Icon className="w-8 h-8 text-primary" />

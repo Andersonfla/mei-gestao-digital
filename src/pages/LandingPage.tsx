@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts";
 import { NewBenefitsSection } from "@/components/landing/NewBenefitsSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { DashboardPreview } from "@/components/landing/DashboardPreview";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { FAQSection } from "@/components/landing/FAQSection";
@@ -17,7 +17,7 @@ export default function LandingPage() {
     if (user) {
       navigate("/dashboard");
     } else {
-      navigate("/auth");
+      navigate("/auth?tab=signup");
     }
   };
 
@@ -45,30 +45,30 @@ export default function LandingPage() {
               className="h-10 w-auto"
             />
             <div>
-              <h1 className="font-bold text-lg text-foreground">MEI Finanças</h1>
+              <span className="font-bold text-lg text-foreground">MEI Finanças</span>
               <p className="text-xs text-muted-foreground">Gestão Simplificada</p>
             </div>
           </Link>
           
           <nav className="hidden md:flex items-center gap-8">
-            <button 
+            <Button variant="ghost"
               onClick={() => scrollToSection('beneficios')}
               className="text-muted-foreground hover:text-primary transition"
             >
               Benefícios
-            </button>
-            <button 
+            </Button>
+            <Button variant="ghost"
               onClick={() => scrollToSection('como-funciona')}
               className="text-muted-foreground hover:text-primary transition"
             >
               Como Funciona
-            </button>
-            <button 
+            </Button>
+            <Button variant="ghost"
               onClick={() => scrollToSection('planos')}
               className="text-muted-foreground hover:text-primary transition"
             >
               Planos
-            </button>
+            </Button>
             <Link to="/install" className="text-muted-foreground hover:text-primary transition">
               Instalar App
             </Link>
@@ -91,8 +91,8 @@ export default function LandingPage() {
                 <Link to="/auth">
                   <Button variant="outline">Entrar</Button>
                 </Link>
-                <Link to="/auth">
-                  <Button variant="default" className="bg-primary hover:bg-primary/90">
+                <Link to="/auth?tab=signup" className="hidden sm:block">
+                  <Button variant="default" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
                     Criar Conta Gratuitamente
                   </Button>
                 </Link>
@@ -102,144 +102,25 @@ export default function LandingPage() {
         </div>
       </motion.header>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
-        {/* Background animado sutil */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none">
-          <motion.div
-            className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-          <motion.div
-            className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"
-            animate={{
-              scale: [1.2, 1, 1.2],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1,
-            }}
-          />
-        </div>
-
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Texto */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <motion.h1
-                className="text-5xl md:text-6xl font-bold leading-tight mb-6 text-foreground"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-              >
-                A segurança e a simplicidade que suas finanças como MEI{" "}
-                <span className="text-primary">merecem</span>
-              </motion.h1>
-              
-              <motion.p
-                className="text-xl text-muted-foreground mb-8 leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-              >
-                Tome o controle financeiro do seu negócio com uma plataforma intuitiva, 
-                segura e feita para você. Organize-se em minutos e foque no que realmente 
-                importa: o crescimento da sua empresa.
-              </motion.p>
-
-              <motion.div
-                className="flex flex-col sm:flex-row gap-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-              >
-                <Button 
-                  size="lg"
-                  className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
-                  onClick={handleCTA}
-                >
-                  Começar Gratuitamente
-                </Button>
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  className="text-lg px-8 py-6"
-                  onClick={() => scrollToSection('como-funciona')}
-                >
-                  Ver Como Funciona
-                </Button>
-              </motion.div>
-            </motion.div>
-
-            {/* Mockup do Dashboard */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.3 }}
-              className="relative"
-            >
-              <div className="relative bg-card border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm">
-                <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-8">
-                  <motion.div
-                    animate={{
-                      y: [0, -10, 0],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <img 
-                      src="/lovable-uploads/5e39902a-2bd1-42c2-9a26-0af80a9d1669.png" 
-                      alt="Dashboard Preview" 
-                      className="w-full h-auto rounded-lg shadow-lg"
-                    />
-                  </motion.div>
-                </div>
-              </div>
-              
-              {/* Elementos decorativos */}
-              <motion.div
-                className="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-2xl"
-                animate={{
-                  scale: [1, 1.3, 1],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-              <motion.div
-                className="absolute -bottom-4 -left-4 w-32 h-32 bg-secondary/20 rounded-full blur-2xl"
-                animate={{
-                  scale: [1.3, 1, 1.3],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 1.5,
-                }}
-              />
-            </motion.div>
+      <section className="pt-28 sm:pt-32 pb-12 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <p className="text-sm font-semibold text-primary mb-4">MEI Finanças</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-foreground tracking-normal mb-5">
+              Você trabalha o mês inteiro. Mas sabe quanto realmente lucrou?
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-7">
+              Controle suas receitas, despesas e resultados em um só lugar. Organize as finanças do seu MEI de maneira simples.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={handleCTA}>
+                {user ? "Ir para o Dashboard" : "Começar Gratuitamente"}
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => scrollToSection('como-funciona')}>Ver Como Funciona</Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">Plano gratuito · até 20 lançamentos por mês</p>
           </div>
+          <DashboardPreview />
         </div>
       </section>
 
@@ -247,7 +128,6 @@ export default function LandingPage() {
       <NewBenefitsSection />
       <HowItWorksSection />
       <PricingSection />
-      <TestimonialsSection />
       <FAQSection />
 
       {/* Rodapé */}
@@ -272,7 +152,7 @@ export default function LandingPage() {
               <h3 className="font-semibold mb-4 text-foreground">Links Rápidos</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary transition">
+                  <Link to="/auth?tab=signup" className="text-sm text-muted-foreground hover:text-primary transition">
                     Criar Conta
                   </Link>
                 </li>
@@ -308,7 +188,7 @@ export default function LandingPage() {
           
           <div className="pt-8 border-t border-border text-center">
             <p className="text-sm text-muted-foreground">
-              © 2025 MEI Finanças. Todos os direitos reservados.
+              © {new Date().getFullYear()} MEI Finanças. Todos os direitos reservados.
             </p>
           </div>
         </div>
